@@ -4,7 +4,6 @@
     xmlns:mvc="sap.ui.core.mvc"
     xmlns:core="sap.ui.core"
     xmlns:f="sap.ui.layout.form"
-    xmlns:custom="ui5.testapp.model.formatter"
     displayBlock="true">
 
 
@@ -186,14 +185,15 @@
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Оттиски" />
                             <Input id="overprint"
-                                core:require="{ Formatter : 'ui5/testapp/model/formatter' }"
+                                core:require="{
+                                    Formatter: 'ui5/testapp/model/formatter'
+                                }"
                                 value="{
-                                    path: 'data/',
-                                    formatter: 'Formatter.calculateOverprints.bind($controller)',
-                                    parameters: { 
-                                        meters: '{data>/printMeters}', 
-                                        reportLength: '{data>/reportLength}' 
-                                    } 
+                                    parts : [
+                                        {path: 'data>/printMeters'}, 
+                                        {path: 'data>/reportLength'}
+                                    ],
+                                    formatter: 'Formatter.calculateOverprints'
                                 }"
                             />
                         </VBox>
@@ -205,8 +205,9 @@
                         <VBox width="100%">
                             <Label text="Вес срыва:" />
                             <Input id="disruptWeight"
-                                liveChange=".onDisruptWeightChange"
-                                placeholder="Вес срыва" />
+                                placeholder="Вес срыва"
+                                value="{data>/disruptWeight}"
+                            />
                             <Text
                                 text="При срыве более 50 кг необходимо заполнить поля Брак" />
                         </VBox>
@@ -219,8 +220,9 @@
                             <OverflowToolbar>
                                 <content>
                                     <Title text="Брак" level="H2" />
-                                    <Switch id="defectSwitch" state="{= ${data>/switch/defect}}"
-                                        change=".onSwitchChange" customTextOn=" " customTextOff=" " />
+                                    <Switch id="defectSwitch"
+                                        state="{= ${data>/disruptWeight} > 50}"
+                                        customTextOn=" " customTextOff=" " />
                                     <ToolbarSpacer />
                                     <Button icon="sap-icon://add" text="Добавить брак"
                                         press="handleAddBrak" />
@@ -240,7 +242,7 @@
                                 <Select
                                     forceSelection="false"
                                     width="100%"
-                                    enabled="{= ${data>/switch/defect}}"
+                                    enabled="{= ${data>/disruptWeight} > 50}"
                                     items="{path: 'defect>/Defect'}"
                                     selectedKey="{state>defect}"
                                 >
@@ -249,7 +251,7 @@
                                 <Input
                                     value="{state>comment}"
                                     placeholder="Комментарий, содержащий информацию о браке рулона"
-                                    enabled="{= ${data>/switch/defect}}" />
+                                    enabled="{= ${data>/disruptWeight} > 50}" />
                             </ColumnListItem>
                         </items>
                     </Table>
@@ -261,8 +263,7 @@
                                 <content>
                                     <Title text="Простой" level="H2" />
                                     <Switch id="downTimeSwitch"
-                                        state="{= ${data>/switch/downTime}}"
-                                        change=".onSwitchChange"
+                                        state="{data>/switch/downTime}"
                                         customTextOn=" "
                                         customTextOff=" "
                                     />
