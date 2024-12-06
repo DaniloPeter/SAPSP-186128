@@ -1,0 +1,10 @@
+{
+  "DownTime": [
+    { "key": 0, "name": "downtime 0" },
+    { "key": 1, "name": "downtime 1" },
+    { "key": 2, "name": "downtime 2" },
+    { "key": 3, "name": "downtime 3" },
+    { "key": 4, "name": "downtime 4" },
+    { "key": 5, "name": "downtime 5" }
+  ]
+}

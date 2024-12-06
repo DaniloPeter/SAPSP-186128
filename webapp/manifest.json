@@ -1,0 +1,127 @@
+{
+  "_version": "1.58.0",
+  "sap.app": {
+    "id": "ui5.testapp",
+    "type": "application",
+    "title": "Test Application",
+    "applicationVersion": {
+      "version": "1.0.0"
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "routing": {
+      "config": {
+        "routerClass": "sap.m.routing.Router",
+        "type": "View",
+        "viewType": "XML",
+        "path": "ui5.testapp.view",
+        "controlId": "app",
+        "controlAggregation": "pages"
+      },
+      "routes": [
+        {
+          "pattern": "",
+          "name": "home",
+          "target": "home"
+        }
+      ],
+      "targets": {
+        "home": {
+          "id": "homePage",
+          "name": "Home"
+        }
+      }
+    },
+    "dependencies": {
+      "minUI5Version": "1.108.0",
+      "libs": {
+        "sap.ui.core": {},
+        "sap.ui.comp": {},
+        "sap.m": {},
+        "sap.f": {}
+      }
+    },
+    "contentDensities": { "cozy": true, "compact": false },
+    "models": {
+      "line": {
+        "type": "sap.ui.model.json.JSONModel",
+        "uri": "localService/mockdata/Line.json"
+      },
+      "order": {
+        "type": "sap.ui.model.json.JSONModel",
+        "uri": "localService/mockdata/Order.json"
+      },
+      "shift": {
+        "type": "sap.ui.model.json.JSONModel",
+        "uri": "localService/mockdata/Shift.json"
+      },
+      "downTime": {
+        "type": "sap.ui.model.json.JSONModel",
+        "uri": "localService/mockdata/DownTime.json"
+      },
+      "crew": {
+        "type": "sap.ui.model.json.JSONModel",
+        "uri": "localService/mockdata/Crew.json"
+      },
+      "engineer": {
+        "type": "sap.ui.model.json.JSONModel",
+        "uri": "localService/mockdata/Engineer.json"
+      },
+      "defect": {
+        "type": "sap.ui.model.json.JSONModel",
+        "uri": "localService/mockdata/Defect.json"
+      },
+      "resource": {
+        "type": "sap.ui.model.json.JSONModel",
+        "uri": "localService/mockdata/Resource.json"
+      },
+      "state": {
+        "type": "sap.ui.model.json.JSONModel",
+        "settings": {
+          "table": {
+            "busy": false,
+            "items": [
+              {
+                "downTimeType": 0,
+                "dateBegin": null,
+                "time": null,
+                "downTimeReason": null
+              },
+              {
+                "downTimeType": 1,
+                "dateBegin": null,
+                "time": null,
+                "downTimeReason": null
+              }
+            ]
+          },
+          "braks": {
+            "busy": false,
+            "items": [
+              {
+                "defect": 4,
+                "comment": ""
+              }
+            ]
+          }
+        }
+      }
+    },
+    "rootView": {
+      "viewName": "ui5.testapp.view.App",
+      "type": "XML",
+      "id": "app"
+    },
+    "resources": {
+      "css": [{ "uri": "css/style.css" }]
+    }
+  }
+}

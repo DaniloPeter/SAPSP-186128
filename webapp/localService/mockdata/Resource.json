@@ -1,0 +1,10 @@
+{
+  "Resource": [
+    { "key": 0, "name": "resource 0" },
+    { "key": 1, "name": "resource 1" },
+    { "key": 2, "name": "resource 2" },
+    { "key": 3, "name": "resource 3" },
+    { "key": 4, "name": "resource 4" },
+    { "key": 5, "name": "resource 5" }
+  ]
+}

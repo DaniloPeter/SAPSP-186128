@@ -1,0 +1,348 @@
+<mvc:View
+    controllerName="ui5.testapp.controller.Home"
+    xmlns="sap.m"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns:core="sap.ui.core"
+    xmlns:f="sap.ui.layout.form"
+    xmlns:custom="ui5.testapp.model.formatter"
+    displayBlock="true">
+
+
+    <Page>
+        <customHeader>
+            <Toolbar>
+                <ToolbarSpacer />
+                <Title text="Опросный лист" />
+                <ToolbarSpacer />
+            </Toolbar>
+        </customHeader>
+        <content>
+            <VBox class="sapUiSmallMargin">
+                <VBox class="sapUiSmallMarginBottom sapUiFormResGrid sapUiFormBackgrTranslucent">
+                    <HBox>
+                        <VBox width="100%" class="sapUiSmallMarginEnd">
+                            <Label text="Завод:" />
+                            <Input id="inputWork"
+                                class="sapUiNoMarginTop"
+                                value="1234"
+                                maxLength="4" />
+                        </VBox>
+                        <VBox width="100%" class="sapUiSmallMarginEnd">
+                            <Label text="Ресурс:" />
+                            <Select forceSelection="false" id="resourceSelect"
+                                selectedKey="{data>/resource}"
+                                width="100%"
+                                items="{path: 'resource>/Resource'}"
+                            >
+                                <core:Item key="{resource>key}" text="{resource>name}" />
+                            </Select>
+                        </VBox>
+                        <VBox width="100%" class="sapUiSmallMarginEnd">
+                            <Label text="Склад:" />
+                            <Select width="100%" forceSelection="false" id="orderSelect"
+                                items="{ path: 'order>/Order'}"
+                                selectedKey="{data>/order}"
+                            >
+                                <core:Item key="{order>key}" text="{order>name}" />
+                            </Select>
+                        </VBox>
+                        <VBox width="100%">
+                            <Label text="Режим флексопечати:" />
+                            <Select forceSelection="false" id="lineSelect"
+                                selectedKey="{data>/line}"
+                                width="100%"
+                                items="{path: 'line>/Line'}"
+                            >
+                                <core:Item key="{line>key}" text="{line>name}" />
+                            </Select>
+                        </VBox>
+                    </HBox>
+                    <HBox>
+                        <VBox width="100%" class="sapUiSmallMarginEnd">
+                            <Label text="Дата и время:" />
+                            <DateTimePicker id="dateTimePicker"
+                                width="100%"
+                                displayFormat="dd.MM.yyyy HH:mm:ss"
+                                placeholder="00.00.0000 00:00:00"
+                            />
+                        </VBox>
+                        <VBox width="100%" class="sapUiSmallMarginEnd">
+                            <Label text="Смена:" />
+                            <Select id="shiftSelect"
+                                forceSelection="false"
+                                width="100%"
+                                items="{path: 'shift>/Shift'}"
+                                selectedKey="{data>/shift}"
+                            >
+                                <core:Item key="{shift>key}" text="{shift>name}" />
+                            </Select>
+                        </VBox>
+                        <VBox width="100%">
+                            <Label text="Бригада:" />
+                            <Select id="crewSelect"
+                                forceSelection="false"
+                                width="100%"
+                                items="{path: 'crew>/Crew'}"
+                                selectedKey="{data>/crew}"
+                            >
+                                <core:Item key="{crew>key}" text="{crew>name}" />
+                            </Select>
+                        </VBox>
+                    </HBox>
+                </VBox>
+                <HBox class="sapUiSmallMarginBottom">
+                    <VBox
+                        class="sapUiFormResGrid sapUiFormBackgrTranslucent sapUiSmallMarginEnd"
+                        width="100%">
+                        <Title text="Заказ" />
+                        <VBox>
+                            <Label text="Заказ" />
+                            <Input id="techNumber" placeholder="Номер технологического заказа" />
+                        </VBox>
+                        <VBox>
+                            <Label text="Клише" />
+                            <Input id="cliche" value="1234A" />
+                        </VBox>
+                        <VBox>
+                            <Label text="Описание клише" />
+                            <Input id="clicheDescription" placeholder="Описание клише" />
+                        </VBox>
+                        <VBox>
+                            <Label text="Скорость машины" />
+                            <Input id="machineSpeed" placeholder="Скорость машины" />
+                        </VBox>
+                        <VBox>
+                            <Label text="Печатник высокой печати" />
+                            <Input id="printName" placeholder="ФИО печатника" />
+                        </VBox>
+                        <VBox>
+                            <Label text="Инженер по качеству" />
+                            <Select id="engineerSelect"
+                                forceSelection="false"
+                                width="100%"
+                                items="{path: 'engineer>/Engineer'}"
+                                selectedKey="{data>/engineer}"
+                            >
+                                <core:Item key="{engineer>key}"
+                                    text="{engineer>name}" />
+                            </Select>
+                        </VBox>
+                    </VBox>
+                    <VBox class="sapUiFormResGrid sapUiFormBackgrTranslucent" width="100%">
+                        <Title text="Рулон" />
+                        <VBox>
+                            <Label text="№ Рулона 1" />
+                            <Input id="rollNumberOne" placeholder="Номер рулона 1" />
+                        </VBox>
+                        <VBox>
+                            <Label text="Формат исходного рулона 1" />
+                            <Input id="printRollFormat1"
+                                placeholder="Формат исходного рулона 1" />
+                        </VBox>
+                        <VBox>
+                            <Label text="Радиус остатка 1" />
+                            <Input id="remainNumberOne"
+                                placeholder="Радиус остатка 1" />
+
+                        </VBox>
+                        <VBox>
+                            <Label text="№ Рулона 2" />
+                            <Input id="rollNumberTwo" placeholder="Номер рулона 2" />
+                        </VBox>
+                        <VBox>
+                            <Label text="Формат исходного рулона 2" />
+                            <Input id="printRollFormat2"
+                                placeholder="Формат исходного рулона 2" />
+                        </VBox>
+                        <VBox>
+                            <Label text="Радиус остатка 2" />
+                            <Input id="remainNumberTwo"
+                                placeholder="Радиус остатка 2" />
+                        </VBox>
+                    </VBox>
+                </HBox>
+                <VBox class="sapUiFormResGrid sapUiFormBackgrTranslucent sapUiSmallMarginBottom">
+                    <HBox width="100%">
+                        <VBox width="100%" class="sapUiSmallMarginEnd">
+                            <Label text="Формат запечатанного рулона" />
+                            <Input id="printRollFormat22"
+                                placeholder="Формат запечатанного рулона" />
+                        </VBox>
+                        <VBox width="100%" class="sapUiSmallMarginEnd">
+                            <Label text="Погонные метры" />
+                            <Input
+                                id="printMeters"
+                                value="{data>/printMeters}"
+                                placeholder="Метраж выходящего погонного рулона" />
+                        </VBox>
+                        <VBox width="100%">
+                            <Label text="Длина рапорта" />
+                            <Input id="reportLength"
+                                value="{data>/reportLength}"
+                                placeholder="Длина рапорта" />
+                        </VBox>
+                    </HBox>
+                    <HBox width="100%">
+                        <VBox width="100%" class="sapUiSmallMarginEnd">
+                            <Label text="Оттиски" />
+                            <Input id="overprint"
+                                core:require="{ Formatter : 'ui5/testapp/model/formatter' }"
+                                value="{
+                                    path: 'data/',
+                                    formatter: 'Formatter.calculateOverprints.bind($controller)',
+                                    parameters: { 
+                                        meters: '{data>/printMeters}', 
+                                        reportLength: '{data>/reportLength}' 
+                                    } 
+                                }"
+                            />
+                        </VBox>
+                        <VBox width="100%" class="sapUiSmallMarginEnd">
+                            <Label text="Диаметр запечатанного рулона" />
+                            <Input id="rollDiameter"
+                                placeholder="Диаметр запечатанного рулона" />
+                        </VBox>
+                        <VBox width="100%">
+                            <Label text="Вес срыва:" />
+                            <Input id="disruptWeight"
+                                liveChange=".onDisruptWeightChange"
+                                placeholder="Вес срыва" />
+                            <Text
+                                text="При срыве более 50 кг необходимо заполнить поля Брак" />
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <VBox class="sapUiTinyMarginBottom sapUiFormResGrid sapUiFormBackgrTranslucent">
+                    <Table items="{state>/braks/items}">
+                        <headerToolbar>
+                            <OverflowToolbar>
+                                <content>
+                                    <Title text="Брак" level="H2" />
+                                    <Switch id="defectSwitch" state="{= ${data>/switch/defect}}"
+                                        change=".onSwitchChange" customTextOn=" " customTextOff=" " />
+                                    <ToolbarSpacer />
+                                    <Button icon="sap-icon://add" text="Добавить брак"
+                                        press="handleAddBrak" />
+                                </content>
+                            </OverflowToolbar>
+                        </headerToolbar>
+                        <columns>
+                            <Column>
+                                <Text text="Объект брака" />
+                            </Column>
+                            <Column>
+                                <Text text="Вид брака" />
+                            </Column>
+                        </columns>
+                        <items>
+                            <ColumnListItem>
+                                <Select
+                                    forceSelection="false"
+                                    width="100%"
+                                    enabled="{= ${data>/switch/defect}}"
+                                    items="{path: 'defect>/Defect'}"
+                                    selectedKey="{state>defect}"
+                                >
+                                    <core:Item key="{defect>key}" text="{defect>name}" />
+                                </Select>
+                                <Input
+                                    value="{state>comment}"
+                                    placeholder="Комментарий, содержащий информацию о браке рулона"
+                                    enabled="{= ${data>/switch/defect}}" />
+                            </ColumnListItem>
+                        </items>
+                    </Table>
+                </VBox>
+                <VBox class="sapUiTinyMarginBottom sapUiFormResGrid sapUiFormBackgrTranslucent">
+                    <Table items="{state>/table/items}">
+                        <headerToolbar>
+                            <OverflowToolbar>
+                                <content>
+                                    <Title text="Простой" level="H2" />
+                                    <Switch id="downTimeSwitch"
+                                        state="{= ${data>/switch/downTime}}"
+                                        change=".onSwitchChange"
+                                        customTextOn=" "
+                                        customTextOff=" "
+                                    />
+                                    <ToolbarSpacer />
+                                    <Button icon="sap-icon://add" text="Добавить простой"
+                                        press="handleAddDowntime" />
+                                </content>
+                            </OverflowToolbar>
+                        </headerToolbar>
+                        <columns>
+                            <Column>
+                                <Text text="Тип простоя" />
+                            </Column>
+                            <Column>
+                                <Text text="Начало простоя" />
+                            </Column>
+
+                            <Column>
+                                <Text text="Конец простоя" />
+                            </Column>
+                            <Column>
+                                <Text text="Время простоя, часов, минут" />
+                            </Column>
+                            <Column>
+                                <Text text="Причина простоя" />
+                            </Column>
+                        </columns>
+                        <items>
+                            <ColumnListItem>
+                                <Select forceSelection="false" id="downTimeSelect"
+                                    enabled="{= ${data>/switch/downTime}}"
+                                    items="{
+                                            path: 'downTime>/DownTime',
+                                            templateShareable: false
+                                    }"
+                                    selectedKey="{state>downTimeType}">
+                                    <core:Item key="{downTime>key}" text="{downTime>name}" />
+                                </Select>
+                                <TimePicker id="dateBeginItem"
+                                    enabled="{= ${data>/switch/downTime}}"
+                                    dateValue="{state>dateBegin}"
+                                    change=".onDateChange2"
+                                    displayFormat="HH:mm"
+                                    valueFormat="HH:mm"
+                                    placeholder="--:--"
+                                />
+                                <TimePicker id="downTimeItem"
+                                    enabled="{= ${data>/switch/downTime}}"
+                                    dateValue="{state>downTime}"
+                                    valueFormat="HH:mm"
+                                    displayFormat="HH:mm"
+                                    change="handleChange"
+                                    placeholder="--:--" />
+                                <TimePicker id="dateBeginItem2"
+                                    enabled="{= ${data>/switch/downTime}}"
+                                    dateValue="{state>dateBegin}"
+                                    change=".onDateChange2"
+                                    displayFormat="HH:mm"
+                                    valueFormat="HH:mm"
+                                    placeholder="--:--"
+                                />
+                                <Input id="downTimeReason"
+                                    enabled="{= ${data>/switch/downTime}}"
+                                    value="{state>downTimeReason}"
+                                    placeholder="Причина простоя"
+                                ></Input>
+                            </ColumnListItem>
+                        </items>
+                    </Table>
+                </VBox>
+            </VBox>
+        </content>
+        <footer>
+            <Toolbar>
+                <ToolbarSpacer />
+                <Button
+                    type="Emphasized"
+                    text="Подтвердить"
+                    press="onConfirm" />
+            </Toolbar>
+        </footer>
+    </Page>
+</mvc:View>

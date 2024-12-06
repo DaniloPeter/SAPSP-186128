@@ -1,0 +1,19 @@
+.sapMInputBase,
+.sapMSlt {
+  margin-top: 0;
+}
+.sapMLIB.sapMListTblRow {
+  background: transparent;
+}
+.sapMLIBShowSeparator > td {
+  border: none;
+}
+.sapMListTblNavigatedCell {
+  border: none;
+}
+.sapUiFormTitleH5 {
+  font-size: 1rem !important;
+}
+.sapMLabelTextWrapper {
+  font-weight: bold !important;
+}

@@ -1,0 +1,10 @@
+{
+  "Shift": [
+    { "key": 0, "name": "shift 0" },
+    { "key": 1, "name": "shift 1" },
+    { "key": 2, "name": "shift 2" },
+    { "key": 3, "name": "shift 3" },
+    { "key": 4, "name": "shift 4" },
+    { "key": 5, "name": "shift 5" }
+  ]
+}
