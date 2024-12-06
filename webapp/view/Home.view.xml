@@ -4,7 +4,6 @@
     xmlns:mvc="sap.ui.core.mvc"
     xmlns:core="sap.ui.core"
     xmlns:f="sap.ui.layout.form"
-    xmlns:custom="ui5.testapp.model.formatter"
     displayBlock="true">
 
 
@@ -186,16 +185,9 @@
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Оттиски" />
                             <Input id="overprint"
-                                core:require="{ Formatter : 'ui5/testapp/model/formatter' }"
-                                value="{
-                                    path: 'data/',
-                                    formatter: 'Formatter.calculateOverprints.bind($controller)',
-                                    parameters: { 
-                                        meters: '{data>/printMeters}', 
-                                        reportLength: '{data>/reportLength}' 
-                                    } 
-                                }"
-                            />
+                                value="{ parts: [{ path: 'data>/printMeters'},
+                                        { path: 'data>/reportLength'}],
+                                formatter: '.formatter.calculateOverprints' }" />
                         </VBox>
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Диаметр запечатанного рулона" />
