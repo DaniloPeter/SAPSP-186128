@@ -1,6 +1,10 @@
 sap.ui.define(
-  ["sap/ui/core/UIComponent", "sap/ui/model/json/JSONModel"],
-  (UIComponent, JSONModel) => {
+  [
+    "sap/ui/core/UIComponent",
+    "sap/ui/model/json/JSONModel",
+    "sap/ui/model/BindingMode",
+  ],
+  (UIComponent, JSONModel, BindingMode) => {
     "use strict";
 
     return UIComponent.extend("ui5.testapp.Component", {
@@ -20,6 +24,7 @@ sap.ui.define(
           reportLength: 0,
           disruptWeight: 0,
           printMeters: 0,
+          overPrints: 0,
           line: 5,
           order: 2,
           engineer: 3,
@@ -31,6 +36,9 @@ sap.ui.define(
         };
 
         const oModel = new JSONModel(oData);
+        //TODO: эта строчка необходима, что при изменении значения в инпуте, менялось значение не только на экране, но и в модели автоматически
+        // Чтобы работала корректно функция handleChangeMetersOrReport
+        oModel.setDefaultBindingMode(BindingMode.TwoWay);
         this.setModel(oModel, "data");
 
         this.getRouter().initialize();
