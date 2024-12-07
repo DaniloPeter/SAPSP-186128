@@ -14,31 +14,6 @@ sap.ui.define(
         this.getView().byId("dateTimePicker").setDateValue(currentDate);
       },
 
-      onSwitchChange(oEvent) {
-        const newState = oEvent.getParameter("state");
-        const sId = oEvent.getParameter("id");
-        const oModel = this.getView().getModel("data");
-
-        if (sId.includes("downTime"))
-          oModel.setProperty("/switch/downTime", newState);
-        if (sId.includes("defect"))
-          oModel.setProperty("/switch/defect", newState);
-      },
-
-      onDisruptWeightChange(oEvent) {
-        const newValue = oEvent.getParameter("value");
-        const oModel = this.getView().getModel("data");
-        const defectSwitch = this.getView().byId("defectSwitch");
-
-        if (newValue && parseFloat(newValue) > 50) {
-          oModel.setProperty("/switch/defect", true);
-          defectSwitch.setState(true);
-        } else {
-          oModel.setProperty("/switch/defect", false);
-          defectSwitch.setState(false);
-        }
-      },
-
       handleAddBrak() {
         const oStateModel = this.getOwnerComponent().getModel("state"),
           aBraks = oStateModel.getProperty("/braks/items");
