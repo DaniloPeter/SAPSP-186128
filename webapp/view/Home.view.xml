@@ -21,7 +21,7 @@
                             <Label text="Завод:" />
                             <Input id="inputWork"
                                 class="sapUiNoMarginTop"
-                                value="1234"
+                                value="{data>/inputWork}"
                                 maxLength="4" />
                         </VBox>
                         <VBox width="100%" class="sapUiSmallMarginEnd">
@@ -36,21 +36,21 @@
                         </VBox>
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Склад:" />
-                            <Select width="100%" forceSelection="false" id="orderSelect"
-                                items="{ path: 'order>/Order'}"
-                                selectedKey="{data>/order}"
+                            <Select width="100%" forceSelection="false" id="storeSelect"
+                                items="{ path: 'store>/Store'}"
+                                selectedKey="{data>/store}"
                             >
-                                <core:Item key="{order>key}" text="{order>name}" />
+                                <core:Item key="{store>key}" text="{store>name}" />
                             </Select>
                         </VBox>
                         <VBox width="100%">
                             <Label text="Режим флексопечати:" />
-                            <Select forceSelection="false" id="lineSelect"
-                                selectedKey="{data>/line}"
+                            <Select forceSelection="false" id="printModeSelect"
+                                selectedKey="{data>/printMode}"
                                 width="100%"
-                                items="{path: 'line>/Line'}"
+                                items="{path: 'printMode>/PrintMode'}"
                             >
-                                <core:Item key="{line>key}" text="{line>name}" />
+                                <core:Item key="{printMode>key}" text="{printMode>name}" />
                             </Select>
                         </VBox>
                     </HBox>
@@ -58,6 +58,7 @@
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Дата и время:" />
                             <DateTimePicker id="dateTimePicker"
+                                dateValue="{data>/dateTime}"
                                 width="100%"
                                 displayFormat="dd.MM.yyyy HH:mm:ss"
                                 placeholder="00.00.0000 00:00:00"
@@ -94,23 +95,30 @@
                         <Title text="Заказ" />
                         <VBox>
                             <Label text="Заказ" />
-                            <Input id="techNumber" placeholder="Номер технологического заказа" />
+                            <Input id="techNumber"
+                                value="{data>/techNumber}"
+                                placeholder="Номер технологического заказа" />
                         </VBox>
                         <VBox>
                             <Label text="Клише" />
-                            <Input id="cliche" value="1234A" />
+                            <Input id="cliche"
+                                value="{data>/cliche}" placeholder="Клише"
+                            />
                         </VBox>
                         <VBox>
                             <Label text="Описание клише" />
-                            <Input id="clicheDescription" placeholder="Описание клише" />
+                            <Input id="clicheDescription"
+                                value="{data>/clicheDescription}" placeholder="Описание клише" />
                         </VBox>
                         <VBox>
                             <Label text="Скорость машины" />
-                            <Input id="machineSpeed" placeholder="Скорость машины" />
+                            <Input id="machineSpeed" value="{data>/machineSpeed}"
+                                placeholder="Скорость машины" />
                         </VBox>
                         <VBox>
                             <Label text="Печатник высокой печати" />
-                            <Input id="printName" placeholder="ФИО печатника" />
+                            <Input id="printName" value="{data>/printName}"
+                                placeholder="ФИО печатника" />
                         </VBox>
                         <VBox>
                             <Label text="Инженер по качеству" />
@@ -129,31 +137,36 @@
                         <Title text="Рулон" />
                         <VBox>
                             <Label text="№ Рулона 1" />
-                            <Input id="rollNumberOne" placeholder="Номер рулона 1" />
+                            <Input id="rollNumberOne" value="{data>/rollNumberOne}"
+                                placeholder="Номер рулона 1" />
                         </VBox>
                         <VBox>
                             <Label text="Формат исходного рулона 1" />
-                            <Input id="printRollFormat1"
+                            <Input id="origRollFormatOne"
+                                value="{data>/origRollFormatOne}"
                                 placeholder="Формат исходного рулона 1" />
                         </VBox>
                         <VBox>
                             <Label text="Радиус остатка 1" />
                             <Input id="remainNumberOne"
+                                value="{data>/remainNumberOne}"
                                 placeholder="Радиус остатка 1" />
 
                         </VBox>
                         <VBox>
                             <Label text="№ Рулона 2" />
-                            <Input id="rollNumberTwo" placeholder="Номер рулона 2" />
+                            <Input id="rollNumberTwo" value="{data>/rollNumberTwo}"
+                                placeholder="Номер рулона 2" />
                         </VBox>
                         <VBox>
                             <Label text="Формат исходного рулона 2" />
-                            <Input id="printRollFormat2"
+                            <Input id="origRollFormatTwo" value="{data>/origRollFormatTwo}"
                                 placeholder="Формат исходного рулона 2" />
                         </VBox>
                         <VBox>
                             <Label text="Радиус остатка 2" />
                             <Input id="remainNumberTwo"
+                                value="{data>/remainNumberTwo}"
                                 placeholder="Радиус остатка 2" />
                         </VBox>
                     </VBox>
@@ -162,7 +175,8 @@
                     <HBox width="100%">
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Формат запечатанного рулона" />
-                            <Input id="printRollFormat22"
+                            <Input id="printRollFormat"
+                                value="{data>/printRollFormat}"
                                 placeholder="Формат запечатанного рулона" />
                         </VBox>
                         <VBox width="100%" class="sapUiSmallMarginEnd">
@@ -190,7 +204,8 @@
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Диаметр запечатанного рулона" />
                             <Input id="rollDiameter"
-                                placeholder="Диаметр запечатанного рулона" />
+                                placeholder="Диаметр запечатанного рулона"
+                                value="{data>/rollDiameter}" />
                         </VBox>
                         <VBox width="100%">
                             <Label text="Вес срыва:" />
@@ -218,6 +233,7 @@
                                         customTextOn=" " customTextOff=" " />
                                     <ToolbarSpacer />
                                     <Button icon="sap-icon://add" text="Добавить брак"
+                                        enabled="{data>/switch/defect}"
                                         press="handleAddBrak" />
                                 </content>
                             </OverflowToolbar>
@@ -262,6 +278,7 @@
                                     />
                                     <ToolbarSpacer />
                                     <Button icon="sap-icon://add" text="Добавить простой"
+                                        enabled="{data>/switch/downTime}"
                                         press="handleAddDowntime" />
                                 </content>
                             </OverflowToolbar>
@@ -298,22 +315,22 @@
                                 <TimePicker id="dateBeginItem"
                                     enabled="{= ${data>/switch/downTime}}"
                                     dateValue="{state>dateBegin}"
-                                    change=".onDateChange2"
+                                    change="handleChangeDownTime"
                                     displayFormat="HH:mm"
                                     valueFormat="HH:mm"
                                     placeholder="--:--"
                                 />
                                 <TimePicker id="downTimeItem"
                                     enabled="{= ${data>/switch/downTime}}"
-                                    dateValue="{state>downTime}"
+                                    dateValue="{state>dateEnd}"
                                     valueFormat="HH:mm"
                                     displayFormat="HH:mm"
-                                    change="handleChange"
+                                    change="handleChangeDownTime"
                                     placeholder="--:--" />
+
                                 <TimePicker id="dateBeginItem2"
                                     enabled="{= ${data>/switch/downTime}}"
-                                    dateValue="{state>dateBegin}"
-                                    change=".onDateChange2"
+                                    value="{state>downTime}"
                                     displayFormat="HH:mm"
                                     valueFormat="HH:mm"
                                     placeholder="--:--"

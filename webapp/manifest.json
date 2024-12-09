@@ -51,13 +51,13 @@
     },
     "contentDensities": { "cozy": true, "compact": false },
     "models": {
-      "line": {
+      "printMode": {
         "type": "sap.ui.model.json.JSONModel",
-        "uri": "localService/mockdata/Line.json"
+        "uri": "localService/mockdata/PrintMode.json"
       },
-      "order": {
+      "store": {
         "type": "sap.ui.model.json.JSONModel",
-        "uri": "localService/mockdata/Order.json"
+        "uri": "localService/mockdata/Store.json"
       },
       "shift": {
         "type": "sap.ui.model.json.JSONModel",
@@ -92,13 +92,15 @@
               {
                 "downTimeType": 0,
                 "dateBegin": null,
-                "time": null,
+                "dateEnd": null,
+                "downTime": null,
                 "downTimeReason": null
               },
               {
                 "downTimeType": 1,
                 "dateBegin": null,
-                "time": null,
+                "dateEnd": null,
+                "downTime": null,
                 "downTimeReason": null
               }
             ]

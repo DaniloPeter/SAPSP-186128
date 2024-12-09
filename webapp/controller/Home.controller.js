@@ -9,10 +9,7 @@ sap.ui.define(
   (BaseController, MessageToast, Filter, FilterOperator) => {
     "use strict";
     return BaseController.extend("ui5.testapp.controller.Home", {
-      onInit() {
-        const currentDate = new Date();
-        this.getView().byId("dateTimePicker").setDateValue(currentDate);
-      },
+      onInit() {},
 
       handleChangeMetersOrReport: function (oEvent) {
         const oSource = oEvent.getSource(),
@@ -48,6 +45,27 @@ sap.ui.define(
         if (iValue > 50 && !bSelectedDefect) {
           oDataModel.setProperty("/switch/defect", true);
         }
+      },
+
+      handleChangeDownTime: function (oEvent) {
+        const oSource = oEvent.getSource(),
+          sValue = oSource.getDateValue(),
+          sFieldPath = oSource.getBinding("dateValue").getPath(),
+          // TODO: в этом блоке достаю downTime поле как получилось
+          sItemPath = oSource.sId.slice(-1),
+          oDataModel = this.getModel("state"),
+          oItem = oDataModel.getData().table.items[sItemPath],
+          dDateBegin = oItem.dateBegin,
+          dDateEnd = oItem.dateEnd;
+        // --------------
+
+        // Метод для рассчета времени простоя в utils, возвращает строку,
+        // можно вернуть объект Date(но зачем)
+        const iCalcDownTime = this.utils.calculateDownTime(
+          oItem.dateBegin,
+          oItem.dateEnd
+        );
+        oItem.downTime = iCalcDownTime;
       },
 
       handleAddBrak() {

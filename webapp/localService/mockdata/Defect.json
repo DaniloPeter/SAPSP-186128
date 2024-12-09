@@ -1,10 +1,10 @@
 {
   "Defect": [
-    { "key": 0, "name": "Рулон 2" },
-    { "key": 1, "name": "defect 1" },
-    { "key": 2, "name": "defect 2" },
-    { "key": 3, "name": "defect 3" },
-    { "key": 4, "name": "Рулон 1" },
-    { "key": 5, "name": "defect 5" }
+    { "key": 0, "name": "деф.Рулон 0" },
+    { "key": 1, "name": "деф.Рулон 1" },
+    { "key": 2, "name": "деф.Рулон 2" },
+    { "key": 3, "name": "деф.Рулон 3" },
+    { "key": 4, "name": "деф.Рулон 4" },
+    { "key": 5, "name": "деф.Рулон 5" }
   ]
 }
