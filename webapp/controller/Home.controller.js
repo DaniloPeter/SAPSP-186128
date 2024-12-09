@@ -49,23 +49,19 @@ sap.ui.define(
 
       handleChangeDownTime: function (oEvent) {
         const oSource = oEvent.getSource(),
-          sValue = oSource.getDateValue(),
-          sFieldPath = oSource.getBinding("dateValue").getPath(),
-          // TODO: в этом блоке достаю downTime поле как получилось
-          sItemPath = oSource.sId.slice(-1),
-          oDataModel = this.getModel("state"),
-          oItem = oDataModel.getData().table.items[sItemPath],
-          dDateBegin = oItem.dateBegin,
-          dDateEnd = oItem.dateEnd;
-        // --------------
-
+          oStateModel = this.getModel("state"),
+          //Если элемент имеет binding (bindElement или это элемент таблицы)
+          //То мы можем получим его, в скобках указываем привязанную модель
+          oBindingContext = oSource.getBindingContext("state"),
+          oItem = oBindingContext.getObject(), //Получаем объект bindinga из модели
+          sItemPath = oBindingContext.getPath(); // Получаем путь bindinga, чтобы перезаписать новое значение
         // Метод для рассчета времени простоя в utils, возвращает строку,
         // можно вернуть объект Date(но зачем)
         const iCalcDownTime = this.utils.calculateDownTime(
           oItem.dateBegin,
           oItem.dateEnd
         );
-        oItem.downTime = iCalcDownTime;
+        oStateModel.setProperty(`${sItemPath}/downTime`, iCalcDownTime);
       },
 
       handleAddBrak() {
