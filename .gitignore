@@ -1,1 +1,13 @@
-node_modules/
+node_modules
+sapui5-sdk
+webapp/resources
+webapp/resources3
+dist/
+.DS_Store
+.vscode/
+webapp/localService/mockdata/
+ui5.yaml
+configProxy.json
+
+logs
+*.log

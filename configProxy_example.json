@@ -1,0 +1,25 @@
+{
+    "sap": {
+        "dev": {
+            "target": "https://sgzswd01.segezha-group.com:44310",
+            "auth": "LOGIN:PASSWORD",
+            "changeOrigin": true
+        },
+        "qas": {
+            "target": "https://sgzswq01.segezha-group.com:44350",
+            "auth": "LOGIN:PASSWORD",
+            "changeOrigin": true
+        },
+        "qas1": {
+            "target": "https://sgzswq01.segezha-group.com:44350",
+            "auth": "LOGIN:PASSWORD",
+            "changeOrigin": true
+        },
+        "prod": {
+            "target": "https://sgzswp01.segezha-group.com:44350",
+            "auth": "LOGIN:PASSWORD",
+            "changeOrigin": true
+        },
+        "system": "qas"
+    }
+}

@@ -1,0 +1,55 @@
+specVersion: "2.0"
+metadata:
+  name: com.segezha.procurement
+  copyright: |-
+    SEGEZHA
+    * (c) Copyright 2023-${currentYear} ООО "SEGEZHA"
+type: application
+builder:
+  customTasks:
+    - name: ui5-task-nwabap-deployer
+      afterTask: generateVersionInfo
+      configuration:
+        resources:
+          pattern: "**/*.*"
+          excludes:
+            - /test/**
+        connection:
+          server: https://sgzswd01.segezha-group.com:44310
+          customQueryParams:
+            myCustomParameter1: myCustomValue1
+            myCustomParameter2: myCustomValue2
+        authentication:
+          user: USERNAME
+          password: PASSWORD
+        ui5:
+          language: RU
+          package: Z_MM_PROCUREMENT
+          bspContainer: ZPROCUREMENT
+          bspContainerText: Procurement
+          transportNo: TRANSPORT_NO
+          calculateApplicationIndex: true
+server:
+  customMiddleware:
+    - name: odataProxy
+      beforeMiddleware: serveResources
+---
+specVersion: "1.0"
+kind: extension
+type: server-middleware
+metadata:
+  name: odataProxy
+middleware:
+  path: lib/middleware/odataProxy.js
+framework:
+  name: SAPUI5
+  version: "1.76.0"
+  libraries:
+    - name: sap.f
+    - name: sap.m
+    - name: sap.suite.ui.microchart
+    - name: sap.ui.core
+    - name: sap.ui.table
+    - name: sap.ui.vbm
+    - name: themelib_sap_belize
+    - name: themelib_sap_fiori_3
