@@ -6,6 +6,17 @@
     "title": "Регистрация преобразования рулонов",
     "applicationVersion": {
       "version": "1.0.0"
+    },
+    "dataSources": {
+      "odata": {
+        "uri": "/sap/opu/odata/sap/Z_MM211_PREQ_MON_SRV",
+        "type": "OData",
+        "settings": {
+          "odataVersion": "2.0",
+          "defaultCountMode": "InlineRepeat",
+          "useBatch": true
+        }
+      }
     }
   },
   "sap.ui": {
@@ -19,19 +30,19 @@
   "sap.ui5": {
     "rootView": {
       "viewName": "com.segezha.form.roll.conversion.view.App",
-			"type": "XML",
-			"async": true
+      "type": "XML",
+      "async": true
     },
     "routing": {
       "config": {
-				"routerClass": "sap.m.routing.Router",
-				"path": "com.segezha.form.roll.conversion.view",
-				"controlId": "app",
-				"controlAggregation": "pages",
-				"type": "View",
-				"viewType": "XML",
-				"async": true
-			},
+        "routerClass": "sap.m.routing.Router",
+        "path": "com.segezha.form.roll.conversion.view",
+        "controlId": "app",
+        "controlAggregation": "pages",
+        "type": "View",
+        "viewType": "XML",
+        "async": true
+      },
       "routes": [
         {
           "pattern": "",
@@ -59,6 +70,18 @@
       "compact": false
     },
     "models": {
+      "": {
+				"dataSource": "odata",
+				"preload": true,
+				"settings": {
+					"odataVersion": "2.0",
+					"defaultCountMode": "InlineRepeat",
+					"useBatch": true,
+					"headers": {
+						"Accept": "application/json"
+					}
+				}
+			},
       "printMode": {
         "type": "sap.ui.model.json.JSONModel",
         "uri": "localService/mockdata/PrintMode.json"
@@ -91,6 +114,7 @@
         "type": "sap.ui.model.json.JSONModel",
         "uri": "localService/mockdata/Resource.json"
       },
+      
       "state": {
         "type": "sap.ui.model.json.JSONModel",
         "settings": {

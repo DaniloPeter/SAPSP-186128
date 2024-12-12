@@ -19,10 +19,35 @@
                     <HBox>
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Завод:" />
-                            <Input id="inputWork"
-                                class="sapUiNoMarginTop"
-                                value="{data>/inputWork}"
-                                maxLength="4" />
+                            <Input
+                                id="customInput"
+                                width="100%"
+                                showSuggestion="true"
+                                maxSuggestionWidth="60rem"
+                                showTableSuggestionValueHelp="false"
+                                value="{Material}"
+                                valueState="{=!!${state>/MaterialError} ? 'Error' : 'None'}"
+                                suggestionRows="{
+                                    path: '/VHMaterialSet'
+                                }"
+                                change="handleChange">
+                                <suggestionColumns>
+                                    <Column>
+                                        <Text text="Колонка 1" />
+                                    </Column>
+                                    <Column>
+                                        <Text text="Колонка 2" />
+                                    </Column>
+                                </suggestionColumns>
+                                <suggestionRows>
+                                    <ColumnListItem>
+                                        <cells>
+                                            <Text text="{ID}" />
+                                            <Text text="{Text}" />
+                                        </cells>
+                                    </ColumnListItem>
+                                </suggestionRows>
+                            </Input>
                         </VBox>
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Ресурс:" />
@@ -118,6 +143,7 @@
                         <VBox>
                             <Label text="Печатник высокой печати" />
                             <Input id="printName" value="{data>/printName}"
+                                maxLength="150"
                                 placeholder="ФИО печатника" />
                         </VBox>
                         <VBox>

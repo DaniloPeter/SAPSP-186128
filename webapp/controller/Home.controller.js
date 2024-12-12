@@ -7,6 +7,26 @@ sap.ui.define(
       {
         onInit() {},
 
+        handleChange: function (oEvent) {
+          const oSource = oEvent.getSource(),
+            oStateModel = this.getModel("state"),
+            sValue = oSource.getValue(),
+            aSuggestionRows = oSource.getSuggestionRows(),
+            aSuggestionData = aSuggestionRows.map((o) =>
+              o.getBindingContext().getObject()
+            ),
+            isFoundSomething = aSuggestionData.some((o) => {
+              return Object.entries(o).some(([sFieldKey, sFieldValue]) => {
+                if (sFieldKey === "__metadata") {
+                  return false;
+                }
+                return sFieldValue.toString().includes(sValue);
+              });
+            });
+
+          oStateModel.setProperty(`/MaterialError`, !isFoundSomething);
+        },
+
         handleChangeMetersOrReport: function (oEvent) {
           const oSource = oEvent.getSource(),
             sValue = oSource.getValue(),
