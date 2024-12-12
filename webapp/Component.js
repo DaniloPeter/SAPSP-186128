@@ -7,7 +7,7 @@ sap.ui.define(
   (UIComponent, JSONModel, BindingMode) => {
     "use strict";
 
-    return UIComponent.extend("ui5.testapp.Component", {
+    return UIComponent.extend("com.segezha.form.roll.conversion.Component", {
       metadata: {
         interfaces: ["sap.ui.core.IAsyncContentCreation"],
         manifest: "json",

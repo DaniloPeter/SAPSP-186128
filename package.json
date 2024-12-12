@@ -1,11 +1,31 @@
 {
-  "name": "ui5.testapp",
-  "version": "1.0.0",
-  "description": "The UI5 Test application",
+  "name": "com.segezha.procurement",
+  "version": "0.0.1",
+  "description": "Roll Conversion Registration Form",
+  "private": true,
   "scripts": {
-    "start": "ui5 serve -o index.html"
+    "start": "ui5 serve -o index.html",
+    "build": "ui5 build",
+    "build_dev": "ui5 build dev --clean-dest=true --loglevel=info"
   },
+  "keywords": [
+    "fiori",
+    "balance"
+  ],
+  "author": "SEGEZHA",
+  "license": "SEGEZHA",
   "devDependencies": {
-    "ui5-middleware-simpleproxy": "^3.3.1"
+    "@ui5/cli": "^2.14.17",
+    "nwabap-ui5uploader": "^0.3.4",
+    "ui5-nwabap-deployer-cli": "^2.2.0",
+    "ui5-task-nwabap-deployer": "^1.0.15"
+  },
+  "ui5": {
+    "dependencies": [
+      "ui5-task-nwabap-deployer"
+    ]
+  },
+  "dependencies": {
+    "http-proxy": "^1.18.1"
   }
 }

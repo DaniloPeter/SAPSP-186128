@@ -1,12 +1,12 @@
 sap.ui.define(
   [
     "sap/ui/core/mvc/Controller",
-    "ui5/testapp/model/formatter",
-    "ui5/testapp/model/Utils",
+    "com/segezha/form/roll/conversion/model/formatter",
+    "com/segezha/form/roll/conversion/model/Utils",
   ],
   (Controller, formatter, Utils) => {
     "use strict";
-    return Controller.extend("ui5.testapp.controller.Base", {
+    return Controller.extend("com.segezha.form.roll.conversion.controller.Base", {
       formatter: formatter,
       utils: Utils,
 

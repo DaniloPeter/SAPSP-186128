@@ -1,9 +1,9 @@
 {
   "_version": "1.58.0",
   "sap.app": {
-    "id": "ui5.testapp",
+    "id": "com.segezha.form.roll.conversion",
     "type": "application",
-    "title": "Test Application",
+    "title": "Регистрация преобразования рулонов",
     "applicationVersion": {
       "version": "1.0.0"
     }
@@ -17,15 +17,21 @@
     }
   },
   "sap.ui5": {
+    "rootView": {
+      "viewName": "com.segezha.form.roll.conversion.view.App",
+			"type": "XML",
+			"async": true
+    },
     "routing": {
       "config": {
-        "routerClass": "sap.m.routing.Router",
-        "type": "View",
-        "viewType": "XML",
-        "path": "ui5.testapp.view",
-        "controlId": "app",
-        "controlAggregation": "pages"
-      },
+				"routerClass": "sap.m.routing.Router",
+				"path": "com.segezha.form.roll.conversion.view",
+				"controlId": "app",
+				"controlAggregation": "pages",
+				"type": "View",
+				"viewType": "XML",
+				"async": true
+			},
       "routes": [
         {
           "pattern": "",
@@ -35,7 +41,6 @@
       ],
       "targets": {
         "home": {
-          "id": "homePage",
           "name": "Home"
         }
       }
@@ -49,7 +54,10 @@
         "sap.f": {}
       }
     },
-    "contentDensities": { "cozy": true, "compact": false },
+    "contentDensities": {
+      "cozy": true,
+      "compact": false
+    },
     "models": {
       "printMode": {
         "type": "sap.ui.model.json.JSONModel",
@@ -117,13 +125,12 @@
         }
       }
     },
-    "rootView": {
-      "viewName": "ui5.testapp.view.App",
-      "type": "XML",
-      "id": "app"
-    },
     "resources": {
-      "css": [{ "uri": "css/style.css" }]
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
     }
   }
 }

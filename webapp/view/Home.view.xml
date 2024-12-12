@@ -1,11 +1,11 @@
 <mvc:View
-    controllerName="ui5.testapp.controller.Home"
+    controllerName="com.segezha.form.roll.conversion.controller.Home"
     xmlns="sap.m"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns:core="sap.ui.core"
     xmlns:f="sap.ui.layout.form"
     displayBlock="true">
-    <Page>
+    <Page id="homePageId">
         <customHeader>
             <Toolbar>
                 <ToolbarSpacer />
