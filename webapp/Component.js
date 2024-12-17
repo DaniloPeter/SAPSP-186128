@@ -1,60 +1,44 @@
 sap.ui.define(
-  [
-    "sap/ui/core/UIComponent",
-    "sap/ui/model/json/JSONModel",
-    "sap/ui/model/BindingMode",
-  ],
-  (UIComponent, JSONModel, BindingMode) => {
+  ["sap/ui/core/UIComponent", "sap/ui/Device", "./model/ErrorHandler"],
+  (UIComponent, Device, ErrorHandler) => {
     "use strict";
 
     return UIComponent.extend("com.segezha.form.roll.conversion.Component", {
       metadata: {
-        interfaces: ["sap.ui.core.IAsyncContentCreation"],
         manifest: "json",
       },
 
       init() {
         UIComponent.prototype.init.apply(this, arguments);
-
-        const oData = {
-          switch: {
-            downTime: false,
-            defect: false,
-          },
-          inputWork: 1234,
-          resource: 5,
-          store: 5,
-          printMode: 2,
-          dateTime: new Date(),
-          shift: 1,
-          crew: 2,
-          techNumber: null,
-          cliche: "1234A",
-          clicheDescription: null,
-          machineSpeed: null,
-          printName: null,
-          engineer: 3,
-          rollNumberOne: null,
-          origRollFormatOne: "123 auto",
-          remainNumberOne: null,
-          rollNumberTwo: null,
-          origRollFormatTwo: "123 auto",
-          remainNumberTwo: null,
-          printRollFormat: null,
-          printMeters: 0,
-          reportLength: 0,
-          overPrints: 0,
-          rollDiameter: null,
-          disruptWeight: 0,
-        };
-
-        const oModel = new JSONModel(oData);
-        //TODO: эта строчка необходима, что при изменении значения в инпуте, менялось значение не только на экране, но и в модели автоматически
-        // Чтобы работала корректно функция handleChangeMetersOrReport
-        oModel.setDefaultBindingMode(BindingMode.TwoWay);
-        this.setModel(oModel, "data");
-
         this.getRouter().initialize();
+        new ErrorHandler(this);
+      },
+
+      getContentDensityClass: function () {
+        if (this._sContentDensityClass === undefined) {
+          // check whether FLP has already set the content density class; do nothing in this case
+          if (
+            document.body.classList.contains("sapUiSizeCozy") ||
+            document.body.classList.contains("sapUiSizeCompact")
+          ) {
+            if (document.body.classList.contains("sapUiSizeCozy") === true) {
+              this._sContentDensityClass = "sapUiSizeCozy";
+            } else if (
+              document.body.classList.contains("sapUiSizeCompact") === true
+            ) {
+              this._sContentDensityClass = "sapUiSizeCompact";
+            } else {
+              this._sContentDensityClass = "";
+            }
+          } else if (!Device.support.touch) {
+            // apply "compact" mode if touch is not supported
+            this._sContentDensityClass = "sapUiSizeCompact";
+          } else {
+            // "cozy" in case of touch support; default for most sap.m controls, but needed for desktop-first controls like sap.ui.table.Table
+            this._sContentDensityClass = "sapUiSizeCozy";
+          }
+        }
+        return this._sContentDensityClass;
       },
     });
   }

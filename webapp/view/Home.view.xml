@@ -18,98 +18,174 @@
                 <VBox class="sapUiSmallMarginBottom sapUiFormResGrid sapUiFormBackgrTranslucent">
                     <HBox>
                         <VBox width="100%" class="sapUiSmallMarginEnd">
-                            <Label text="Завод:" />
+                            <Label text="Завод:" required="true" />
                             <Input
-                                id="customInput"
+                                required="true"
+                                width="100%"
+                                value="{Werks}"
+                                valueState="{=!!${state>/errorFields/Werks} ? 'Error' : 'None'}"
+                                change="handleChange">
+                            </Input>
+                        </VBox>
+                        <VBox width="100%" class="sapUiSmallMarginEnd">
+                            <Label text="Ресурс:" required="true" />
+                            <Input
+                                required="true"
                                 width="100%"
                                 showSuggestion="true"
                                 maxSuggestionWidth="60rem"
-                                showTableSuggestionValueHelp="false"
-                                value="{Material}"
-                                valueState="{=!!${state>/MaterialError} ? 'Error' : 'None'}"
+                                value="{WpResource}"
+                                valueState="{=!!${state>/errorFields/WpResource} ? 'Error' : 'None'}"
                                 suggestionRows="{
-                                    path: '/VHMaterialSet'
+                                    path: '/WORKPLACESet'
                                 }"
                                 change="handleChange">
                                 <suggestionColumns>
                                     <Column>
-                                        <Text text="Колонка 1" />
+                                        <Text text="{/#WORKPLACE/WpResource/@sap:label}" />
                                     </Column>
                                     <Column>
-                                        <Text text="Колонка 2" />
+                                        <Text text="{/#WORKPLACE/WpResourceText/@sap:label}" />
+                                    </Column>
+                                    <Column>
+                                        <Text text="{/#WORKPLACE/WpParameter/@sap:label}" />
+                                    </Column>
+                                    <Column>
+                                        <Text text="{/#WORKPLACE/Werks/@sap:label}" />
                                     </Column>
                                 </suggestionColumns>
                                 <suggestionRows>
                                     <ColumnListItem>
                                         <cells>
-                                            <Text text="{ID}" />
-                                            <Text text="{Text}" />
+                                            <Text text="{WpResource}" />
+                                            <Text text="{WpResourceText}" />
+                                            <Text text="{WpParameter}" />
+                                            <Text text="{Werks}" />
                                         </cells>
                                     </ColumnListItem>
                                 </suggestionRows>
                             </Input>
                         </VBox>
                         <VBox width="100%" class="sapUiSmallMarginEnd">
-                            <Label text="Ресурс:" />
-                            <Select forceSelection="false" id="resourceSelect"
-                                selectedKey="{data>/resource}"
+                            <Label text="Склад:" required="true" />
+                            <Input
+                                required="true"
                                 width="100%"
-                                items="{path: 'resource>/Resource'}"
-                            >
-                                <core:Item key="{resource>key}" text="{resource>name}" />
-                            </Select>
-                        </VBox>
-                        <VBox width="100%" class="sapUiSmallMarginEnd">
-                            <Label text="Склад:" />
-                            <Select width="100%" forceSelection="false" id="storeSelect"
-                                items="{ path: 'store>/Store'}"
-                                selectedKey="{data>/store}"
-                            >
-                                <core:Item key="{store>key}" text="{store>name}" />
-                            </Select>
+                                showSuggestion="true"
+                                maxSuggestionWidth="60rem"
+                                value="{Lgort}"
+                                valueState="{=!!${state>/errorFields/Lgort} ? 'Error' : 'None'}"
+                                suggestionRows="{
+                                    path: '/LGORTSet'
+                                }"
+                                change="handleChange">
+                                <suggestionColumns>
+                                    <Column>
+                                        <Text text="{/#LGORT/Lgort/@sap:label}" />
+                                    </Column>
+                                    <Column>
+                                        <Text text="{/#LGORT/Lgobe/@sap:label}" />
+                                    </Column>
+                                    <Column>
+                                        <Text text="{/#LGORT/Werks/@sap:label}" />
+                                    </Column>
+                                </suggestionColumns>
+                                <suggestionRows>
+                                    <ColumnListItem>
+                                        <cells>
+                                            <Text text="{Lgort}" />
+                                            <Text text="{Lgobe}" />
+                                            <Text text="{Werks}" />
+                                        </cells>
+                                    </ColumnListItem>
+                                </suggestionRows>
+                            </Input>
                         </VBox>
                         <VBox width="100%">
                             <Label text="Режим флексопечати:" />
-                            <Select forceSelection="false" id="printModeSelect"
-                                selectedKey="{data>/printMode}"
+                            <Input
                                 width="100%"
-                                items="{path: 'printMode>/PrintMode'}"
+                                value="{WpOperatingmode}"
                             >
-                                <core:Item key="{printMode>key}" text="{printMode>name}" />
-                            </Select>
+                            </Input>
                         </VBox>
                     </HBox>
                     <HBox>
                         <VBox width="100%" class="sapUiSmallMarginEnd">
-                            <Label text="Дата и время:" />
-                            <DateTimePicker id="dateTimePicker"
-                                dateValue="{data>/dateTime}"
+                            <Label text="Дата и время:" required="true" />
+                            <DateTimePicker
+                                dateValue="{Zdate}"
                                 width="100%"
                                 displayFormat="dd.MM.yyyy HH:mm:ss"
-                                placeholder="00.00.0000 00:00:00"
                             />
                         </VBox>
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Смена:" />
-                            <Select id="shiftSelect"
-                                forceSelection="false"
+                            <Input
                                 width="100%"
-                                items="{path: 'shift>/Shift'}"
-                                selectedKey="{data>/shift}"
-                            >
-                                <core:Item key="{shift>key}" text="{shift>name}" />
-                            </Select>
+                                showSuggestion="true"
+                                maxSuggestionWidth="60rem"
+                                value="{Smen}"
+                                valueState="{=!!${state>/errorFields/Smen} ? 'Error' : 'None'}"
+                                suggestionRows="{
+                                    path: '/SMENSet'
+                                }"
+                                change="handleChange">
+                                <suggestionColumns>
+                                    <Column>
+                                        <Text text="{/#SMEN/Smen/@sap:label}" />
+                                    </Column>
+                                    <Column>
+                                        <Text text="{/#SMEN/Period/@sap:label}" />
+                                    </Column>
+                                    <Column>
+                                        <Text text="{/#SMEN/Werks/@sap:label}" />
+                                    </Column>
+                                </suggestionColumns>
+                                <suggestionRows>
+                                    <ColumnListItem>
+                                        <cells>
+                                            <Text text="{Smen}" />
+                                            <Text text="{Period}" />
+                                            <Text text="{Werks}" />
+                                        </cells>
+                                    </ColumnListItem>
+                                </suggestionRows>
+                            </Input>
                         </VBox>
                         <VBox width="100%">
                             <Label text="Бригада:" />
-                            <Select id="crewSelect"
-                                forceSelection="false"
+                            <Input
                                 width="100%"
-                                items="{path: 'crew>/Crew'}"
-                                selectedKey="{data>/crew}"
-                            >
-                                <core:Item key="{crew>key}" text="{crew>name}" />
-                            </Select>
+                                showSuggestion="true"
+                                maxSuggestionWidth="60rem"
+                                value="{Brig}"
+                                valueState="{=!!${state>/errorFields/Brig} ? 'Error' : 'None'}"
+                                suggestionRows="{
+                                    path: '/BRIGSet'
+                                }"
+                                change="handleChange">
+                                <suggestionColumns>
+                                    <Column>
+                                        <Text text="{/#BRIG/Brig/@sap:label}" />
+                                    </Column>
+                                    <Column>
+                                        <Text text="{/#BRIG/BrigName/@sap:label}" />
+                                    </Column>
+                                    <Column>
+                                        <Text text="{/#BRIG/Werks/@sap:label}" />
+                                    </Column>
+                                </suggestionColumns>
+                                <suggestionRows>
+                                    <ColumnListItem>
+                                        <cells>
+                                            <Text text="{Brig}" />
+                                            <Text text="{BrigName}" />
+                                            <Text text="{Werks}" />
+                                        </cells>
+                                    </ColumnListItem>
+                                </suggestionRows>
+                            </Input>
                         </VBox>
                     </HBox>
                 </VBox>
@@ -119,126 +195,165 @@
                         width="100%">
                         <Title text="Заказ" />
                         <VBox>
-                            <Label text="Заказ" />
-                            <Input id="techNumber"
-                                value="{data>/techNumber}"
+                            <Label text="Заказ" required="true" />
+                            <Input
+                                required="true"
+                                maxLength="12"
+                                change="handleChangeAufnr"
+                                value="{Aufnr}"
+                                valueState="{=!!${state>/errorFields/Aufnr} ? 'Error' : 'None'}"
                                 placeholder="Номер технологического заказа" />
                         </VBox>
                         <VBox>
-                            <Label text="Клише" />
-                            <Input id="cliche"
-                                value="{data>/cliche}" placeholder="Клише"
+                            <Label text="Клише" required="true" />
+                            <Input required="true" maxLength="40"
+                                value="{Klishe}" placeholder="Клише"
                             />
                         </VBox>
                         <VBox>
                             <Label text="Описание клише" />
-                            <Input id="clicheDescription"
-                                value="{data>/clicheDescription}" placeholder="Описание клише" />
+                            <Input maxLength="40"
+                                value="{Zklishetext}" placeholder="Описание клише" />
                         </VBox>
                         <VBox>
                             <Label text="Скорость машины" />
-                            <Input id="machineSpeed" value="{data>/machineSpeed}"
+                            <Input value="{Zobjspeed}"
                                 placeholder="Скорость машины" />
                         </VBox>
                         <VBox>
-                            <Label text="Печатник высокой печати" />
-                            <Input id="printName" value="{data>/printName}"
+                            <Label text="Печатник высокой печати" required="true" />
+                            <Input required="true" value="{Zprinter}"
                                 maxLength="150"
+                                change="handleChange"
                                 placeholder="ФИО печатника" />
                         </VBox>
                         <VBox>
                             <Label text="Инженер по качеству" />
-                            <Select id="engineerSelect"
-                                forceSelection="false"
+                            <Input
                                 width="100%"
-                                items="{path: 'engineer>/Engineer'}"
-                                selectedKey="{data>/engineer}"
-                            >
-                                <core:Item key="{engineer>key}"
-                                    text="{engineer>name}" />
-                            </Select>
+                                showSuggestion="true"
+                                maxSuggestionWidth="60rem"
+                                value="{Zlogin}"
+                                valueState="{=!!${state>/errorFields/Zlogin} ? 'Error' : 'None'}"
+                                suggestionRows="{
+                                    path: '/QASet'
+                                }">
+                                <suggestionColumns>
+                                    <Column>
+                                        <Text text="{/#QA/Zlogin/@sap:label}" />
+                                    </Column>
+                                    <Column>
+                                        <Text text="{/#QA/Zfullnameqa/@sap:label}" />
+                                    </Column>
+                                    <Column>
+                                        <Text text="{/#QA/Zdepartment/@sap:label}" />
+                                    </Column>
+                                    <Column>
+                                        <Text text="{/#QA/Zpost/@sap:label}" />
+                                    </Column>
+                                    <Column>
+                                        <Text text="{/#QA/Zlevel/@sap:label}" />
+                                    </Column>
+                                    <Column>
+                                        <Text text="{/#QA/Zemail/@sap:label}" />
+                                    </Column>
+                                    <Column>
+                                        <Text text="{/#QA/Werks/@sap:label}" />
+                                    </Column>
+                                </suggestionColumns>
+                                <suggestionRows>
+                                    <ColumnListItem>
+                                        <cells>
+                                            <Text text="{Zlogin}" />
+                                            <Text text="{Zfullnameqa}" />
+                                            <Text text="{Zdepartment}" />
+                                            <Text text="{Zpost}" />
+                                            <Text text="{Zlevel}" />
+                                            <Text text="{Zemail}" />
+                                            <Text text="{Werks}" />
+                                        </cells>
+                                    </ColumnListItem>
+                                </suggestionRows>
+                            </Input>
                         </VBox>
                     </VBox>
                     <VBox class="sapUiFormResGrid sapUiFormBackgrTranslucent" width="100%">
                         <Title text="Рулон" />
                         <VBox>
-                            <Label text="№ Рулона 1" />
-                            <Input id="rollNumberOne" value="{data>/rollNumberOne}"
+                            <Label text="№ Рулона 1" required="true" />
+                            <Input required="true" value="{RollNum1}" change="handleChangeRollNum"
                                 placeholder="Номер рулона 1" />
                         </VBox>
                         <VBox>
-                            <Label text="Формат исходного рулона 1" />
-                            <Input id="origRollFormatOne"
-                                value="{data>/origRollFormatOne}"
+                            <Label text="Формат исходного рулона 1" required="true" />
+                            <Input required="true" value="{Zformat1}" change="handleChange"
                                 placeholder="Формат исходного рулона 1" />
                         </VBox>
                         <VBox>
-                            <Label text="Радиус остатка 1" />
-                            <Input id="remainNumberOne"
-                                value="{data>/remainNumberOne}"
+                            <Label text="Радиус остатка 1" required="true" />
+                            <Input required="true" value="{Zradius1}" change="handleChange"
                                 placeholder="Радиус остатка 1" />
 
                         </VBox>
                         <VBox>
                             <Label text="№ Рулона 2" />
-                            <Input id="rollNumberTwo" value="{data>/rollNumberTwo}"
+                            <Input value="{RollNum2}" change="handleChangeRollNum"
                                 placeholder="Номер рулона 2" />
                         </VBox>
                         <VBox>
                             <Label text="Формат исходного рулона 2" />
-                            <Input id="origRollFormatTwo" value="{data>/origRollFormatTwo}"
+                            <Input value="{Zformat2}"
                                 placeholder="Формат исходного рулона 2" />
                         </VBox>
                         <VBox>
-                            <Label text="Радиус остатка 2" />
-                            <Input id="remainNumberTwo"
-                                value="{data>/remainNumberTwo}"
+                            <Label text="Радиус остатка 1" />
+                            <Input value="{Zradius2}"
                                 placeholder="Радиус остатка 2" />
+
                         </VBox>
                     </VBox>
                 </HBox>
                 <VBox class="sapUiFormResGrid sapUiFormBackgrTranslucent sapUiSmallMarginBottom">
                     <HBox width="100%">
                         <VBox width="100%" class="sapUiSmallMarginEnd">
-                            <Label text="Формат запечатанного рулона" />
-                            <Input id="printRollFormat"
-                                value="{data>/printRollFormat}"
+                            <Label text="Формат запечатанного рулона" required="true" />
+                            <Input required="true"
+                                value="{Znewformat}" change="handleChange"
                                 placeholder="Формат запечатанного рулона" />
                         </VBox>
                         <VBox width="100%" class="sapUiSmallMarginEnd">
-                            <Label text="Погонные метры" />
+                            <Label text="Погонные метры" required="true" />
                             <Input
-                                id="printMeters"
-                                value="{data>/printMeters}"
+                                required="true"
+                                value="{Zpm}"
                                 liveChange="handleChangeMetersOrReport"
                                 placeholder="Метраж выходящего погонного рулона" />
                         </VBox>
                         <VBox width="100%">
-                            <Label text="Длина рапорта" />
-                            <Input id="reportLength"
-                                value="{data>/reportLength}"
+                            <Label text="Длина рапорта" required="true" />
+                            <Input required="true"
+                                value="{Zlengthreport}"
                                 liveChange="handleChangeMetersOrReport"
                                 placeholder="Длина рапорта" />
                         </VBox>
                     </HBox>
                     <HBox width="100%">
                         <VBox width="100%" class="sapUiSmallMarginEnd">
-                            <Label text="Оттиски" />
-                            <Input id="overprint"
-                                value="{data>/overPrints}" />
+                            <Label text="Оттиски" required="true" />
+                            <Input required="true"
+                                value="{Zstamp}" />
                         </VBox>
                         <VBox width="100%" class="sapUiSmallMarginEnd">
-                            <Label text="Диаметр запечатанного рулона" />
-                            <Input id="rollDiameter"
+                            <Label text="Диаметр запечатанного рулона" required="true" />
+                            <Input required="true"
                                 placeholder="Диаметр запечатанного рулона"
-                                value="{data>/rollDiameter}" />
+                                value="{Zflexdiameter}" />
                         </VBox>
                         <VBox width="100%">
-                            <Label text="Вес срыва:" />
-                            <Input id="disruptWeight"
-                                placeholder="Вес срыва"
-                                value="{data>/disruptWeight}"
-                                liveChange="handleChangeDisruptWeight"
+                            <Label text="Вес срыва:" required="true" />
+                            <Input required="true"
+                                value="{Zwaste}"
+                                liveChange="handleChangeZwaste"
                             />
                             <Text
                                 text="При срыве более 50 кг необходимо заполнить поля Брак" />
@@ -247,20 +362,20 @@
                 </VBox>
 
                 <VBox class="sapUiTinyMarginBottom sapUiFormResGrid sapUiFormBackgrTranslucent">
-                    <Table items="{state>/braks/items}">
+                    <Table items="{state>/tables/defect/items}">
                         <headerToolbar>
                             <OverflowToolbar>
                                 <content>
                                     <Title text="Брак" level="H2" />
                                     <Switch id="defectSwitch"
-                                        state="{data>/switch/defect}"
-                                        enabled="{ parts: [{ path: 'data>/disruptWeight'}],
+                                        state="{state>/switches/defect}"
+                                        enabled="{ parts: [{ path: 'Zwaste'}],
                                             formatter: '.formatter.formatSwitchDefectEnabled' }"
                                         customTextOn=" " customTextOff=" " />
                                     <ToolbarSpacer />
                                     <Button icon="sap-icon://add" text="Добавить брак"
-                                        enabled="{data>/switch/defect}"
-                                        press="handleAddBrak" />
+                                        enabled="{state>/switches/defect}"
+                                        press="handleAddDefect" />
                                 </content>
                             </OverflowToolbar>
                         </headerToolbar>
@@ -274,37 +389,32 @@
                         </columns>
                         <items>
                             <ColumnListItem>
-                                <Select
-                                    forceSelection="false"
-                                    width="100%"
-                                    enabled="{data>/switch/defect}"
-                                    items="{path: 'defect>/Defect'}"
-                                    selectedKey="{state>defect}"
-                                >
-                                    <core:Item key="{defect>key}" text="{defect>name}" />
-                                </Select>
                                 <Input
-                                    value="{state>comment}"
+                                    value="{state>Zobjdefect}"
                                     placeholder="Комментарий, содержащий информацию о браке рулона"
-                                    enabled="{data>/switch/defect}" />
+                                    enabled="{state>/switches/defect}" />
+                                <Input
+                                    value="{state>Zcommentdefect}"
+                                    placeholder="Комментарий, содержащий информацию о браке рулона"
+                                    enabled="{state>/switches/defect}" />
                             </ColumnListItem>
                         </items>
                     </Table>
                 </VBox>
                 <VBox class="sapUiTinyMarginBottom sapUiFormResGrid sapUiFormBackgrTranslucent">
-                    <Table items="{state>/table/items}">
+                    <Table items="{state>/tables/downTime/items}">
                         <headerToolbar>
                             <OverflowToolbar>
                                 <content>
                                     <Title text="Простой" level="H2" />
-                                    <Switch id="downTimeSwitch"
-                                        state="{data>/switch/downTime}"
+                                    <Switch
+                                        state="{state>/switches/downTime}"
                                         customTextOn=" "
                                         customTextOff=" "
                                     />
                                     <ToolbarSpacer />
                                     <Button icon="sap-icon://add" text="Добавить простой"
-                                        enabled="{data>/switch/downTime}"
+                                        enabled="{state>/switches/downTime}"
                                         press="handleAddDowntime" />
                                 </content>
                             </OverflowToolbar>
@@ -329,43 +439,41 @@
                         </columns>
                         <items>
                             <ColumnListItem>
-                                <Select forceSelection="false" id="downTimeSelect"
-                                    enabled="{= ${data>/switch/downTime}}"
-                                    items="{
-                                            path: 'downTime>/DownTime',
-                                            templateShareable: false
-                                    }"
-                                    selectedKey="{state>downTimeType}">
-                                    <core:Item key="{downTime>key}" text="{downTime>name}" />
-                                </Select>
-                                <TimePicker id="dateBeginItem"
-                                    enabled="{= ${data>/switch/downTime}}"
-                                    dateValue="{state>dateBegin}"
+                                <Input
+                                    value="{state>Kurztext}"
+                                    enabled="{state>/switches/downTime}" />
+                                <TimePicker
+                                    enabled="{= ${state>/switches/downTime}}"
+                                    dateValue="{state>Auztv}"
                                     change="handleChangeDownTime"
                                     displayFormat="HH:mm"
                                     valueFormat="HH:mm"
                                     placeholder="--:--"
                                 />
-                                <TimePicker id="downTimeItem"
-                                    enabled="{= ${data>/switch/downTime}}"
-                                    dateValue="{state>dateEnd}"
+                                <TimePicker
+                                    enabled="{= ${state>/switches/downTime}}"
+                                    dateValue="{state>Auztb}"
                                     valueFormat="HH:mm"
                                     displayFormat="HH:mm"
                                     change="handleChangeDownTime"
                                     placeholder="--:--" />
 
-                                <TimePicker id="dateBeginItem2"
-                                    enabled="{= ${data>/switch/downTime}}"
-                                    value="{state>downTime}"
+                                <TimePicker
+                                    enabled="{= ${state>/switches/downTime}}"
+                                    value="{
+                                        'path':'state>Zdownhours',
+                                        'type': 'sap.ui.model.type.Time',
+                                        'formatOptions': {
+                                                'pattern': 'HH:mm'
+                                        }
+                                    }"
                                     displayFormat="HH:mm"
                                     valueFormat="HH:mm"
                                     placeholder="--:--"
                                 />
-                                <Input id="downTimeReason"
-                                    enabled="{= ${data>/switch/downTime}}"
-                                    value="{state>downTimeReason}"
-                                    placeholder="Причина простоя"
-                                ></Input>
+                                <Input
+                                    value="{state>Qmtxt}"
+                                    enabled="{state>/switches/downTime}" />
                             </ColumnListItem>
                         </items>
                     </Table>
@@ -378,7 +486,7 @@
                 <Button
                     type="Emphasized"
                     text="Подтвердить"
-                    press="onConfirm" />
+                    press="handleConfirmFormData" />
             </Toolbar>
         </footer>
     </Page>

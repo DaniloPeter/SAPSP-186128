@@ -1,104 +1,195 @@
 sap.ui.define(
-  ["com/segezha/form/roll/conversion/controller/Base", "sap/m/MessageToast"],
-  (BaseController, MessageToast) => {
+  [
+    "com/segezha/form/roll/conversion/controller/Base",
+    "sap/m/MessageBox",
+    "sap/m/MessageToast",
+    "sap/ui/model/Filter",
+  ],
+  (BaseController, MessageBox, MessageToast, Filter) => {
     "use strict";
     return BaseController.extend(
       "com.segezha.form.roll.conversion.controller.Home",
       {
-        onInit() {},
-
-        handleChange: function (oEvent) {
-          const oSource = oEvent.getSource(),
-            oStateModel = this.getModel("state"),
-            sValue = oSource.getValue(),
-            aSuggestionRows = oSource.getSuggestionRows(),
-            aSuggestionData = aSuggestionRows.map((o) =>
-              o.getBindingContext().getObject()
-            ),
-            isFoundSomething = aSuggestionData.some((o) => {
-              return Object.entries(o).some(([sFieldKey, sFieldValue]) => {
-                if (sFieldKey === "__metadata") {
-                  return false;
-                }
-                return sFieldValue.toString().includes(sValue);
-              });
+        onInit() {
+          const oModel = this.getModel();
+          oModel.metadataLoaded().then(() => {
+            const sPath = oModel.createKey("/OPER_CONV_ROOLSet", {
+              Idconvroll: "",
             });
-
-          oStateModel.setProperty(`/MaterialError`, !isFoundSomething);
+            this.getView().bindElement({
+              path: sPath,
+            });
+          });
+        },
+        handleChange(oEvent) {
+          const oSource = oEvent.getSource(),
+            isRequired = oSource.getRequired();
+          if (!isRequired) {
+            return;
+          }
+          const sBindingValue = oSource.getBinding("value").getPath(),
+            oSuggestionBinding = oSource.getBinding("suggestionRows"),
+            sValue = oSource.getValue();
+          let isFoundSomething = !!sValue.length;
+          if (oSuggestionBinding) {
+            const aSuggestionRows = oSource.getSuggestionRows();
+            isFoundSomething = aSuggestionRows.some((o) => {
+              return o
+                .getBindingContextPath()
+                .includes(`${sBindingValue}='${sValue}'`);
+            });
+          }
+          this.setStateProperty(
+            `/errorFields/${sBindingValue}`,
+            !isFoundSomething
+          );
         },
 
-        handleChangeMetersOrReport: function (oEvent) {
+        handleChangeAufnr(oEvent) {
+          const oSource = oEvent.getSource(),
+            sValue = oSource.getValue(),
+            iMaxLength = oSource.getMaxLength();
+          this.handleChange(oEvent);
+
+          if (sValue.length === iMaxLength) {
+            const sBindingPath = oSource.getBindingContextPath(),
+              oModel = this.getModel();
+            this.callODataFunction("/GetKlishe", {
+              Aufnr: sValue,
+            }).then((oResponse) => {
+              const { Matnr, Maktx } = oResponse.GetKlishe;
+              oModel.setProperty(`${sBindingPath}/Klishe`, Matnr);
+              oModel.setProperty(`${sBindingPath}/Zklishetext`, Maktx);
+            });
+          }
+        },
+
+        handleChangeResource(oEvent) {
+          const oSource = oEvent.getSource(),
+            sValue = oSource.getValue(),
+            iMaxLength = oSource.getMaxLength();
+          this.handleChange(oEvent);
+
+          if (sValue.length === iMaxLength) {
+            this.callODataFunction("/GetTplnr", {
+              WpResource: sValue,
+              Werks: "1234",
+            }).then((oResponse) => {});
+          }
+        },
+
+        handleChangeTechNumber(oEvent) {
+          const oSource = oEvent.getSource(),
+            sValue = oSource.getValue(),
+            iMaxLength = oSource.getMaxLength();
+          this.handleChange(oEvent);
+
+          if (sValue.length === iMaxLength) {
+            this.callODataFunction("/CheckAufnr", {
+              Aufnr: sValue,
+            })
+              .then((oResponse) => {
+                const sDocNumber = oResponse.CheckAufnr.Documentnumber;
+                if (!sDocNumber) {
+                  MessageBox.error(oResponse.CheckAufnr.Message);
+                  return;
+                }
+              })
+              .catch((oError) => {
+                MessageBox.error(
+                  JSON.parse(oError.responseText).error.message.value
+                );
+              });
+          }
+        },
+        handleChangeMetersOrReport(oEvent) {
           const oSource = oEvent.getSource(),
             sValue = oSource.getValue(),
             sFieldPath = oSource.getBinding("value").getPath(),
-            oDataModel = this.getModel("data");
+            oBindingContext = oSource.getBindingContext(),
+            oBindingData = oBindingContext.getObject(),
+            sBindingPath = oBindingContext.getPath(),
+            oModel = this.getModel();
 
-          //TODO: эта функция необходима, чтобы получить реально значение
-          //Потому что в момент срабатывания, там будет предыдущее значение, можешь это посмотреть
-          //Поэтому вытягиваем реальное значение, а для другого поля берем его из модели
-          const fnGetRealValue = (sPath) => {
-            return sFieldPath.includes(sPath)
-              ? +sValue
-              : +oDataModel.getProperty(sPath);
-          };
+          const fnGetRealValue = (sPath) =>
+            sFieldPath.includes(sPath) ? +sValue : +oBindingData[sPath];
 
-          const iPrintMeters = fnGetRealValue("/printMeters"),
-            iReportLength = fnGetRealValue("/reportLength"),
+          const iPrintMeters = fnGetRealValue("Zpm"),
+            iReportLength = fnGetRealValue("Zlengthreport"),
             iCalcOverPrints = this.utils.calculateOverPrints(
               iPrintMeters,
               iReportLength
             );
 
-          oDataModel.setProperty("/overPrints", iCalcOverPrints);
+          oModel.setProperty(`${sBindingPath}/Zstamp`, iCalcOverPrints);
         },
 
-        handleChangeDisruptWeight: function (oEvent) {
+        handleChangeZwaste(oEvent) {
           const oSource = oEvent.getSource(),
             iValue = +oSource.getValue(),
-            oDataModel = this.getModel("data"),
-            bSelectedDefect = oDataModel.getProperty("/switch/defect");
-          //TODO: при изменении веса срыва, если значение больше 50, то включаем свитч брака
+            bSelectedDefect = this.getStateProperty("/switches/defect");
           if (iValue > 50 && !bSelectedDefect) {
-            oDataModel.setProperty("/switch/defect", true);
+            this.setStateProperty("/switches/defect", true);
           }
         },
 
-        handleChangeDownTime: function (oEvent) {
+        handleChangeDownTime(oEvent) {
           const oSource = oEvent.getSource(),
-            oStateModel = this.getModel("state"),
-            //Если элемент имеет binding (bindElement или это элемент таблицы)
-            //То мы можем получим его, в скобках указываем привязанную модель
             oBindingContext = oSource.getBindingContext("state"),
-            oItem = oBindingContext.getObject(), //Получаем объект bindinga из модели
-            sItemPath = oBindingContext.getPath(); // Получаем путь bindinga, чтобы перезаписать новое значение
-          // Метод для рассчета времени простоя в utils, возвращает строку,
-          // можно вернуть объект Date(но зачем)
+            oItem = oBindingContext.getObject(),
+            sItemPath = oBindingContext.getPath();
           const iCalcDownTime = this.utils.calculateDownTime(
-            oItem.dateBegin,
-            oItem.dateEnd
+            oItem.Auztv,
+            oItem.Auztb
           );
-          oStateModel.setProperty(`${sItemPath}/downTime`, iCalcDownTime);
+          this.setStateProperty(`${sItemPath}/Zdownhours`, iCalcDownTime);
         },
 
-        handleAddBrak() {
-          const oStateModel = this.getOwnerComponent().getModel("state"),
-            aBraks = oStateModel.getProperty("/braks/items");
-          aBraks.push({
-            defect: 2,
-            comment: "",
-          });
-          oStateModel.setProperty("/braks/items", aBraks);
+        handleAddDefect() {
+          const sBindingTable = "/tables/defect/items",
+            aDefects = this.getStateProperty(sBindingTable);
+          if (aDefects.length >= 4) {
+            MessageToast.show("Нельзя добавить более 4 дефектов.");
+            return;
+          }
+          this.setStateProperty(sBindingTable, [...aDefects, {}]);
         },
 
         handleAddDowntime() {
-          const oStateModel = this.getOwnerComponent().getModel("state"),
-            aDownTimes = oStateModel.getProperty("/table/items");
+          const sBindingTable = "/tables/downTime/items",
+            aDownTimes = this.getStateProperty(sBindingTable);
           if (aDownTimes.length >= 3) {
             MessageToast.show("Нельзя добавить более 3 простоев.");
             return;
           }
-          aDownTimes.push({});
-          oStateModel.setProperty("/table/items", aDownTimes);
+          this.setStateProperty(sBindingTable, [...aDownTimes, {}]);
+        },
+
+        handleConfirmFormData() {
+          const oBindingData = this.getView().getBindingContext().getObject(),
+            aTableData = this.getStateProperty("/tables"),
+            aDefects = aTableData.defect.items,
+            aDownTimes = aTableData.downTime.items,
+            aIgnoredFields = [
+              "__metadata",
+              "Idconvroll",
+              "toDefect",
+              "toDowntime",
+            ],
+            oFormData = Object.entries(oBindingData)
+              .filter(([key]) => !aIgnoredFields.includes(key))
+              .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
+          oFormData.toDefect = aDefects;
+          oFormData.toDowntime = aDownTimes.map((o) => {
+            return Object.entries(o).reduce((acc, [key, value]) => {
+              acc[key] = value;
+              if (value.getDate) {
+                acc[key] = this.utils.fromDateToEdmTime(value);
+              }
+              return acc;
+            }, {});
+          });
+          this.sendData("/OPER_CONV_ROOLSet", oFormData);
         },
       }
     );

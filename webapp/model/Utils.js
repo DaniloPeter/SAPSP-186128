@@ -6,35 +6,29 @@ sap.ui.define([], function () {
       const iPrintMeters = +printMeters,
         iReportLength = +reportLength;
       if (!iPrintMeters || !iReportLength) return 0;
-      return (iPrintMeters / (iReportLength * 0.01)).toFixed(2);
+      return (iPrintMeters / (iReportLength * 0.01)).toFixed(3);
     },
 
-    convertMillisecondsToTime(ms) {
-      // Конвертирует миллисекунды в {часы минуты секунды}
-      const hours = Math.floor(ms / (1000 * 60 * 60));
-      const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((ms % (1000 * 60)) / 1000);
-
-      return { hours, minutes, seconds };
+    removeTimeZoneTime(time) {
+      return time + new Date().getTimezoneOffset() * 60 * 1000;
     },
 
-    timeToDate(oTime) {
-      // Изменяем Thu Jan 01 1970 на актуальную дату
-      const newDate = new Date();
-      newDate.setHours(oTime.getHours());
-      newDate.setMinutes(oTime.getMinutes());
-      return newDate;
+    fromDateToEdmTime(date) {
+      const hours = String(date.getHours()).padStart(2, "0");
+      const minutes = String(date.getMinutes()).padStart(2, "0");
+      const seconds = String(date.getSeconds()).padStart(2, "0");
+      return `PT${hours}H${minutes}M${seconds}S`;
     },
 
     calculateDownTime(dateBegin, dateEnd) {
       // Вычисляет время простоя между двумя датами
       if (!dateBegin || !dateEnd) return null;
-      const dDateBegin = this.timeToDate(dateBegin);
-      const dDateEnd = this.timeToDate(dateEnd);
-      const downTime = dDateEnd - dDateBegin;
-      debugger;
-      const downtimeInTimeFormat = this.convertMillisecondsToTime(downTime);
-      return downtimeInTimeFormat.hours + ":" + downtimeInTimeFormat.minutes;
+      const iDiff = +dateEnd - +dateBegin;
+      if (iDiff <= 0) {
+        return null;
+      }
+      const iDifferenceTime = this.removeTimeZoneTime(iDiff);
+      return new Date(iDifferenceTime);
     },
   };
 });

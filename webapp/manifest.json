@@ -3,13 +3,13 @@
   "sap.app": {
     "id": "com.segezha.form.roll.conversion",
     "type": "application",
-    "title": "Регистрация преобразования рулонов",
+    "title": "{{appTitle}}",
     "applicationVersion": {
       "version": "1.0.0"
     },
     "dataSources": {
       "odata": {
-        "uri": "/sap/opu/odata/sap/Z_MM211_PREQ_MON_SRV",
+        "uri": "/sap/opu/odata/sap/ZPP_218_SRV_SRV",
         "type": "OData",
         "settings": {
           "odataVersion": "2.0",
@@ -70,82 +70,41 @@
       "compact": false
     },
     "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "com.segezha.form.roll.conversion.i18n.i18n"
+        }
+      },
       "": {
-				"dataSource": "odata",
-				"preload": true,
-				"settings": {
-					"odataVersion": "2.0",
-					"defaultCountMode": "InlineRepeat",
-					"useBatch": true,
-					"headers": {
-						"Accept": "application/json"
-					}
-				}
-			},
-      "printMode": {
-        "type": "sap.ui.model.json.JSONModel",
-        "uri": "localService/mockdata/PrintMode.json"
+        "dataSource": "odata",
+        "preload": true,
+        "settings": {
+          "odataVersion": "2.0",
+          "defaultBindingMode": "TwoWay",
+          "defaultCountMode": "InlineRepeat",
+          "useBatch": true,
+          "headers": {
+            "Accept": "application/json"
+          }
+        }
       },
-      "store": {
-        "type": "sap.ui.model.json.JSONModel",
-        "uri": "localService/mockdata/Store.json"
-      },
-      "shift": {
-        "type": "sap.ui.model.json.JSONModel",
-        "uri": "localService/mockdata/Shift.json"
-      },
-      "downTime": {
-        "type": "sap.ui.model.json.JSONModel",
-        "uri": "localService/mockdata/DownTime.json"
-      },
-      "crew": {
-        "type": "sap.ui.model.json.JSONModel",
-        "uri": "localService/mockdata/Crew.json"
-      },
-      "engineer": {
-        "type": "sap.ui.model.json.JSONModel",
-        "uri": "localService/mockdata/Engineer.json"
-      },
-      "defect": {
-        "type": "sap.ui.model.json.JSONModel",
-        "uri": "localService/mockdata/Defect.json"
-      },
-      "resource": {
-        "type": "sap.ui.model.json.JSONModel",
-        "uri": "localService/mockdata/Resource.json"
-      },
-      
       "state": {
         "type": "sap.ui.model.json.JSONModel",
         "settings": {
-          "table": {
-            "busy": false,
-            "items": [
-              {
-                "downTimeType": 0,
-                "dateBegin": null,
-                "dateEnd": null,
-                "downTime": null,
-                "downTimeReason": null
-              },
-              {
-                "downTimeType": 1,
-                "dateBegin": null,
-                "dateEnd": null,
-                "downTime": null,
-                "downTimeReason": null
-              }
-            ]
+          "switches": {
+            "defect": false,
+            "downTime": false
           },
-          "braks": {
-            "busy": false,
-            "items": [
-              {
-                "defect": 4,
-                "comment": ""
-              }
-            ]
-          }
+          "tables": {
+            "defect": {
+              "items": []
+            },
+            "downTime": {
+              "items": []
+            }
+          },
+          "errorFields": {}
         }
       }
     },
