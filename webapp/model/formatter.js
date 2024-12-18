@@ -6,5 +6,12 @@ sap.ui.define([], () => {
       const iDisruptWeight = +sDisruptWeight;
       return iDisruptWeight <= 50;
     },
+
+    formatLabelWithBrackets(sValue) {
+      if (!sValue) {
+        return "";
+      }
+      return `(${sValue})`;
+    },
   };
 });

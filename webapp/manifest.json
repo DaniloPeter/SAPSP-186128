@@ -92,6 +92,24 @@
       "state": {
         "type": "sap.ui.model.json.JSONModel",
         "settings": {
+          "requiredFields": [
+            "Werks",
+            "WpResource",
+            "Lgort",
+            "Zdate",
+            "Aufnr",
+            "Klishe",
+            "Zprinter",
+            "RollNum1",
+            "Zformat1",
+            "Zradius1",
+            "Znewformat",
+            "Zpm",
+            "Zlengthreport",
+            "Zstamp",
+            "Zflexdiameter",
+            "Zwaste"
+          ],
           "switches": {
             "defect": false,
             "downTime": false
@@ -104,7 +122,17 @@
               "items": []
             }
           },
-          "errorFields": {}
+          "errorFields": {},
+          "rollData": {
+            "roll1": {
+              "Material": "",
+              "Charg": ""
+            },
+            "roll2": {
+              "Material": "",
+              "Charg": ""
+            }
+          }
         }
       }
     },

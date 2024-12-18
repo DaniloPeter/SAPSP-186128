@@ -1,0 +1,39 @@
+<core:FragmentDefinition
+	xmlns="sap.ui.comp.valuehelpdialog"
+	xmlns:m="sap.m"
+	xmlns:fb="sap.ui.comp.filterbar"
+	xmlns:core="sap.ui.core">
+	<ValueHelpDialog
+		title="Справочник типов простоев"
+		supportMultiselect="false"
+		ok=".onValueHelpOkPress"
+		cancel=".onValueHelpCancelPress"
+		supportRanges="true"
+		key="Qmcod"
+		descriptionKey="Kurztext">
+		<filterBar>
+			<fb:FilterBar advancedMode="true" search=".onFilterBarSearch">
+				<fb:filterGroupItems>
+					<fb:FilterGroupItem
+						groupName="__$INTERNAL$"
+						name="Kurztext"
+						label="{/#QM/Kurztext/@sap:label}"
+						visibleInFilterBar="true">
+						<fb:control>
+							<m:Input name="Kurztext" />
+						</fb:control>
+					</fb:FilterGroupItem>
+					<fb:FilterGroupItem
+						groupName="__$INTERNAL$"
+						name="Qmcod"
+						label="{/#QM/Qmcod/@sap:label}"
+						visibleInFilterBar="true">
+						<fb:control>
+							<m:Input name="Qmcod" />
+						</fb:control>
+					</fb:FilterGroupItem>
+				</fb:filterGroupItems>
+			</fb:FilterBar>
+		</filterBar>
+	</ValueHelpDialog>
+</core:FragmentDefinition>

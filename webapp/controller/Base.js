@@ -1,10 +1,11 @@
 sap.ui.define(
   [
     "sap/ui/core/mvc/Controller",
+    "sap/ui/core/Fragment",
     "com/segezha/form/roll/conversion/model/formatter",
     "com/segezha/form/roll/conversion/model/Utils",
   ],
-  (Controller, formatter, Utils) => {
+  (Controller, Fragment, formatter, Utils) => {
     "use strict";
     return Controller.extend(
       "com.segezha.form.roll.conversion.controller.Base",
@@ -66,7 +67,6 @@ sap.ui.define(
           });
         },
 
-
         callODataFunction(sFunctionName, mParameters, sMethodParam) {
           const sMethod = sMethodParam || "GET";
           return new Promise((resolve, reject) => {
@@ -77,6 +77,30 @@ sap.ui.define(
               success: resolve,
               error: reject,
             });
+          });
+        },
+
+        getDialog(sFragmentName) {
+          if (this[sFragmentName]) {
+            return new Promise((resolve) => {
+              resolve(this[sFragmentName]);
+            });
+          } else {
+            return this.__loadDialog(sFragmentName);
+          }
+        },
+
+        __loadDialog(sFragmentName) {
+          return Fragment.load({
+            type: "XML",
+            name:
+              "com.segezha.form.roll.conversion.view.fragments." +
+              sFragmentName,
+            controller: this,
+          }).then((oDialog) => {
+            this[sFragmentName] = oDialog;
+            this.getView().addDependent(this[sFragmentName]);
+            return oDialog;
           });
         },
       }
