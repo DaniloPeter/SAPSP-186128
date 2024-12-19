@@ -116,10 +116,23 @@
           },
           "tables": {
             "defect": {
-              "items": []
+              "path": "/tables/defect/items",
+              "items": [],
+              "requiredFields": [
+                "Zobjdefect",
+                "Zcommentdefect"
+              ]
             },
             "downTime": {
-              "items": []
+              "path": "/tables/downTime/items",
+              "items": [],
+              "requiredFields": [
+                "Kurztext",
+                "Auztv",
+                "Auztb",
+                "Zdownhours",
+                "Qmtxt"
+              ]
             }
           },
           "errorFields": {},

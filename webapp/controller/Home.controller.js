@@ -32,33 +32,6 @@ sap.ui.define(
             });
           });
         },
-        onChangeCommonField(oEvent) {
-          const oSource = oEvent.getSource(),
-            sBindingValue = oSource.getBinding("value").getPath(),
-            oBindingData = oSource.getBindingContext().getObject(),
-            oSuggestionBinding = oSource.getBinding("suggestionRows"),
-            sValue = oSource.getValue(),
-            iMinValue = oSource.getMin && oSource.getMin(),
-            isRequired = oSource.getRequired();
-
-          let isFoundSomething = true;
-          if (iMinValue !== undefined && isRequired) {
-            isFoundSomething = +oBindingData[sBindingValue] > iMinValue;
-          }
-          if (oSuggestionBinding) {
-            const aSuggestionRows = oSource.getSuggestionRows();
-            isFoundSomething = aSuggestionRows.some((o) => {
-              return o
-                .getBindingContext()
-                .getPath()
-                .includes(`${sBindingValue}='${sValue}'`);
-            });
-          }
-
-          const hasError = !isFoundSomething;
-          this.setStateProperty(`/errorFields/${sBindingValue}`, hasError);
-          return hasError;
-        },
 
         onChangeAufnr(oEvent) {
           const oSource = oEvent.getSource(),
@@ -178,6 +151,9 @@ sap.ui.define(
             oBindingContext = oSource.getBindingContext("state"),
             oItem = oBindingContext.getObject(),
             sItemPath = oBindingContext.getPath();
+
+          this.onChangeCommonField(oEvent);
+
           const iCalcDownTime = this.utils.calculateDownTime(
             oItem.Auztv,
             oItem.Auztb
@@ -328,6 +304,7 @@ sap.ui.define(
             sItemPath = oItemContext.getPath();
 
           this.setStateProperty(`${sItemPath}/Kurztext`, oTokenData.Kurztext);
+          this.setStateProperty(`${sItemPath}/Kurztext_error`, false);
           this.setStateProperty(`${sItemPath}/Qmgrp`, oTokenData.Qmgrp);
           this.setStateProperty(`${sItemPath}/Qmcod`, oTokenData.Qmcod);
 
@@ -341,12 +318,14 @@ sap.ui.define(
         onConfirmFormData() {
           const oBindingData = this.getView().getBindingContext().getObject(),
             aTableData = this.getStateProperty("/tables"),
-            aDefects = aTableData.defect.items,
-            aDownTimes = aTableData.downTime.items,
-            hasError = this._validateFields({
+            oSwitches = this.getStateProperty("/switches"),
+            oDefects = aTableData.defect,
+            oDownTimes = aTableData.downTime,
+            hasError = this.__validateFields({
               formData: oBindingData,
-              defects: aDefects,
-              downTimes: aDownTimes,
+              defects: oDefects,
+              downTimes: oDownTimes,
+              switches: oSwitches,
             });
 
           if (hasError) {
@@ -361,29 +340,20 @@ sap.ui.define(
               "toDefect",
               "toDowntime",
             ],
-            oSwitches = this.getStateProperty("/switches"),
             oFormData = Object.entries(oBindingData)
               .filter(([key]) => !aIgnoredFields.includes(key))
               .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
 
           if (oSwitches.defect) {
-            oFormData.toDefect = aDefects;
+            oFormData.toDefect = this.__mappingStructrePositions(oDefects);
           }
           if (oSwitches.downTime) {
-            oFormData.toDowntime = aDownTimes.map((o) => {
-              return Object.entries(o).reduce((acc, [key, value]) => {
-                acc[key] = value;
-                if (value.getDate) {
-                  acc[key] = this.utils.fromDateToEdmTime(value);
-                }
-                return acc;
-              }, {});
-            });
+            oFormData.toDowntime = this.__mappingStructrePositions(oDownTimes);
           }
           this.sendData("/OPER_CONV_ROOLSet", oFormData);
         },
 
-        _validateFields(oParams) {
+        __validateFields(oParams) {
           const aRequiredFields = this.getStateProperty("/requiredFields"),
             oModel = this.getModel(),
             aMetaFields =
@@ -392,42 +362,94 @@ sap.ui.define(
               ).property;
           let hasError = false;
 
-          const fnPushErrorField = (sField) => {
-            this.setStateProperty(`/errorFields/${sField}`, true);
-            hasError = true;
+          const fnCheckFormData = () => {
+            const fnPushErrorField = (sField) => {
+              this.setStateProperty(`/errorFields/${sField}`, true);
+              hasError = true;
+            };
+
+            aRequiredFields.forEach((sField) => {
+              const fieldValue = oParams.formData[sField],
+                foundMetaField = aMetaFields.find((o) => o.name === sField),
+                foundFromErrors = this.getStateProperty(
+                  `/errorFields/${sField}`
+                );
+              if (foundFromErrors) {
+                fnPushErrorField(sField);
+              }
+              switch (foundMetaField.type) {
+                case "Edm.String":
+                  if (!fieldValue) {
+                    fnPushErrorField(sField);
+                  }
+                  break;
+                case "Edm.DateTime":
+                  if (!fieldValue) {
+                    fnPushErrorField(sField);
+                  }
+                  break;
+                case "Edm.Decimal":
+                  if (!+fieldValue) {
+                    fnPushErrorField(sField);
+                  }
+                  break;
+                default:
+                  if (!fieldValue) {
+                    fnPushErrorField(sField);
+                  }
+                  break;
+              }
+            });
           };
 
-          aRequiredFields.forEach((sField) => {
-            const fieldValue = oParams.formData[sField],
-              foundMetaField = aMetaFields.find((o) => o.name === sField),
-              foundFromErrors = this.getStateProperty(`/errorFields/${sField}`);
-            if (foundFromErrors) {
-              fnPushErrorField(sField);
+          const fnCheckPositions = (oEntryPosition) => {
+            const { path, items, requiredFields } = oEntryPosition;
+            const fnPushErrorField = (sFieldPath) => {
+              this.setStateProperty(`${sFieldPath}_error`, true);
+              hasError = true;
+            };
+
+            if (!items.length) {
+              hasError = true;
+              return;
             }
-            switch (foundMetaField.type) {
-              case "Edm.String":
-                if (!fieldValue) {
-                  fnPushErrorField(sField);
+
+            items.forEach((oItem, index) => {
+              requiredFields.forEach((sField) => {
+                const foundFromErrors = oItem[`${sField}_error`];
+                if (!oItem[sField] || foundFromErrors) {
+                  fnPushErrorField(`${path}/${index}/${sField}`);
                 }
-                break;
-              case "Edm.DateTime":
-                if (!fieldValue) {
-                  fnPushErrorField(sField);
-                }
-                break;
-              case "Edm.Decimal":
-                if (!+fieldValue) {
-                  fnPushErrorField(sField);
-                }
-                break;
-              default:
-                if (!fieldValue) {
-                  fnPushErrorField(sField);
-                }
-                break;
-            }
-          });
+              });
+            });
+          };
+
+          fnCheckFormData();
+
+          if (oParams.switches.defect) {
+            fnCheckPositions(oParams.defects);
+          }
+
+          if (oParams.switches.downTime) {
+            fnCheckPositions(oParams.downTimes);
+          }
           return hasError;
+        },
+
+        __mappingStructrePositions(oEntryPosition) {
+          const { items } = oEntryPosition;
+          return items.map((o) => {
+            return Object.entries(o).reduce((acc, [key, value]) => {
+              if (key.includes("error")) {
+                return acc;
+              }
+              acc[key] = value;
+              if (value.getDate) {
+                acc[key] = this.utils.fromDateToEdmTime(value);
+              }
+              return acc;
+            }, {});
+          });
         },
       }
     );

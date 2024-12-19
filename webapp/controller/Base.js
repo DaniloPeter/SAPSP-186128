@@ -103,6 +103,59 @@ sap.ui.define(
             return oDialog;
           });
         },
+
+        onChangeCommonField(oEvent) {
+          const oSource = oEvent.getSource();
+          let oValue = "";
+          let oBindingValue = null;
+
+          if (oSource.getBinding("value")) {
+            oValue = oSource.getValue();
+            oBindingValue = oSource.getBinding("value");
+          }
+          if (oSource.getBinding("dateValue")) {
+            oValue = oSource.getDateValue();
+            oBindingValue = oSource.getBinding("dateValue");
+          }
+          if (oSource.getBinding("selectedKey")) {
+            oValue = oSource.getSelectedKey();
+            oBindingValue = oSource.getBinding("selectedKey");
+          }
+
+          const sBindingValue = oBindingValue.getPath(),
+            oBindingData = oSource.getBindingContext().getObject(),
+            oSuggestionBinding = oSource.getBinding("suggestionRows"),
+            iMinValue = oSource.getMin && oSource.getMin(),
+            isRequired = oSource.getRequired && oSource.getRequired(),
+            oItemTableBinding = oSource.getBindingContext("state");
+
+          let isFoundSomething = isRequired ? !!oValue : true;
+          if (iMinValue !== undefined && isRequired) {
+            isFoundSomething = +oBindingData[sBindingValue] > iMinValue;
+          }
+          if (oSuggestionBinding) {
+            const aSuggestionRows = oSource.getSuggestionRows();
+            isFoundSomething = aSuggestionRows.some((o) => {
+              return o
+                .getBindingContext()
+                .getPath()
+                .includes(`${sBindingValue}='${oValue}'`);
+            });
+          }
+
+          const hasError = !isFoundSomething;
+
+          if (oItemTableBinding) {
+            var sItemPath = oItemTableBinding.getPath();
+            this.setStateProperty(
+              `${sItemPath}/${sBindingValue}_error`,
+              hasError
+            );
+          } else {
+            this.setStateProperty(`/errorFields/${sBindingValue}`, hasError);
+          }
+          return hasError;
+        },
       }
     );
   }

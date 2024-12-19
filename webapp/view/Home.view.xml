@@ -102,11 +102,15 @@
                         </VBox>
                         <VBox width="100%">
                             <Label text="Режим флексопечати:" />
-                            <Input
+                            <Select
                                 width="100%"
-                                value="{WpOperatingmode}"
-                            >
-                            </Input>
+                                forceSelection="false"
+                                showSecondaryValues="true"
+                                selectedKey="{WpOperatingmode}"
+                                items="{/OPERATINGMODESet}">
+                                <core:ListItem key="{WpOperatingmode}" text="{WpOperatingmode}"
+                                    additionalText="{Text}" />
+                            </Select>
                         </VBox>
                     </HBox>
                     <HBox>
@@ -265,9 +269,7 @@
                                 text="№ Рулона 1 {parts: [{ path: 'state>/rollData/roll1/Material'}],
                                             formatter: '.formatter.formatLabelWithBrackets' }"
                                 required="true" />
-                            <customControls:NumberInput required="true" value="{RollNum1}"
-                                maxFractionDigits="0"
-                                maxIntegerDigits="30"
+                            <Input maxLength="30" required="true" value="{RollNum1}"
                                 valueState="{=!!${state>/errorFields/RollNum1} ? 'Error' : 'None'}"
                                 change="onChangeRollNum"
                                 placeholder="Номер рулона 1" />
@@ -294,9 +296,7 @@
                             <Label
                                 text="№ Рулона 2 {parts: [{ path: 'state>/rollData/roll2/Material'}],
                                             formatter: '.formatter.formatLabelWithBrackets' }" />
-                            <customControls:NumberInput value="{RollNum2}"
-                                maxFractionDigits="0"
-                                maxIntegerDigits="30"
+                            <Input maxLength="30" value="{RollNum2}"
                                 valueState="{=!!${state>/errorFields/RollNum2} ? 'Error' : 'None'}"
                                 change="onChangeRollNum"
                                 placeholder="Номер рулона 2" />
@@ -410,13 +410,25 @@
                         </columns>
                         <items>
                             <ColumnListItem>
-                                <Input
-                                    value="{state>Zobjdefect}"
-                                    placeholder="Комментарий, содержащий информацию о браке рулона"
-                                    enabled="{state>/switches/defect}" />
-                                <Input
+                                <Select change="onChangeCommonField"
+                                    width="100%"
+                                    enabled="{state>/switches/defect}"
+                                    valueState="{=!!${state>Zobjdefect_error} ? 'Error' : 'None'}"
+                                    forceSelection="false"
+                                    showSecondaryValues="true"
+                                    selectedKey="{state>Zobjdefect}"
+                                    items="{
+                                        path: '/OBJDEFECTSet',
+                                        templateShareable: false
+                                    }">
+                                    <core:Item key="{Zobjdefect}" text="{Zobjdefect}" />
+                                </Select>
+
+                                <Input required="true"
                                     value="{state>Zcommentdefect}"
+                                    valueState="{=!!${state>Zcommentdefect_error} ? 'Error' : 'None'}"
                                     placeholder="Комментарий, содержащий информацию о браке рулона"
+                                    change="onChangeCommonField"
                                     enabled="{state>/switches/defect}" />
                             </ColumnListItem>
                         </items>
@@ -467,9 +479,11 @@
                         </columns>
                         <items>
                             <ColumnListItem>
-                                <Input
+                                <Input required="true"
+                                    valueHelpOnly="true"
                                     enabled="{state>/switches/downTime}"
                                     value="{state>Kurztext}"
+                                    valueState="{=!!${state>Kurztext_error} ? 'Error' : 'None'}"
                                     showValueHelp="true"
                                     showSuggestion="true"
                                     maxSuggestionWidth="60rem"
@@ -507,24 +521,25 @@
                                         </ColumnListItem>
                                     </suggestionRows>
                                 </Input>
-
-                                <TimePicker
+                                <TimePicker required="true"
                                     enabled="{= ${state>/switches/downTime}}"
+                                    valueState="{=!!${state>Auztv_error} ? 'Error' : 'None'}"
                                     dateValue="{state>Auztv}"
                                     change="onChangeDownTime"
                                     displayFormat="HH:mm"
                                     valueFormat="HH:mm"
                                     placeholder="--:--"
                                 />
-                                <TimePicker
+                                <TimePicker required="true"
                                     enabled="{= ${state>/switches/downTime}}"
+                                    valueState="{=!!${state>Auztb_error} ? 'Error' : 'None'}"
                                     dateValue="{state>Auztb}"
                                     valueFormat="HH:mm"
                                     displayFormat="HH:mm"
                                     change="onChangeDownTime"
                                     placeholder="--:--" />
 
-                                <TimePicker
+                                <TimePicker required="true"
                                     enabled="{= ${state>/switches/downTime}}"
                                     value="{
                                         'path':'state>Zdownhours',
@@ -539,8 +554,10 @@
                                     valueFormat="HH:mm"
                                     placeholder="--:--"
                                 />
-                                <Input
+                                <Input required="true"
                                     value="{state>Qmtxt}"
+                                    valueState="{=!!${state>Qmtxt_error} ? 'Error' : 'None'}"
+                                    change="onChangeCommonField"
                                     enabled="{state>/switches/downTime}" />
                             </ColumnListItem>
                         </items>
