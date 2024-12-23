@@ -96,7 +96,7 @@
             "Werks",
             "WpResource",
             "Lgort",
-            "Zdate",
+            "Zdatetime",
             "Aufnr",
             "Klishe",
             "Zprinter",
@@ -107,8 +107,7 @@
             "Zpm",
             "Zlengthreport",
             "Zstamp",
-            "Zflexdiameter",
-            "Zwaste"
+            "Zflexdiameter"
           ],
           "switches": {
             "defect": false,

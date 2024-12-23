@@ -21,6 +21,7 @@
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Завод:" required="true" />
                             <Input
+                                enabled="false"
                                 width="100%"
                                 value="{Werks}"
                                 valueState="{=!!${state>/errorFields/Werks} ? 'Error' : 'None'}"
@@ -77,7 +78,7 @@
                                 suggestionRows="{
                                     path: '/LGORTSet'
                                 }"
-                                change="onChangeCommonField">
+                                change="onChangeLgort">
                                 <suggestionColumns>
                                     <Column>
                                         <Text text="{/#LGORT/Lgort/@sap:label}" />
@@ -117,8 +118,9 @@
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Дата и время:" required="true" />
                             <DateTimePicker
-                                dateValue="{Zdate}"
-                                valueState="{=!!${state>/errorFields/Zdate} ? 'Error' : 'None'}"
+                                enabled="false"
+                                dateValue="{Zdatetime}"
+                                valueState="{=!!${state>/errorFields/Zdatetime} ? 'Error' : 'None'}"
                                 width="100%"
                                 displayFormat="dd.MM.yyyy HH:mm:ss"
                             />
@@ -200,16 +202,21 @@
                         <Title text="Заказ" />
                         <VBox>
                             <Label text="Заказ" required="true" />
-                            <MaskInput width="100%" mask="999999999999" placeholderSymbol="_"
+                            <MaskInput width="100%" mask="AA00000AAAAA" placeholderSymbol="_"
                                 value="{Aufnr}"
                                 valueState="{=!!${state>/errorFields/Aufnr} ? 'Error' : 'None'}"
                                 change="onChangeAufnr"
                                 placeholder="Номер технологического заказа"
-                            />
+                            >
+                                <rules>
+                                    <MaskInputRule maskFormatSymbol="A" regex="[0-9]" />
+                                </rules>
+                            </MaskInput>
                         </VBox>
                         <VBox>
                             <Label text="Клише" required="true" />
                             <Input maxLength="40"
+                                enabled="false"
                                 value="{Klishe}"
                                 change="onChangeCommonField"
                                 valueState="{=!!${state>/errorFields/Klishe} ? 'Error' : 'None'}"
@@ -239,6 +246,7 @@
                         <VBox>
                             <Label text="Инженер по качеству" />
                             <Input
+                                change="onChangeCommonField"
                                 width="100%"
                                 showSuggestion="true"
                                 maxSuggestionWidth="60rem"
@@ -249,12 +257,16 @@
                                 }">
                                 <suggestionColumns>
                                     <Column>
+                                        <Text text="{/#QA/Zlogin/@sap:label}" />
+                                    </Column>
+                                    <Column>
                                         <Text text="{/#QA/Zfullnameqa/@sap:label}" />
                                     </Column>
                                 </suggestionColumns>
                                 <suggestionRows>
                                     <ColumnListItem>
                                         <cells>
+                                            <Text text="{Zlogin}" />
                                             <Text text="{Zfullnameqa}" />
                                         </cells>
                                     </ColumnListItem>
@@ -279,7 +291,8 @@
                                 text="Формат исходного рулона 1  {parts: [{ path: 'state>/rollData/roll1/Charg'}],
                                             formatter: '.formatter.formatLabelWithBrackets' }"
                                 required="true" />
-                            <customControls:NumberInput required="true" numericValue="{Zformat1}"
+                            <customControls:NumberInput enabled="false" required="true"
+                                numericValue="{Zformat1}"
                                 valueState="{=!!${state>/errorFields/Zformat1} ? 'Error' : 'None'}"
                                 change="onChangeCommonField"
                                 placeholder="Формат исходного рулона 1" />
@@ -305,9 +318,8 @@
                             <Label
                                 text="Формат исходного рулона 2  {parts: [{ path: 'state>/rollData/roll2/Charg'}],
                                             formatter: '.formatter.formatLabelWithBrackets' }" />
-                            <customControls:NumberInput numericValue="{Zformat2}"
+                            <customControls:NumberInput enabled="false" numericValue="{Zformat2}"
                                 valueState="{=!!${state>/errorFields/Zformat2} ? 'Error' : 'None'}"
-                                change="onChangeCommonField"
                                 placeholder="Формат исходного рулона 2" />
                         </VBox>
                         <VBox>
@@ -348,7 +360,8 @@
                     <HBox width="100%">
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Оттиски" required="true" />
-                            <customControls:NumberInput required="true" numericValue="{Zstamp}"
+                            <customControls:NumberInput enabled="false" required="true"
+                                numericValue="{Zstamp}"
                                 valueState="{=!!${state>/errorFields/Zstamp} ? 'Error' : 'None'}"
                                 change="onChangeCommonField"
                                 placeholder="Оттиски" />
@@ -363,8 +376,8 @@
 
                         </VBox>
                         <VBox width="100%">
-                            <Label text="Вес срыва:" required="true" />
-                            <customControls:NumberInput required="true" numericValue="{Zwaste}"
+                            <Label text="Вес срыва:" />
+                            <customControls:NumberInput numericValue="{Zwaste}"
                                 valueState="{=!!${state>/errorFields/Zwaste} ? 'Error' : 'None'}"
                                 change="onChangeCommonField"
                                 liveChange="onChangeZwaste"
@@ -549,7 +562,7 @@
                                         }
                                     }"
                                     valueState="{=!!${state>Zdownhours_error} ? 'Error' : 'None'}"
-                                    valueStateText="{=!!${state>Zdownhours_error} ? 'Введите дату начала, не превыщающую дату окончания' : ''}"
+                                    valueStateText="{=!!${state>Zdownhours_error} ? 'Введите время начала простоя, не превышающее время окончания' : ''}"
                                     displayFormat="HH:mm"
                                     valueFormat="HH:mm"
                                     placeholder="--:--"

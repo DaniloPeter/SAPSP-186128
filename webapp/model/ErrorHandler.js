@@ -59,6 +59,20 @@ sap.ui.define(
             return;
           }
           this._bMessageOpen = true;
+
+          const sTextFromDetails = this.__parseError(sDetails);
+
+          if (sTextFromDetails) {
+            MessageBox.error(sTextFromDetails, {
+              id: "serviceErrorMessageBox",
+              styleClass: this._oComponent.getContentDensityClass(),
+              actions: [MessageBox.Action.CLOSE],
+              onClose: function () {
+                this._bMessageOpen = false;
+              }.bind(this),
+            });
+            return;
+          }
           MessageBox.error(this._sErrorText, {
             id: "serviceErrorMessageBox",
             details: sDetails,
@@ -68,6 +82,16 @@ sap.ui.define(
               this._bMessageOpen = false;
             }.bind(this),
           });
+        },
+
+        __parseError: function (oDetails) {
+          try {
+            const sError = JSON.parse(oDetails.responseText).error.message
+              .value;
+            return sError;
+          } catch (e) {
+            return "";
+          }
         },
       }
     );

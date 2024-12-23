@@ -22,40 +22,27 @@ sap.ui.define(
       "com.segezha.form.roll.conversion.controller.Home",
       {
         onInit() {
-          const oModel = this.getModel();
-          oModel.metadataLoaded().then(() => {
-            const sPath = oModel.createKey("/OPER_CONV_ROOLSet", {
-              Idconvroll: "",
-            });
-            this.getView().bindElement({
-              path: sPath,
-            });
-          });
+          this.__bindView();
         },
 
-        onChangeAufnr(oEvent) {
-          const oSource = oEvent.getSource(),
-            sValue = oSource.getValue(),
-            isFullValue = sValue && !sValue.includes("_");
-          this.onChangeCommonField(oEvent);
-
-          if (!isFullValue) {
-            return;
-          }
-
-          const sBindingPath = oSource.getBindingContext().getPath(),
-            oModel = this.getModel();
-          this.callODataFunction("/GetKlishe", {
-            Aufnr: sValue,
-          }).then((oResponse) => {
-            const { Matnr, Maktx } = oResponse.GetKlishe;
-            if (Matnr) {
-              oModel.setProperty(`${sBindingPath}/Klishe`, Matnr);
-              this.setStateProperty("/errorFields/Klishe", false);
+        __bindView() {
+          const oModel = this.getModel(),
+            oView = this.getView();
+          oModel.metadataLoaded().then(() => {
+            const sPath = oModel.createKey("/OPER_CONV_ROOLSet", {
+              Idconvroll: "10",
+            });
+            if (oView.getBindingContext()) {
+              this.readOData(sPath).then((oResponse) => {
+                Object.entries(oResponse).forEach(([key, value]) => {
+                  oModel.setProperty(`${sPath}/${key}`, value);
+                });
+              });
+              return;
             }
-            if (Maktx) {
-              oModel.setProperty(`${sBindingPath}/Zklishetext`, Maktx);
-            }
+            oView.bindElement({
+              path: sPath,
+            });
           });
         },
 
@@ -82,14 +69,52 @@ sap.ui.define(
             }
           });
         },
+
+        onChangeLgort(oEvent) {
+          const oSource = oEvent.getSource(),
+            sValue = oSource.getValue();
+
+          this.onChangeCommonField(oEvent);
+
+          if (!sValue) {
+            return;
+          }
+
+          this.__getDataRoll();
+        },
+
+        onChangeAufnr(oEvent) {
+          const oSource = oEvent.getSource(),
+            sValue = oSource.getValue(),
+            isFullValue = sValue && !sValue.includes("_");
+
+          if (!isFullValue) {
+            this.setStateProperty("/errorFields/Aufnr", true);
+            return;
+          }
+
+          this.setStateProperty("/errorFields/Aufnr", false);
+
+          const sBindingPath = oSource.getBindingContext().getPath(),
+            oModel = this.getModel();
+          this.callODataFunction("/GetKlishe", {
+            Aufnr: sValue,
+          }).then((oResponse) => {
+            const { Matnr, Maktx } = oResponse.GetKlishe;
+            if (Matnr) {
+              oModel.setProperty(`${sBindingPath}/Klishe`, Matnr);
+              this.setStateProperty("/errorFields/Klishe", false);
+            }
+            if (Maktx) {
+              oModel.setProperty(`${sBindingPath}/Zklishetext`, Maktx);
+            }
+          });
+        },
+
         onChangeRollNum(oEvent) {
           const oSource = oEvent.getSource(),
-            oModel = this.getModel(),
             sValue = oSource.getValue(),
             sBindingValue = oSource.getBinding("value").getPath(),
-            oBindingContext = oSource.getBindingContext(),
-            sBindingPath = oBindingContext.getPath(),
-            oBindingData = oBindingContext.getObject(),
             sRollNum = sBindingValue.includes("1") ? "1" : "2";
 
           this.onChangeCommonField(oEvent);
@@ -98,19 +123,63 @@ sap.ui.define(
             return;
           }
 
-          this.callODataFunction("/GetDataRoll", {
-            Werks: oBindingData.Werks,
-            Lgort: oBindingData.Lgort,
-            RollNum: sValue,
-          }).then((oResponse) => {
-            const { ValueFrom, Matnr, Charg } = oResponse;
+          this.__getDataRoll(sValue, sRollNum);
+        },
+
+        __getDataRoll(sRollValue, sRollNum) {
+          const oModel = this.getModel(),
+            oView = this.getView(),
+            oBindingContext = oView.getBindingContext(),
+            sBindingPath = oBindingContext.getPath(),
+            oBindingData = oBindingContext.getObject(),
+            { Werks, Lgort } = oBindingData;
+
+          if (!Werks || !Lgort) {
+            return;
+          }
+
+          const fnSetValuesByIndex = (oValues, index) => {
+            const { ValueFrom, Matnr, Charg } = oValues;
             oModel.setProperty(
-              `${sBindingPath}/Zformat${sRollNum}`,
+              `${sBindingPath}/Zformat${index}`,
               ValueFrom.replace(",", ".")
             );
-            this.setStateProperty(`/rollData/roll${sRollNum}/Material`, Matnr);
-            this.setStateProperty(`/rollData/roll${sRollNum}/Charg`, Charg);
-          });
+            this.setStateProperty(`/rollData/roll${index}/Material`, Matnr);
+            this.setStateProperty(`/rollData/roll${index}/Charg`, Charg);
+          };
+
+          const fnCallBackend = (value, number) => {
+            this.callODataFunction("/GetDataRoll", {
+              Werks: Werks,
+              Lgort: Lgort,
+              RollNum: value,
+            }).then((oResponse) => {
+              if (number) {
+                fnSetValuesByIndex(oResponse, number);
+                return;
+              }
+              fnSetValuesByIndex(oResponse, 1);
+              fnSetValuesByIndex(oResponse, 2);
+            });
+          };
+
+          if (sRollNum) {
+            fnCallBackend(sRollValue, sRollNum);
+            return;
+          }
+
+          const sRollValue1 = oBindingData.RollNum1,
+            sRollValue2 = oBindingData.RollNum2;
+
+          if (sRollValue1 && sRollValue1 !== sRollValue2) {
+            fnCallBackend(sRollValue1, 1);
+          }
+          if (sRollValue2 && sRollValue1 !== sRollValue2) {
+            fnCallBackend(sRollValue2, 2);
+          }
+          if (sRollValue1 && sRollValue2 && sRollValue1 === sRollValue2) {
+            fnCallBackend(sRollValue1);
+          }
         },
 
         onChangeMetersOrReport(oEvent) {
@@ -155,14 +224,17 @@ sap.ui.define(
           this.onChangeCommonField(oEvent);
 
           const iCalcDownTime = this.utils.calculateDownTime(
-            oItem.Auztv,
-            oItem.Auztb
-          );
+              oItem.Auztv,
+              oItem.Auztb
+            ),
+            isError = !iCalcDownTime;
 
-          this.setStateProperty(
-            `${sItemPath}/Zdownhours_error`,
-            !iCalcDownTime
-          );
+          if (isError && oItem.Auztb) {
+            MessageBox.error(
+              "Введите время начала простоя, не превышающее время окончания."
+            );
+          }
+          this.setStateProperty(`${sItemPath}/Zdownhours_error`, isError);
           this.setStateProperty(`${sItemPath}/Zdownhours`, iCalcDownTime);
         },
 
@@ -350,7 +422,11 @@ sap.ui.define(
           if (oSwitches.downTime) {
             oFormData.toDowntime = this.__mappingStructrePositions(oDownTimes);
           }
-          this.sendData("/OPER_CONV_ROOLSet", oFormData);
+          this.sendData("/OPER_CONV_ROOLSet", oFormData).then(() => {
+            this.__bindView();
+            this.__clearStatesFields();
+            MessageBox.success("Форма успешно отправлена.");
+          });
         },
 
         __validateFields(oParams) {
@@ -377,7 +453,7 @@ sap.ui.define(
               if (foundFromErrors) {
                 fnPushErrorField(sField);
               }
-              switch (foundMetaField.type) {
+              switch (foundMetaField?.type) {
                 case "Edm.String":
                   if (!fieldValue) {
                     fnPushErrorField(sField);
@@ -450,6 +526,18 @@ sap.ui.define(
               return acc;
             }, {});
           });
+        },
+
+        __clearStatesFields() {
+          this.setStateProperty("/errorFields", {});
+          this.setStateProperty("/tables/defect/items", []);
+          this.setStateProperty("/tables/downTime/items", []);
+          this.setStateProperty("/switches", {
+            defect: false,
+            downTime: false,
+          });
+          this.setStateProperty("/rollData/roll1", {});
+          this.setStateProperty("/rollData/roll2", {});
         },
       }
     );

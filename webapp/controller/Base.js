@@ -127,7 +127,8 @@ sap.ui.define(
             oSuggestionBinding = oSource.getBinding("suggestionRows"),
             iMinValue = oSource.getMin && oSource.getMin(),
             isRequired = oSource.getRequired && oSource.getRequired(),
-            oItemTableBinding = oSource.getBindingContext("state");
+            oItemTableBinding = oSource.getBindingContext("state"),
+            sCustomCheckField = oSource.data("checkField");
 
           let isFoundSomething = isRequired ? !!oValue : true;
           if (iMinValue !== undefined && isRequired) {
@@ -135,12 +136,21 @@ sap.ui.define(
           }
           if (oSuggestionBinding) {
             const aSuggestionRows = oSource.getSuggestionRows();
-            isFoundSomething = aSuggestionRows.some((o) => {
-              return o
-                .getBindingContext()
-                .getPath()
-                .includes(`${sBindingValue}='${oValue}'`);
-            });
+            if (sCustomCheckField) {
+              const aSuggestionData = aSuggestionRows.map((o) =>
+                o.getBindingContext().getObject()
+              );
+              isFoundSomething = aSuggestionData.some(
+                (o) => o[sCustomCheckField] === oValue
+              );
+            } else {
+              isFoundSomething = aSuggestionRows.some((o) => {
+                return o
+                  .getBindingContext()
+                  .getPath()
+                  .includes(`${sBindingValue}='${oValue}'`);
+              });
+            }
           }
 
           const hasError = !isFoundSomething;
