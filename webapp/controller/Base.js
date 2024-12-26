@@ -123,7 +123,6 @@ sap.ui.define(
           }
 
           const sBindingValue = oBindingValue.getPath(),
-            oBindingData = oSource.getBindingContext().getObject(),
             oSuggestionBinding = oSource.getBinding("suggestionRows"),
             iMinValue = oSource.getMin && oSource.getMin(),
             isRequired = oSource.getRequired && oSource.getRequired(),
@@ -132,9 +131,9 @@ sap.ui.define(
 
           let isFoundSomething = isRequired ? !!oValue : true;
           if (iMinValue !== undefined && isRequired) {
-            isFoundSomething = +oBindingData[sBindingValue] > iMinValue;
+            isFoundSomething = this.utils.stringToNumber(oValue) > iMinValue;
           }
-          if (oSuggestionBinding) {
+          if (oSuggestionBinding && oValue) {
             const aSuggestionRows = oSource.getSuggestionRows();
             if (sCustomCheckField) {
               const aSuggestionData = aSuggestionRows.map((o) =>

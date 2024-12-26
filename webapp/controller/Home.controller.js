@@ -110,6 +110,27 @@ sap.ui.define(
             }
           });
         },
+        onChangeZnewformat(oEvent) {
+          const oSource = oEvent.getSource(),
+            sValue = oSource.getValue(),
+            iValue = this.utils.stringToNumber(sValue),
+            oView = this.getView(),
+            oBindingContext = oView.getBindingContext(),
+            oBindingData = oBindingContext.getObject(),
+            iFormat1 = this.utils.stringToNumber(oBindingData.Zformat1),
+            iFormat2 = this.utils.stringToNumber(oBindingData.Zformat2),
+            iSumFormat = iFormat1 + iFormat2;
+
+          if (iValue > iSumFormat) {
+            MessageBox.error(
+              `Формат запечатанного рулона не должен превышать сумму форматов исходного рулона.`
+            );
+            this.setStateProperty("/errorFields/Znewformat", true);
+            return;
+          }
+
+          this.onChangeCommonField(oEvent);
+        },
 
         onChangeRollNum(oEvent) {
           const oSource = oEvent.getSource(),
@@ -140,10 +161,13 @@ sap.ui.define(
 
           const fnSetValuesByIndex = (oValues, index) => {
             const { ValueFrom, Matnr, Charg } = oValues;
-            oModel.setProperty(
-              `${sBindingPath}/Zformat${index}`,
-              ValueFrom.replace(",", ".")
-            );
+            const formattedValue = this.utils.formatStringValueFrom(ValueFrom);
+            if (formattedValue) {
+              oModel.setProperty(
+                `${sBindingPath}/Zformat${index}`,
+                formattedValue
+              );
+            }
             this.setStateProperty(`/rollData/roll${index}/Material`, Matnr);
             this.setStateProperty(`/rollData/roll${index}/Charg`, Charg);
           };
@@ -188,7 +212,10 @@ sap.ui.define(
             sBindingPath = oBindingContext.getPath(),
             oModel = this.getModel();
           if (this.onChangeCommonField(oEvent)) {
-            oModel.setProperty(`${sBindingPath}/Zstamp`, (0).toFixed(3));
+            oModel.setProperty(
+              `${sBindingPath}/Zstamp`,
+              this.utils.zeroString()
+            );
             this.setStateProperty("/errorFields/Zstamp", true);
             return;
           }

@@ -337,7 +337,7 @@
                             <Label text="Формат запечатанного рулона" required="true" />
                             <customControls:NumberInput required="true" numericValue="{Znewformat}"
                                 valueState="{=!!${state>/errorFields/Znewformat} ? 'Error' : 'None'}"
-                                change="onChangeCommonField"
+                                change="onChangeZnewformat"
                                 placeholder="Формат запечатанного рулона" />
 
                         </VBox>

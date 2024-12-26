@@ -30,5 +30,22 @@ sap.ui.define([], function () {
       const iDifferenceTime = this.removeTimeZoneTime(iDiff);
       return new Date(iDifferenceTime);
     },
+
+    stringToNumber(str) {
+      return +str.replace(/ /g, "").replace(",", ".");
+    },
+
+    formatStringValueFrom(str) {
+      try {
+        const iValue = this.stringToNumber(str);
+        return iValue.toFixed(3);
+      } catch (e) {
+        return this.zeroString();
+      }
+    },
+
+    zeroString() {
+      return (0).toFixed(3);
+    },
   };
 });
