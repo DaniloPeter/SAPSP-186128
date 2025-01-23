@@ -6,7 +6,8 @@ sap.ui.define([], function () {
       const iPrintMeters = +printMeters,
         iReportLength = +reportLength;
       if (!iPrintMeters || !iReportLength) return 0;
-      return (iPrintMeters / (iReportLength * 0.01)).toFixed(3);
+
+      return (iPrintMeters / (iReportLength * 0.01)).toFixed(0);
     },
 
     removeTimeZoneTime(time) {
@@ -44,8 +45,8 @@ sap.ui.define([], function () {
       }
     },
 
-    zeroString() {
-      return (0).toFixed(3);
+    zeroString(iFixed = 3) {
+      return (0).toFixed(iFixed);
     },
   };
 });

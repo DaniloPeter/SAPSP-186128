@@ -54,6 +54,9 @@
                                     <Column>
                                         <Text text="{/#WORKPLACE/Werks/@sap:label}" />
                                     </Column>
+                                    <Column>
+                                        <Text text="{/#WORKPLACE/Lgort/@sap:label}" />
+                                    </Column>
                                 </suggestionColumns>
                                 <suggestionRows>
                                     <ColumnListItem>
@@ -62,6 +65,7 @@
                                             <Text text="{WpResourceText}" />
                                             <Text text="{WpParameter}" />
                                             <Text text="{Werks}" />
+                                            <Text text="{Lgort}" />
                                         </cells>
                                     </ColumnListItem>
                                 </suggestionRows>
@@ -69,36 +73,10 @@
                         </VBox>
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Склад:" required="true" />
-                            <Input
+                            <Input enabled="false"
                                 width="100%"
-                                showSuggestion="true"
-                                maxSuggestionWidth="60rem"
                                 value="{Lgort}"
-                                valueState="{=!!${state>/errorFields/Lgort} ? 'Error' : 'None'}"
-                                suggestionRows="{
-                                    path: '/LGORTSet'
-                                }"
-                                change="onChangeLgort">
-                                <suggestionColumns>
-                                    <Column>
-                                        <Text text="{/#LGORT/Lgort/@sap:label}" />
-                                    </Column>
-                                    <Column>
-                                        <Text text="{/#LGORT/Lgobe/@sap:label}" />
-                                    </Column>
-                                    <Column>
-                                        <Text text="{/#LGORT/Werks/@sap:label}" />
-                                    </Column>
-                                </suggestionColumns>
-                                <suggestionRows>
-                                    <ColumnListItem>
-                                        <cells>
-                                            <Text text="{Lgort}" />
-                                            <Text text="{Lgobe}" />
-                                            <Text text="{Werks}" />
-                                        </cells>
-                                    </ColumnListItem>
-                                </suggestionRows>
+                                valueState="{=!!${state>/errorFields/Lgort} ? 'Error' : 'None'}">
                             </Input>
                         </VBox>
                         <VBox width="100%">
@@ -108,6 +86,7 @@
                                 forceSelection="false"
                                 showSecondaryValues="true"
                                 selectedKey="{WpOperatingmode}"
+                                change="onChangeWpOperatingmode"
                                 items="{/OPERATINGMODESet}">
                                 <core:ListItem key="{WpOperatingmode}" text="{WpOperatingmode}"
                                     additionalText="{Text}" />
@@ -199,10 +178,10 @@
                     <VBox
                         class="sapUiFormResGrid sapUiFormBackgrTranslucent sapUiSmallMarginEnd"
                         width="100%">
-                        <Title text="Заказ" />
+                        <Title text="Заказ" level="H2" />
                         <VBox>
                             <Label text="Заказ" required="true" />
-                            <MaskInput width="100%" mask="AA00000AAAAA" placeholderSymbol="_"
+                            <MaskInput width="100%" mask="1200000AAAAA" placeholderSymbol="_"
                                 value="{Aufnr}"
                                 valueState="{=!!${state>/errorFields/Aufnr} ? 'Error' : 'None'}"
                                 change="onChangeAufnr"
@@ -217,7 +196,7 @@
                             <Label text="Клише" required="true" />
                             <Input maxLength="40"
                                 enabled="false"
-                                value="{Klishe}"
+                                value="{Zklishetext}"
                                 change="onChangeCommonField"
                                 valueState="{=!!${state>/errorFields/Klishe} ? 'Error' : 'None'}"
                                 placeholder="Клише"
@@ -226,11 +205,13 @@
                         <VBox>
                             <Label text="Описание клише" />
                             <Input maxLength="40"
-                                value="{Zklishetext}" placeholder="Описание клише" />
+                                value="{Zklishedescr}" placeholder="Описание клише" />
                         </VBox>
                         <VBox>
                             <Label text="Скорость машины" />
                             <customControls:NumberInput numericValue="{Zobjspeed}"
+                                maxIntegerDigits="3"
+                                maxFractionDigits="0"
                                 valueState="{=!!${state>/errorFields/Zobjspeed} ? 'Error' : 'None'}"
                                 change="onChangeCommonField"
                                 placeholder="Скорость машины" />
@@ -255,10 +236,10 @@
                                 suggestionRows="{
                                     path: '/QASet'
                                 }">
+                                <customData>
+                                    <core:CustomData key="checkField" value="Zfullnameqa" />
+                                </customData>
                                 <suggestionColumns>
-                                    <Column>
-                                        <Text text="{/#QA/Zlogin/@sap:label}" />
-                                    </Column>
                                     <Column>
                                         <Text text="{/#QA/Zfullnameqa/@sap:label}" />
                                     </Column>
@@ -266,7 +247,6 @@
                                 <suggestionRows>
                                     <ColumnListItem>
                                         <cells>
-                                            <Text text="{Zlogin}" />
                                             <Text text="{Zfullnameqa}" />
                                         </cells>
                                     </ColumnListItem>
@@ -275,7 +255,7 @@
                         </VBox>
                     </VBox>
                     <VBox class="sapUiFormResGrid sapUiFormBackgrTranslucent" width="100%">
-                        <Title text="Рулон" />
+                        <Title text="Рулон" level="H2" />
                         <VBox>
                             <Label
                                 text="№ Рулона 1 {parts: [{ path: 'state>/rollData/roll1/Material'}],
@@ -298,18 +278,31 @@
                                 placeholder="Формат исходного рулона 1" />
                         </VBox>
                         <VBox>
-                            <Label text="Радиус остатка 1" required="true" />
-                            <customControls:NumberInput required="true" numericValue="{Zradius1}"
+                            <Label text="Радиус остатка 1" />
+                            <customControls:NumberInput numericValue="{Zradius1}"
+                                maxIntegerDigits="3"
+                                maxFractionDigits="1"
                                 valueState="{=!!${state>/errorFields/Zradius1} ? 'Error' : 'None'}"
                                 change="onChangeCommonField"
                                 placeholder="Радиус остатка 1" />
 
                         </VBox>
+                        <HBox alignItems="Center">
+                            <Title class="sapUiTinyMarginEnd" text="Склейка" level="H2" />
+                            <Switch
+                                enabled="{state>/switches/rollEnabled}"
+                                change="onSwitch($event, 'roll')"
+                                state="{state>/switches/roll}"
+                                customTextOn=" "
+                                customTextOff=" "
+                            />
+                        </HBox>
                         <VBox>
                             <Label
                                 text="№ Рулона 2 {parts: [{ path: 'state>/rollData/roll2/Material'}],
                                             formatter: '.formatter.formatLabelWithBrackets' }" />
                             <Input maxLength="30" value="{RollNum2}"
+                                enabled="{state>/switches/roll}"
                                 valueState="{=!!${state>/errorFields/RollNum2} ? 'Error' : 'None'}"
                                 change="onChangeRollNum"
                                 placeholder="Номер рулона 2" />
@@ -325,6 +318,9 @@
                         <VBox>
                             <Label text="Радиус остатка 2" />
                             <customControls:NumberInput numericValue="{Zradius2}"
+                                enabled="{state>/switches/roll}"
+                                maxIntegerDigits="3"
+                                maxFractionDigits="1"
                                 valueState="{=!!${state>/errorFields/Zradius2} ? 'Error' : 'None'}"
                                 change="onChangeCommonField"
                                 placeholder="Радиус остатка 2" />
@@ -336,6 +332,8 @@
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Формат запечатанного рулона" required="true" />
                             <customControls:NumberInput required="true" numericValue="{Znewformat}"
+                                maxIntegerDigits="3"
+                                maxFractionDigits="1"
                                 valueState="{=!!${state>/errorFields/Znewformat} ? 'Error' : 'None'}"
                                 change="onChangeZnewformat"
                                 placeholder="Формат запечатанного рулона" />
@@ -344,13 +342,16 @@
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Погонные метры" required="true" />
                             <customControls:NumberInput required="true" numericValue="{Zpm}"
+                                maxIntegerDigits="3"
+                                maxFractionDigits="0"
                                 valueState="{=!!${state>/errorFields/Zpm} ? 'Error' : 'None'}"
                                 change="onChangeMetersOrReport"
                                 placeholder="Метраж выходящего погонного рулона" />
                         </VBox>
                         <VBox width="100%">
                             <Label text="Длина рапорта" required="true" />
-                            <customControls:NumberInput required="true"
+                            <customControls:NumberInput required="true" maxIntegerDigits="3"
+                                maxFractionDigits="0"
                                 numericValue="{Zlengthreport}"
                                 valueState="{=!!${state>/errorFields/Zlengthreport} ? 'Error' : 'None'}"
                                 change="onChangeMetersOrReport"
@@ -361,6 +362,7 @@
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Оттиски" required="true" />
                             <customControls:NumberInput enabled="false" required="true"
+                                maxFractionDigits="0"
                                 numericValue="{Zstamp}"
                                 valueState="{=!!${state>/errorFields/Zstamp} ? 'Error' : 'None'}"
                                 change="onChangeCommonField"
@@ -369,6 +371,8 @@
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Диаметр запечатанного рулона" required="true" />
                             <customControls:NumberInput required="true"
+                                maxIntegerDigits="3"
+                                maxFractionDigits="1"
                                 numericValue="{Zflexdiameter}"
                                 valueState="{=!!${state>/errorFields/Zflexdiameter} ? 'Error' : 'None'}"
                                 change="onChangeCommonField"
@@ -378,6 +382,8 @@
                         <VBox width="100%">
                             <Label text="Вес срыва:" />
                             <customControls:NumberInput numericValue="{Zwaste}"
+                                maxIntegerDigits="3"
+                                maxFractionDigits="3"
                                 valueState="{=!!${state>/errorFields/Zwaste} ? 'Error' : 'None'}"
                                 change="onChangeCommonField"
                                 liveChange="onChangeZwaste"
@@ -396,7 +402,7 @@
                             <OverflowToolbar>
                                 <content>
                                     <Title text="Брак" level="H2" />
-                                    <Switch id="defectSwitch"
+                                    <Switch
                                         change="onSwitch($event, 'defect')"
                                         state="{state>/switches/defect}"
                                         enabled="{ parts: [{ path: 'Zwaste'}],

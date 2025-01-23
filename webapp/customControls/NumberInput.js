@@ -80,7 +80,18 @@ sap.ui.define(
           if (isNaN(roundedValue)) {
             return "";
           }
-          return dotSeparatedValue.slice(0, maxIntegerDigits);
+          const splittedValue = roundedValue.split(".");
+          const fractionalPart = splittedValue[1];
+          let integerValue = splittedValue[0];
+          if (integerValue && integerValue.length > maxIntegerDigits) {
+            integerValue = integerValue.slice(0, maxIntegerDigits);
+            if (fractionalPart) {
+              roundedValue = `${integerValue}.${fractionalPart}`;
+            } else {
+              roundedValue = integerValue;
+            }
+          }
+          return roundedValue;
         },
 
         _formatValue: function (value) {

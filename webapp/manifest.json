@@ -102,7 +102,6 @@
             "Zprinter",
             "RollNum1",
             "Zformat1",
-            "Zradius1",
             "Znewformat",
             "Zpm",
             "Zlengthreport",
@@ -111,7 +110,9 @@
           ],
           "switches": {
             "defect": false,
-            "downTime": false
+            "downTime": false,
+            "roll": false,
+            "rollEnabled": false
           },
           "tables": {
             "defect": {

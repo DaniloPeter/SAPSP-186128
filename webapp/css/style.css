@@ -17,3 +17,33 @@
 .sapMLabelTextWrapper {
   font-weight: bold !important;
 }
+
+.sapUiFormLayout.sapUiFormBackgrSolid,
+.sapUiFormLayout.sapUiFormBackgrTranslucent {
+  background-color: #fff;
+  border-radius: 0.75rem;
+}
+
+.sapUiFormCL.sapUiFormBackgrSolid,
+.sapUiFormCL.sapUiFormBackgrTranslucent {
+  background-color: #fff;
+  border-radius: 0.75rem;
+}
+
+.sapUiGrid.sapUiFormBackgrSolid,
+.sapUiGrid.sapUiFormBackgrTranslucent {
+  background-color: #fff;
+  border-radius: 0.75rem;
+}
+
+.sapUiFormResGrid.sapUiFormBackgrSolid,
+.sapUiFormResGrid.sapUiFormBackgrTranslucent {
+  background-color: #fff;
+  border-radius: 0.75rem;
+}
+
+.sapUiFormResLayout.sapUiFormBackgrSolid,
+.sapUiFormResLayout.sapUiFormBackgrTranslucent {
+  background-color: #fff;
+  border-radius: 0.75rem;
+}

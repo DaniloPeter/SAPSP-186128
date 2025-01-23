@@ -105,7 +105,8 @@ sap.ui.define(
         },
 
         onChangeCommonField(oEvent) {
-          const oSource = oEvent.getSource();
+          const oSource = oEvent.getSource(),
+            oModel = this.getModel();
           let oValue = "";
           let oBindingValue = null;
 
@@ -122,37 +123,43 @@ sap.ui.define(
             oBindingValue = oSource.getBinding("selectedKey");
           }
 
-          const sBindingValue = oBindingValue.getPath(),
+          const sBindingPath = oSource.getBindingContext().getPath(),
+            sBindingValue = oBindingValue.getPath(),
             oSuggestionBinding = oSource.getBinding("suggestionRows"),
             iMinValue = oSource.getMin && oSource.getMin(),
             isRequired = oSource.getRequired && oSource.getRequired(),
             oItemTableBinding = oSource.getBindingContext("state"),
             sCustomCheckField = oSource.data("checkField");
 
-          let isFoundSomething = isRequired ? !!oValue : true;
+          let oFoundSomething = isRequired ? !!oValue : true;
           if (iMinValue !== undefined && isRequired) {
-            isFoundSomething = this.utils.stringToNumber(oValue) > iMinValue;
+            oFoundSomething = this.utils.stringToNumber(oValue) > iMinValue;
           }
           if (oSuggestionBinding && oValue) {
-            const aSuggestionRows = oSource.getSuggestionRows();
+            const aSuggestionRows = oSource.getSuggestionRows().map((o) => ({
+              data: o.getBindingContext().getObject(),
+              path: o.getBindingContext().getPath(),
+            }));
             if (sCustomCheckField) {
-              const aSuggestionData = aSuggestionRows.map((o) =>
-                o.getBindingContext().getObject()
-              );
-              isFoundSomething = aSuggestionData.some(
-                (o) => o[sCustomCheckField] === oValue
+              oFoundSomething = aSuggestionRows.find(
+                (o) => o.data[sCustomCheckField] === oValue
               );
             } else {
-              isFoundSomething = aSuggestionRows.some((o) => {
-                return o
-                  .getBindingContext()
-                  .getPath()
-                  .includes(`${sBindingValue}='${oValue}'`);
-              });
+              oFoundSomething = aSuggestionRows.find((o) =>
+                o.path.includes(`${sBindingValue}='${oValue}'`)
+              );
             }
           }
 
-          const hasError = !isFoundSomething;
+          if (oFoundSomething && sBindingValue === "WpResource") {
+            oModel.setProperty(
+              `${sBindingPath}/Lgort`,
+              oFoundSomething.data.Lgort
+            );
+            this.setStateProperty("/errorFields/Lgort", false);
+          }
+
+          const hasError = !oFoundSomething;
 
           if (oItemTableBinding) {
             var sItemPath = oItemTableBinding.getPath();

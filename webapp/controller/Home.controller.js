@@ -70,17 +70,26 @@ sap.ui.define(
           });
         },
 
-        onChangeLgort(oEvent) {
+        onChangeWpOperatingmode: function (oEvent) {
           const oSource = oEvent.getSource(),
-            sValue = oSource.getValue();
-
-          this.onChangeCommonField(oEvent);
-
-          if (!sValue) {
+            oModel = this.getModel(),
+            sSelectedKey = oSource.getSelectedKey(),
+            sBindingPath = oSource.getBindingContext().getPath();
+          if (sSelectedKey === "1141" || sSelectedKey === "1142") {
+            this.setStateProperty("/switches/roll", false);
+            this.setStateProperty("/switches/rollEnabled", false);
+            oModel.setProperty(`${sBindingPath}/RollNum2`, "");
+            oModel.setProperty(
+              `${sBindingPath}/Zformat2`,
+              this.utils.zeroString(3)
+            );
+            oModel.setProperty(
+              `${sBindingPath}/Zradius2`,
+              this.utils.zeroString(0)
+            );
             return;
           }
-
-          this.__getDataRoll();
+          this.setStateProperty("/switches/rollEnabled", true);
         },
 
         onChangeAufnr(oEvent) {
@@ -214,7 +223,7 @@ sap.ui.define(
           if (this.onChangeCommonField(oEvent)) {
             oModel.setProperty(
               `${sBindingPath}/Zstamp`,
-              this.utils.zeroString()
+              this.utils.zeroString(0)
             );
             this.setStateProperty("/errorFields/Zstamp", true);
             return;
@@ -226,9 +235,10 @@ sap.ui.define(
             sCalcOverPrints = this.utils.calculateOverPrints(
               iPrintMeters,
               iReportLength
-            );
+            ),
+            isError = sCalcOverPrints.length > 3 || +sCalcOverPrints <= 0;
 
-          this.setStateProperty("/errorFields/Zstamp", +sCalcOverPrints <= 0);
+          this.setStateProperty("/errorFields/Zstamp", isError);
           oModel.setProperty(`${sBindingPath}/Zstamp`, sCalcOverPrints);
         },
 
@@ -267,16 +277,31 @@ sap.ui.define(
 
         onSwitch(oEvent, sType) {
           const bSelected = oEvent.getParameter("state");
-          if (!bSelected) {
-            return;
-          }
-
           switch (sType) {
             case "defect":
-              this._addEmptyRow("/tables/defect/items", 4, true);
+              bSelected && this._addEmptyRow("/tables/defect/items", 4, true);
               break;
             case "downTime":
-              this._addEmptyRow("/tables/downTime/items", 3, true);
+              bSelected && this._addEmptyRow("/tables/downTime/items", 3, true);
+              break;
+            case "roll":
+              if (!bSelected) {
+                const oModel = this.getModel(),
+                  sBindingPath = oEvent
+                    .getSource()
+                    .getBindingContext()
+                    .getPath();
+                oModel.setProperty(`${sBindingPath}/RollNum2`, "");
+                oModel.setProperty(
+                  `${sBindingPath}/Zformat2`,
+                  this.utils.zeroString()
+                );
+                oModel.setProperty(
+                  `${sBindingPath}/Zradius2`,
+                  this.utils.zeroString(1)
+                );
+              }
+              break;
           }
         },
 
@@ -362,20 +387,11 @@ sap.ui.define(
                 return;
               }
               if (oTable.bindRows) {
-                oTable.bindAggregation("rows", {
-                  path: sSuggestionPath,
-                  events: {
-                    dataReceived: function () {
-                      oDialog.update();
-                    },
-                  },
-                });
-                aSuggestionFields.forEach((oField) => {
+                aSuggestionFields.forEach((oField, index) => {
                   const tempLabel =
-                    oField.extensions.find((e) => e.name === "label")?.value ||
-                    oField.name;
-                  oTable.addColumn(
-                    new UIColumn({
+                      oField.extensions.find((e) => e.name === "label")
+                        ?.value || oField.name,
+                    tempColumn = new UIColumn({
                       label: new Label({
                         text: tempLabel,
                       }),
@@ -383,8 +399,21 @@ sap.ui.define(
                         wrapping: false,
                         text: `{${oField.name}}`,
                       }),
-                    })
-                  );
+                    });
+
+                  if (index === 3) {
+                    tempColumn.setWidth("350px");
+                  }
+                  oTable.addColumn(tempColumn);
+                });
+
+                oTable.bindAggregation("rows", {
+                  path: sSuggestionPath,
+                  events: {
+                    dataReceived: function () {
+                      oDialog.update();
+                    },
+                  },
                 });
               }
               oDialog.update();
@@ -415,7 +444,8 @@ sap.ui.define(
         },
 
         onConfirmFormData() {
-          const oBindingData = this.getView().getBindingContext().getObject(),
+          const oModel = this.getModel(),
+            oBindingData = this.getView().getBindingContext().getObject(),
             aTableData = this.getStateProperty("/tables"),
             oSwitches = this.getStateProperty("/switches"),
             oDefects = aTableData.defect,
@@ -425,12 +455,11 @@ sap.ui.define(
               defects: oDefects,
               downTimes: oDownTimes,
               switches: oSwitches,
-            });
+            }),
+            sEntity = "/OPER_CONV_ROOLSet";
 
           if (hasError) {
-            MessageBox.error(
-              "Исправьте ошибки в форме и заполните обязательные поля."
-            );
+            MessageBox.error("Заполните обязательные поля.");
             return;
           }
           const aIgnoredFields = [
@@ -439,9 +468,17 @@ sap.ui.define(
               "toDefect",
               "toDowntime",
             ],
+            aMetaFields =
+              oModel.oMetadata._getEntityTypeByPath(sEntity).property,
             oFormData = Object.entries(oBindingData)
               .filter(([key]) => !aIgnoredFields.includes(key))
-              .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
+              .reduce((acc, [key, value]) => {
+                const oMetaField = aMetaFields.find((o) => o.name === key);
+                if (oMetaField && oMetaField.type === "Edm.Int16") {
+                  value = +value;
+                }
+                return { ...acc, [key]: value };
+              }, {});
 
           if (oSwitches.defect) {
             oFormData.toDefect = this.__mappingStructrePositions(oDefects);
@@ -449,11 +486,26 @@ sap.ui.define(
           if (oSwitches.downTime) {
             oFormData.toDowntime = this.__mappingStructrePositions(oDownTimes);
           }
-          this.sendData("/OPER_CONV_ROOLSet", oFormData).then(() => {
-            this.__bindView();
-            this.__clearStatesFields();
-            MessageBox.success("Форма успешно отправлена.");
-          });
+
+          const fnFireSave = () => {
+            this.sendData(sEntity, oFormData).then(() => {
+              this.__bindView();
+              this.__clearStatesFields();
+              MessageBox.success("Форма успешно отправлена.");
+            });
+          };
+
+          MessageBox.information(
+            "Вы уверены, что хотите отправить форму в SAP?",
+            {
+              actions: [MessageBox.Action.YES, MessageBox.Action.NO],
+              onClose: function (action) {
+                if (action == sap.m.MessageBox.Action.YES) {
+                  fnFireSave();
+                }
+              },
+            }
+          );
         },
 
         __validateFields(oParams) {
@@ -492,6 +544,11 @@ sap.ui.define(
                   }
                   break;
                 case "Edm.Decimal":
+                  if (!+fieldValue) {
+                    fnPushErrorField(sField);
+                  }
+                  break;
+                case "Edm.Int16":
                   if (!+fieldValue) {
                     fnPushErrorField(sField);
                   }
