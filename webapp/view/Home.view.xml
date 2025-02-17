@@ -140,37 +140,18 @@
                         </VBox>
                         <VBox width="100%">
                             <Label text="Бригада:" />
-                            <Input
+                            <Select
                                 width="100%"
-                                showSuggestion="true"
-                                maxSuggestionWidth="60rem"
-                                value="{Brig}"
-                                valueState="{=!!${state>/errorFields/Brig} ? 'Error' : 'None'}"
-                                suggestionRows="{
-                                    path: '/BRIGSet'
-                                }"
-                                change="onChangeCommonField">
-                                <suggestionColumns>
-                                    <Column>
-                                        <Text text="{/#BRIG/Brig/@sap:label}" />
-                                    </Column>
-                                    <Column>
-                                        <Text text="{/#BRIG/BrigName/@sap:label}" />
-                                    </Column>
-                                    <Column>
-                                        <Text text="{/#BRIG/Werks/@sap:label}" />
-                                    </Column>
-                                </suggestionColumns>
-                                <suggestionRows>
-                                    <ColumnListItem>
-                                        <cells>
-                                            <Text text="{Brig}" />
-                                            <Text text="{BrigName}" />
-                                            <Text text="{Werks}" />
-                                        </cells>
-                                    </ColumnListItem>
-                                </suggestionRows>
-                            </Input>
+                                forceSelection="false"
+                                showSecondaryValues="true"
+                                selectedKey="{Brig}"
+                                items="{
+                                        path: 'state>/valueHelps/BRIGSet',
+                                        templateShareable: false
+                                    }">
+                                <core:ListItem key="{state>Brig}" text="{state>Brig}"
+                                    additionalText="{state>BrigName}" />
+                            </Select>
                         </VBox>
                     </HBox>
                 </VBox>
@@ -375,7 +356,7 @@
                                 maxFractionDigits="1"
                                 numericValue="{Zflexdiameter}"
                                 valueState="{=!!${state>/errorFields/Zflexdiameter} ? 'Error' : 'None'}"
-                                change="onChangeCommonField"
+                                change="onChangeZflexdiameter"
                                 placeholder="Диаметр запечатанного рулона" />
 
                         </VBox>

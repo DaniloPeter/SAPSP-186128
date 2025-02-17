@@ -131,6 +131,12 @@ sap.ui.define(
             oItemTableBinding = oSource.getBindingContext("state"),
             sCustomCheckField = oSource.data("checkField");
 
+          if (oValue === "error") {
+            oSource.setValue("");
+            this.setStateProperty(`/errorFields/${sBindingValue}`, true);
+            return;
+          }
+
           let oFoundSomething = isRequired ? !!oValue : true;
           if (iMinValue !== undefined && isRequired) {
             oFoundSomething = this.utils.stringToNumber(oValue) > iMinValue;

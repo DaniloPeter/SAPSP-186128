@@ -56,6 +56,10 @@ sap.ui.define(
             const roundedValue = this._roundValue(value);
             //For type FLOAT
             const formattedValue = this._formatValue(roundedValue);
+            if (roundedValue === "error") {
+              Input.prototype.setValue.call(this, roundedValue);
+              return;
+            }
             if (minFractionDigits === maxFractionDigits) {
               Input.prototype.setValue.call(this, roundedValue);
             } else {
@@ -67,28 +71,38 @@ sap.ui.define(
         _roundValue: function (value) {
           const maxFractionDigits = this.getMaxFractionDigits();
           const maxIntegerDigits = this.getMaxIntegerDigits();
-          // Replaced space is ASCII code 160 non-breaking space !== ASCII code 32 space!
-          // eslint-disable-next-line no-irregular-whitespace
           const sWithoutNonBreakingSpaces = value.replace(/ /g, "");
-
-          // Replace usual ASCII code 32 spaces
-          const sWithoutSpaces = sWithoutNonBreakingSpaces.replace(/ /g, "");
-          const spaceSeparatedValue = sWithoutSpaces.replace(".", "");
-          const dotSeparatedValue = spaceSeparatedValue.replace(",", ".");
-          let roundedValue =
-            parseFloat(dotSeparatedValue).toFixed(maxFractionDigits);
+          const dotSeparatedValue = sWithoutNonBreakingSpaces.replace(",", ".");
+          let roundedValue = `${parseFloat(dotSeparatedValue)}`;
           if (isNaN(roundedValue)) {
-            return "";
+            return "error";
           }
           const splittedValue = roundedValue.split(".");
-          const fractionalPart = splittedValue[1];
+          let fractionalPart = splittedValue[1] || "";
           let integerValue = splittedValue[0];
+          
+          if (fractionalPart.length > maxFractionDigits) {
+            return "error";
+          }
+
+          if (integerValue.length > maxIntegerDigits && !!+maxIntegerDigits) {
+            return "error";
+          }
+
           if (integerValue && integerValue.length > maxIntegerDigits) {
             integerValue = integerValue.slice(0, maxIntegerDigits);
-            if (fractionalPart) {
+            if (!!+fractionalPart) {
               roundedValue = `${integerValue}.${fractionalPart}`;
             } else {
-              roundedValue = integerValue;
+              if (Number.isInteger(+integerValue)) {
+                fractionalPart = dotSeparatedValue.slice(
+                  maxIntegerDigits,
+                  maxIntegerDigits + maxFractionDigits
+                );
+                roundedValue = `${integerValue}.${fractionalPart}`;
+              } else {
+                roundedValue = integerValue;
+              }
             }
           }
           return roundedValue;

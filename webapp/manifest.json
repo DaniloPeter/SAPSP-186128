@@ -114,6 +114,9 @@
             "roll": false,
             "rollEnabled": false
           },
+          "valueHelps": {
+            "BRIGSet": []
+          },
           "tables": {
             "defect": {
               "path": "/tables/defect/items",

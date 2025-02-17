@@ -7,6 +7,8 @@ sap.ui.define(
     "sap/m/SearchField",
     "sap/ui/table/Column",
     "sap/m/Text",
+    "sap/ui/model/Filter",
+    "sap/ui/model/FilterOperator",
   ],
   (
     BaseController,
@@ -15,7 +17,9 @@ sap.ui.define(
     Label,
     SearchField,
     UIColumn,
-    Text
+    Text,
+    Filter,
+    FilterOperator
   ) => {
     "use strict";
     return BaseController.extend(
@@ -59,14 +63,25 @@ sap.ui.define(
             return;
           }
 
-          this.callODataFunction("/GetTplnr", {
+          const oPayload = {
             WpResource: sValue,
             Werks: oBindingData.Werks,
-          }).then((oResponse) => {
-            const sTplnr = oResponse.TPLNR;
-            if (sTplnr) {
-              oModel.setProperty(`${sBindingPath}/Tplnr`, sTplnr);
+          };
+
+          this.callODataFunction("/GetTplnr", oPayload).then((oResponse) => {
+            const { TPLNR } = oResponse.TPLNR;
+            if (TPLNR) {
+              oModel.setProperty(`${sBindingPath}/Tplnr`, TPLNR);
             }
+          });
+
+          this.readOData("/BRIGSet", {
+            filters: [
+              new Filter("WpResource", FilterOperator.EQ, sValue),
+              new Filter("Werks", FilterOperator.EQ, oBindingData.Werks),
+            ],
+          }).then((oResponse) => {
+            this.setStateProperty("/valueHelps/BRIGSet", oResponse.results);
           });
         },
 
@@ -242,9 +257,25 @@ sap.ui.define(
           oModel.setProperty(`${sBindingPath}/Zstamp`, sCalcOverPrints);
         },
 
+        onChangeZflexdiameter: function (oEvent) {
+          const oSource = oEvent.getSource(),
+            oBindingContext = oSource.getBindingContext(),
+            sBindingPath = oBindingContext.getPath(),
+            oModel = this.getModel(),
+            iValue = this.utils.stringToNumber(oSource.getValue());
+
+          if (this.onChangeCommonField(oEvent)) {
+            return;
+          }
+
+          if (iValue < 10) {
+            this.setStateProperty("/errorFields/Zflexdiameter", true);
+          }
+        },
+
         onChangeZwaste(oEvent) {
           const oSource = oEvent.getSource(),
-            iValue = +oSource.getValue(),
+            iValue = this.utils.stringToNumber(oSource.getValue()),
             bSelectedDefect = this.getStateProperty("/switches/defect");
           if (iValue > 50 && !bSelectedDefect) {
             this.setStateProperty("/switches/defect", true);
@@ -619,6 +650,8 @@ sap.ui.define(
           this.setStateProperty("/switches", {
             defect: false,
             downTime: false,
+            roll: false,
+            rollEnabled: false,
           });
           this.setStateProperty("/rollData/roll1", {});
           this.setStateProperty("/rollData/roll2", {});
