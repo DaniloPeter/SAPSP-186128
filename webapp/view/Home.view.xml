@@ -80,14 +80,14 @@
                             </Input>
                         </VBox>
                         <VBox width="100%">
-                            <Label text="Режим флексопечати:" />
-                            <Select
+                            <Label text="Режим флексопечати:" required="true" />
+                            <Select forceSelection="false"
                                 width="100%"
-                                forceSelection="false"
                                 showSecondaryValues="true"
                                 selectedKey="{WpOperatingmode}"
                                 change="onChangeWpOperatingmode"
-                                items="{/OPERATINGMODESet}">
+                                items="{/OPERATINGMODESet}"
+                                valueState="{=!!${state>/errorFields/WpOperatingmode} ? 'Error' : 'None'}">
                                 <core:ListItem key="{WpOperatingmode}" text="{WpOperatingmode}"
                                     additionalText="{Text}" />
                             </Select>
@@ -105,7 +105,7 @@
                             />
                         </VBox>
                         <VBox width="100%" class="sapUiSmallMarginEnd">
-                            <Label text="Смена:" />
+                            <Label text="Смена:" required="true" />
                             <Input
                                 width="100%"
                                 showSuggestion="true"
@@ -139,16 +139,17 @@
                             </Input>
                         </VBox>
                         <VBox width="100%">
-                            <Label text="Бригада:" />
-                            <Select
+                            <Label text="Бригада:" required="true" />
+                            <Select forceSelection="false"
                                 width="100%"
-                                forceSelection="false"
                                 showSecondaryValues="true"
                                 selectedKey="{Brig}"
                                 items="{
                                         path: 'state>/valueHelps/BRIGSet',
                                         templateShareable: false
-                                    }">
+                                    }"
+                                valueState="{=!!${state>/errorFields/Brig} ? 'Error' : 'None'}"
+                                change="onChangeCommonField">
                                 <core:ListItem key="{state>Brig}" text="{state>Brig}"
                                     additionalText="{state>BrigName}" />
                             </Select>
@@ -194,6 +195,8 @@
                                 maxIntegerDigits="3"
                                 maxFractionDigits="0"
                                 valueState="{=!!${state>/errorFields/Zobjspeed} ? 'Error' : 'None'}"
+                                valueStateText="{ parts: [{ path: 'state>/errorFields/Zobjspeed'},{ path: 'state>/fieldsFormat/Zobjspeed'}],
+                                            formatter: '.formatter.formatValueState' }"
                                 change="onChangeCommonField"
                                 placeholder="Скорость машины" />
                         </VBox>
@@ -202,18 +205,19 @@
                             <Input value="{Zprinter}"
                                 valueState="{=!!${state>/errorFields/Zprinter} ? 'Error' : 'None'}"
                                 maxLength="150"
-                                change="onChangeCommonField"
+                                liveChange="onChangeZprinter"
                                 placeholder="ФИО печатника" />
                         </VBox>
                         <VBox>
                             <Label text="Инженер по качеству" />
                             <Input
                                 change="onChangeCommonField"
+                                suggestionItemSelected="onSuggestionZloginSelected"
                                 width="100%"
                                 showSuggestion="true"
                                 maxSuggestionWidth="60rem"
-                                value="{Zlogin}"
-                                valueState="{=!!${state>/errorFields/Zlogin} ? 'Error' : 'None'}"
+                                value="{Zfullnameqa}"
+                                valueState="{=!!${state>/errorFields/Zfullnameqa} ? 'Error' : 'None'}"
                                 suggestionRows="{
                                     path: '/QASet'
                                 }">
@@ -254,6 +258,8 @@
                                 required="true" />
                             <customControls:NumberInput enabled="false" required="true"
                                 numericValue="{Zformat1}"
+                                maxIntegerDigits="3"
+                                maxFractionDigits="1"
                                 valueState="{=!!${state>/errorFields/Zformat1} ? 'Error' : 'None'}"
                                 change="onChangeCommonField"
                                 placeholder="Формат исходного рулона 1" />
@@ -264,6 +270,8 @@
                                 maxIntegerDigits="3"
                                 maxFractionDigits="1"
                                 valueState="{=!!${state>/errorFields/Zradius1} ? 'Error' : 'None'}"
+                                valueStateText="{ parts: [{ path: 'state>/errorFields/Zradius1'},{ path: 'state>/fieldsFormat/Zradius1'}],
+                                            formatter: '.formatter.formatValueState' }"
                                 change="onChangeCommonField"
                                 placeholder="Радиус остатка 1" />
 
@@ -293,6 +301,8 @@
                                 text="Формат исходного рулона 2  {parts: [{ path: 'state>/rollData/roll2/Charg'}],
                                             formatter: '.formatter.formatLabelWithBrackets' }" />
                             <customControls:NumberInput enabled="false" numericValue="{Zformat2}"
+                                maxIntegerDigits="3"
+                                maxFractionDigits="1"
                                 valueState="{=!!${state>/errorFields/Zformat2} ? 'Error' : 'None'}"
                                 placeholder="Формат исходного рулона 2" />
                         </VBox>
@@ -303,6 +313,8 @@
                                 maxIntegerDigits="3"
                                 maxFractionDigits="1"
                                 valueState="{=!!${state>/errorFields/Zradius2} ? 'Error' : 'None'}"
+                                valueStateText="{ parts: [{ path: 'state>/errorFields/Zradius2'},{ path: 'state>/fieldsFormat/Zradius2'}],
+                                            formatter: '.formatter.formatValueState' }"
                                 change="onChangeCommonField"
                                 placeholder="Радиус остатка 2" />
                         </VBox>
@@ -316,6 +328,8 @@
                                 maxIntegerDigits="3"
                                 maxFractionDigits="1"
                                 valueState="{=!!${state>/errorFields/Znewformat} ? 'Error' : 'None'}"
+                                valueStateText="{ parts: [{ path: 'state>/errorFields/Znewformat'},{ path: 'state>/fieldsFormat/Znewformat'}],
+                                            formatter: '.formatter.formatValueState' }"
                                 change="onChangeZnewformat"
                                 placeholder="Формат запечатанного рулона" />
 
@@ -326,6 +340,8 @@
                                 maxIntegerDigits="3"
                                 maxFractionDigits="0"
                                 valueState="{=!!${state>/errorFields/Zpm} ? 'Error' : 'None'}"
+                                valueStateText="{ parts: [{ path: 'state>/errorFields/Zpm'},{ path: 'state>/fieldsFormat/Zpm'}],
+                                            formatter: '.formatter.formatValueState' }"
                                 change="onChangeMetersOrReport"
                                 placeholder="Метраж выходящего погонного рулона" />
                         </VBox>
@@ -335,6 +351,8 @@
                                 maxFractionDigits="0"
                                 numericValue="{Zlengthreport}"
                                 valueState="{=!!${state>/errorFields/Zlengthreport} ? 'Error' : 'None'}"
+                                valueStateText="{ parts: [{ path: 'state>/errorFields/Zlengthreport'},{ path: 'state>/fieldsFormat/Zlengthreport'}],
+                                            formatter: '.formatter.formatValueState' }"
                                 change="onChangeMetersOrReport"
                                 placeholder="Длина рапорта" />
                         </VBox>
@@ -356,6 +374,8 @@
                                 maxFractionDigits="1"
                                 numericValue="{Zflexdiameter}"
                                 valueState="{=!!${state>/errorFields/Zflexdiameter} ? 'Error' : 'None'}"
+                                valueStateText="{ parts: [{ path: 'state>/errorFields/Zflexdiameter'},{ path: 'state>/fieldsFormat/Zflexdiameter'}],
+                                            formatter: '.formatter.formatValueState' }"
                                 change="onChangeZflexdiameter"
                                 placeholder="Диаметр запечатанного рулона" />
 
@@ -366,6 +386,8 @@
                                 maxIntegerDigits="3"
                                 maxFractionDigits="3"
                                 valueState="{=!!${state>/errorFields/Zwaste} ? 'Error' : 'None'}"
+                                valueStateText="{ parts: [{ path: 'state>/errorFields/Zwaste'},{ path: 'state>/fieldsFormat/Zwaste'}],
+                                            formatter: '.formatter.formatValueState' }"
                                 change="onChangeCommonField"
                                 liveChange="onChangeZwaste"
                                 placeholder="Вес срыва" />
@@ -492,6 +514,9 @@
                                         path: '/QMSet',
                                         templateShareable: false
                                     }">
+                                    <customData>
+                                        <core:CustomData key="checkField" value="Kurztext" />
+                                    </customData>
                                     <suggestionColumns>
                                         <Column>
                                             <Text text="{/#QM/Kurztext/@sap:label}" />
@@ -541,6 +566,7 @@
 
                                 <TimePicker required="true"
                                     enabled="{= ${state>/switches/downTime}}"
+                                    change="onChangeCommonField"
                                     value="{
                                         'path':'state>Zdownhours',
                                         'type': 'sap.ui.model.type.Time',
@@ -567,6 +593,13 @@
         </content>
         <footer>
             <Toolbar>
+                <Button
+                    id="btnMessagePopoverId"
+                    icon="sap-icon://error"
+                    text="{= ${message>/}.length }"
+                    visible="{= ${message>/}.length > 0 }"
+                    type="Reject"
+                    press="onMessagePopoverPress" />
                 <ToolbarSpacer />
                 <Button
                     type="Emphasized"

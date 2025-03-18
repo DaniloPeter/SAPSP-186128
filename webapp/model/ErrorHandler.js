@@ -29,12 +29,12 @@ sap.ui.define(
           this._sErrorText = this._oResourceBundle.getText("errorText");
 
           this._oModel.attachMetadataFailed(function (oEvent) {
-            var oParams = oEvent.getParameters();
+            const oParams = oEvent.getParameters();
             this._showServiceError(oParams.response);
           }, this);
 
           this._oModel.attachRequestFailed(function (oEvent) {
-            var oParams = oEvent.getParameters();
+            const oParams = oEvent.getParameters();
             // An entity that was not found in the service is also throwing a 404 error in oData.
             // We already cover this case with a notFound target so we skip it here.
             // A request that cannot be sent to the server is a technical error that we have to handle though

@@ -2,10 +2,11 @@ sap.ui.define(
   [
     "sap/ui/core/mvc/Controller",
     "sap/ui/core/Fragment",
+    "sap/ui/core/message/Message",
     "com/segezha/form/roll/conversion/model/formatter",
     "com/segezha/form/roll/conversion/model/Utils",
   ],
-  (Controller, Fragment, formatter, Utils) => {
+  (Controller, Fragment, Message, formatter, Utils) => {
     "use strict";
     return Controller.extend(
       "com.segezha.form.roll.conversion.controller.Base",
@@ -105,7 +106,7 @@ sap.ui.define(
         },
 
         onChangeCommonField(oEvent) {
-          const oSource = oEvent.getSource(),
+          const oSource = oEvent.getSource ? oEvent.getSource() : oEvent,
             oModel = this.getModel();
           let oValue = "";
           let oBindingValue = null;
@@ -132,7 +133,7 @@ sap.ui.define(
             sCustomCheckField = oSource.data("checkField");
 
           if (oValue === "error") {
-            oSource.setValue("");
+            oSource.setValue("0");
             this.setStateProperty(`/errorFields/${sBindingValue}`, true);
             return;
           }
@@ -157,18 +158,26 @@ sap.ui.define(
             }
           }
 
-          if (oFoundSomething && sBindingValue === "WpResource") {
+          let aSkipErrors = [sBindingValue];
+
+          if (
+            oFoundSomething &&
+            oFoundSomething.data &&
+            oFoundSomething.data.hasOwnProperty("Lgort") &&
+            sBindingValue === "WpResource"
+          ) {
             oModel.setProperty(
               `${sBindingPath}/Lgort`,
               oFoundSomething.data.Lgort
             );
+            aSkipErrors.push("Lgort");
             this.setStateProperty("/errorFields/Lgort", false);
           }
 
           const hasError = !oFoundSomething;
 
           if (oItemTableBinding) {
-            var sItemPath = oItemTableBinding.getPath();
+            const sItemPath = oItemTableBinding.getPath();
             this.setStateProperty(
               `${sItemPath}/${sBindingValue}_error`,
               hasError
@@ -176,7 +185,66 @@ sap.ui.define(
           } else {
             this.setStateProperty(`/errorFields/${sBindingValue}`, hasError);
           }
+
+          if (!hasError) {
+            const oMessageManager = sap.ui.getCore().getMessageManager(),
+              oMessageModel = oMessageManager.getMessageModel(),
+              aMessagesData = oMessageModel.getData(),
+              indexPosition = oItemTableBinding
+                ? oItemTableBinding.getPath().split("/items/")[1]
+                : "",
+              sFieldName = indexPosition
+                ? `${sBindingValue}_${indexPosition}`
+                : sBindingValue;
+
+            if (sFieldName === "Znewformat") {
+              aSkipErrors.push(...["Zformat1", "Zformat2"]);
+            }
+
+            if (sFieldName === "Zpm" || sFieldName === "Zlengthreport") {
+              aSkipErrors.push("Zstamp");
+            }
+
+            if (sFieldName === "Aufnr") {
+              aSkipErrors.push("Klishe");
+            }
+
+            if (aMessagesData.length) {
+              const aNewMessages = aMessagesData.filter((o) => {
+                if (aSkipErrors.length > 1) {
+                  return !aSkipErrors.includes(o.technicalDetails);
+                }
+                return o.technicalDetails !== sFieldName;
+              });
+              oMessageManager.removeMessages(aMessagesData);
+              oMessageManager.addMessages(aNewMessages);
+            }
+          }
+
           return hasError;
+        },
+
+        onMessagePopoverPress() {
+          const oButton = this.byId("btnMessagePopoverId");
+          this.getDialog("MessagePopover").then((oDialog) =>
+            setTimeout(() => oDialog.openBy(oButton), 0)
+          );
+        },
+
+        __addErrorMessage(oMessage) {
+          const oMessageTemplate = new Message({
+            message: oMessage.message,
+            additionalText: oMessage.additionalText || "",
+            type: oMessage.type,
+            code: oMessage.group,
+            technicalDetails: oMessage.field,
+            processor: this.getView().getModel(),
+          });
+          sap.ui.getCore().getMessageManager().addMessages(oMessageTemplate);
+        },
+
+        __clearMessages() {
+          sap.ui.getCore().getMessageManager().removeAllMessages();
         },
       }
     );

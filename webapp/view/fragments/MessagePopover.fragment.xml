@@ -1,0 +1,16 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:customControls="com.segezha.form.roll.conversion.customControls"
+    xmlns:core="sap.ui.core">
+    <customControls:MessagePopover
+        items="{message>/}"
+        groupItems="true"
+        initiallyExpanded="true">
+        <customControls:MessageItem
+            type="{message>type}"
+            title="{message>message}"
+            groupName="{message>code}"
+            subtitle="{message>additionalText}"
+            description="{message>description}" />
+    </customControls:MessagePopover>
+</core:FragmentDefinition>

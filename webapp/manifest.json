@@ -3,7 +3,8 @@
   "sap.app": {
     "id": "com.segezha.form.roll.conversion",
     "type": "application",
-    "title": "{{appTitle}}",
+    "i18n": "i18n/i18n.properties",
+    "title": "Регистрация преобразования рулонов",
     "applicationVersion": {
       "version": "1.0.0"
     },
@@ -57,7 +58,7 @@
       }
     },
     "dependencies": {
-      "minUI5Version": "1.108.0",
+      "minUI5Version": "1.74.0",
       "libs": {
         "sap.ui.core": {},
         "sap.ui.comp": {},
@@ -92,10 +93,25 @@
       "state": {
         "type": "sap.ui.model.json.JSONModel",
         "settings": {
+          "fieldsFormat": {
+            "Znewformat": "Введите число в формате 000,0",
+            "Zflexdiameter": "Введите число в формате 000,0",
+            "Zradius1": "Введите число в формате 000,0",
+            "Zradius2": "Введите число в формате 000,0",
+            "Zwaste": "Введите число в формате 000,000",
+            "Zpm": "Введите число в формате 000",
+            "Zobjspeed": "Введите число в формате 000",
+            "Zlengthreport": "Введите число в формате 000",
+            "Zformat1": "Форматы исходных рулонов должны совпадать",
+            "Zformat2": "Форматы исходных рулонов должны совпадать"
+          },
           "requiredFields": [
             "Werks",
             "WpResource",
             "Lgort",
+            "Smen",
+            "Brig",
+            "WpOperatingmode",
             "Zdatetime",
             "Aufnr",
             "Klishe",

@@ -19,14 +19,23 @@ sap.ui.define(
     UIColumn,
     Text,
     Filter,
-    FilterOperator
+    FilterOperator,
+    library
   ) => {
     "use strict";
+
     return BaseController.extend(
       "com.segezha.form.roll.conversion.controller.Home",
       {
         onInit() {
           this.__bindView();
+
+          const oMessageManager = sap.ui.getCore().getMessageManager(),
+            oView = this.getView();
+          oMessageManager.getMessageModel().setDefaultBindingMode("TwoWay");
+          oView.setModel(oMessageManager.getMessageModel(), "message");
+
+          oMessageManager.registerObject(oView, true);
         },
 
         __bindView() {
@@ -57,7 +66,7 @@ sap.ui.define(
             oBindingData = oBindingContext.getObject(),
             sBindingPath = oBindingContext.getPath(),
             oModel = this.getModel();
-          this.onChangeCommonField(oEvent);
+          this.onChangeCommonField(oSource);
 
           if (!sValue) {
             return;
@@ -85,11 +94,13 @@ sap.ui.define(
           });
         },
 
-        onChangeWpOperatingmode: function (oEvent) {
+        onChangeWpOperatingmode(oEvent) {
           const oSource = oEvent.getSource(),
             oModel = this.getModel(),
             sSelectedKey = oSource.getSelectedKey(),
             sBindingPath = oSource.getBindingContext().getPath();
+          this.onChangeCommonField(oSource);
+
           if (sSelectedKey === "1141" || sSelectedKey === "1142") {
             this.setStateProperty("/switches/roll", false);
             this.setStateProperty("/switches/rollEnabled", false);
@@ -107,6 +118,23 @@ sap.ui.define(
           this.setStateProperty("/switches/rollEnabled", true);
         },
 
+        onChangeZprinter(oEvent) {
+          var oSource = oEvent.getSource(),
+            sValue = oSource.getValue(),
+            sFilteredValue = sValue.replace(/[^а-яА-ЯёЁ\s]/g, "");
+
+          if (sValue !== sFilteredValue) {
+            oSource.setValue(sFilteredValue);
+            if (!sFilteredValue) {
+              this.setStateProperty("/errorFields/Zprinter", true);
+            }
+            return;
+          }
+
+          this.onChangeCommonField(oSource);
+          this.setStateProperty("/errorFields/Zprinter", false);
+        },
+
         onChangeAufnr(oEvent) {
           const oSource = oEvent.getSource(),
             sValue = oSource.getValue(),
@@ -118,6 +146,8 @@ sap.ui.define(
           }
 
           this.setStateProperty("/errorFields/Aufnr", false);
+
+          this.onChangeCommonField(oSource);
 
           const sBindingPath = oSource.getBindingContext().getPath(),
             oModel = this.getModel();
@@ -134,6 +164,20 @@ sap.ui.define(
             }
           });
         },
+
+        onSuggestionZloginSelected(oEvent) {
+          const oSelectedRowBinding = oEvent
+              .getParameter("selectedRow")
+              .getBindingContext()
+              .getObject(),
+            sBindingPath = oEvent.getSource().getBindingContext().getPath(),
+            oModel = this.getModel();
+          oModel.setProperty(
+            `${sBindingPath}/Zlogin`,
+            oSelectedRowBinding.Zlogin
+          );
+        },
+
         onChangeZnewformat(oEvent) {
           const oSource = oEvent.getSource(),
             sValue = oSource.getValue(),
@@ -143,17 +187,24 @@ sap.ui.define(
             oBindingData = oBindingContext.getObject(),
             iFormat1 = this.utils.stringToNumber(oBindingData.Zformat1),
             iFormat2 = this.utils.stringToNumber(oBindingData.Zformat2),
-            iSumFormat = iFormat1 + iFormat2;
+            bSelected = this.getStateProperty("/switches/roll");
 
-          if (iValue > iSumFormat) {
+          const fnPushErrorField = (iNumber) => {
             MessageBox.error(
-              `Формат запечатанного рулона не должен превышать сумму форматов исходного рулона.`
+              `Формат запечатанного рулона не должен превышать формат исходного рулона ${iNumber}.`
             );
             this.setStateProperty("/errorFields/Znewformat", true);
+          };
+          if (iValue > iFormat1) {
+            fnPushErrorField(1);
+            return;
+          }
+          if (iValue > iFormat2 && bSelected) {
+            fnPushErrorField(2);
             return;
           }
 
-          this.onChangeCommonField(oEvent);
+          this.onChangeCommonField(oSource);
         },
 
         onChangeRollNum(oEvent) {
@@ -162,7 +213,7 @@ sap.ui.define(
             sBindingValue = oSource.getBinding("value").getPath(),
             sRollNum = sBindingValue.includes("1") ? "1" : "2";
 
-          this.onChangeCommonField(oEvent);
+          this.onChangeCommonField(oSource);
 
           if (!sValue) {
             return;
@@ -191,6 +242,7 @@ sap.ui.define(
                 `${sBindingPath}/Zformat${index}`,
                 formattedValue
               );
+              this.setStateProperty(`/errorFields/Zformat${index}`, false);
             }
             this.setStateProperty(`/rollData/roll${index}/Material`, Matnr);
             this.setStateProperty(`/rollData/roll${index}/Charg`, Charg);
@@ -235,7 +287,7 @@ sap.ui.define(
             oBindingContext = oSource.getBindingContext(),
             sBindingPath = oBindingContext.getPath(),
             oModel = this.getModel();
-          if (this.onChangeCommonField(oEvent)) {
+          if (this.onChangeCommonField(oSource)) {
             oModel.setProperty(
               `${sBindingPath}/Zstamp`,
               this.utils.zeroString(0)
@@ -257,14 +309,11 @@ sap.ui.define(
           oModel.setProperty(`${sBindingPath}/Zstamp`, sCalcOverPrints);
         },
 
-        onChangeZflexdiameter: function (oEvent) {
+        onChangeZflexdiameter(oEvent) {
           const oSource = oEvent.getSource(),
-            oBindingContext = oSource.getBindingContext(),
-            sBindingPath = oBindingContext.getPath(),
-            oModel = this.getModel(),
             iValue = this.utils.stringToNumber(oSource.getValue());
 
-          if (this.onChangeCommonField(oEvent)) {
+          if (this.onChangeCommonField(oSource)) {
             return;
           }
 
@@ -289,7 +338,7 @@ sap.ui.define(
             oItem = oBindingContext.getObject(),
             sItemPath = oBindingContext.getPath();
 
-          this.onChangeCommonField(oEvent);
+          this.onChangeCommonField(oSource);
 
           const iCalcDownTime = this.utils.calculateDownTime(
               oItem.Auztv,
@@ -331,6 +380,9 @@ sap.ui.define(
                   `${sBindingPath}/Zradius2`,
                   this.utils.zeroString(1)
                 );
+                this.setStateProperty(`/errorFields/RollNum2`, false);
+                this.setStateProperty(`/errorFields/Zformat2`, false);
+                this.setStateProperty(`/errorFields/Zradius2`, false);
               }
               break;
           }
@@ -467,6 +519,8 @@ sap.ui.define(
           this.setStateProperty(`${sItemPath}/Qmgrp`, oTokenData.Qmgrp);
           this.setStateProperty(`${sItemPath}/Qmcod`, oTokenData.Qmcod);
 
+          this.onChangeCommonField(this._oInputVH);
+
           oEvent.getSource().close();
         },
 
@@ -481,21 +535,17 @@ sap.ui.define(
             oSwitches = this.getStateProperty("/switches"),
             oDefects = aTableData.defect,
             oDownTimes = aTableData.downTime,
-            hasError = this.__validateFields({
-              formData: oBindingData,
-              defects: oDefects,
-              downTimes: oDownTimes,
-              switches: oSwitches,
-            }),
+            hasError = this.__validateFields(),
             sEntity = "/OPER_CONV_ROOLSet";
 
           if (hasError) {
-            MessageBox.error("Заполните обязательные поля.");
+            this.onMessagePopoverPress();
             return;
           }
           const aIgnoredFields = [
               "__metadata",
               "Idconvroll",
+              "Zfullnameqa",
               "toDefect",
               "toDowntime",
             ],
@@ -518,6 +568,10 @@ sap.ui.define(
             oFormData.toDowntime = this.__mappingStructrePositions(oDownTimes);
           }
 
+          this.__fireSave(sEntity, oFormData);
+        },
+
+        __fireSave(sEntity, oFormData) {
           const fnFireSave = () => {
             this.sendData(sEntity, oFormData).then(() => {
               this.__bindView();
@@ -539,54 +593,91 @@ sap.ui.define(
           );
         },
 
-        __validateFields(oParams) {
-          const aRequiredFields = this.getStateProperty("/requiredFields"),
-            oModel = this.getModel(),
+        __validateFields() {
+          const oModel = this.getModel(),
+            oFormData = this.getView().getBindingContext().getObject(),
+            aTableData = this.getStateProperty("/tables"),
+            oSwitchesData = this.getStateProperty("/switches"),
+            oDefectsData = aTableData.defect,
+            oDownTimesData = aTableData.downTime,
+            aRequiredFields = this.getStateProperty("/requiredFields"),
             aMetaFields =
               oModel.oMetadata._getEntityTypeByPath(
                 "/OPER_CONV_ROOLSet"
-              ).property;
+              ).property,
+            oFieldsFormat = this.getStateProperty("/fieldsFormat");
           let hasError = false;
 
-          const fnCheckFormData = () => {
-            const fnPushErrorField = (sField) => {
-              this.setStateProperty(`/errorFields/${sField}`, true);
-              hasError = true;
-            };
+          this.__clearErrorFields();
 
+          const fnPushErrorField = (oMetaField, oParams) => {
+            const sFieldName = oMetaField.name,
+              sFieldLabel =
+                oMetaField.extensions.find((o) => o.name === "label")?.value ||
+                sFieldName,
+              foundFormat = oFieldsFormat[sFieldName],
+              isTableError = !!oParams,
+              sMessage = isTableError
+                ? `Позиция №${oParams.index + 1} - "${sFieldLabel}"`
+                : `Поле "${sFieldLabel}"`;
+            let sErrorText = "Поле обязательно для заполнения";
+
+            if (foundFormat) {
+              sErrorText = foundFormat;
+            }
+
+            this.__addErrorMessage({
+              field: isTableError
+                ? `${sFieldName}_${oParams.index}`
+                : sFieldName,
+              message: sMessage,
+              additionalText: sErrorText,
+              group: oParams ? oParams.groupName : "Данные формы",
+              type: oParams ? "Warning" : "Error",
+            });
+            if (oParams) {
+              const sFieldPath = `${oParams.path}/${oParams.index}/${sFieldName}`;
+              this.setStateProperty(`${sFieldPath}_error`, true);
+            } else {
+              this.setStateProperty(`/errorFields/${sFieldName}`, true);
+            }
+            hasError = true;
+          };
+
+          const fnCheckFormData = () => {
             aRequiredFields.forEach((sField) => {
-              const fieldValue = oParams.formData[sField],
-                foundMetaField = aMetaFields.find((o) => o.name === sField),
+              const fieldValue = oFormData[sField],
                 foundFromErrors = this.getStateProperty(
                   `/errorFields/${sField}`
-                );
+                ),
+                foundMetaField = aMetaFields.find((o) => o.name === sField);
               if (foundFromErrors) {
-                fnPushErrorField(sField);
+                fnPushErrorField(foundMetaField);
               }
               switch (foundMetaField?.type) {
                 case "Edm.String":
                   if (!fieldValue) {
-                    fnPushErrorField(sField);
+                    fnPushErrorField(foundMetaField);
                   }
                   break;
                 case "Edm.DateTime":
                   if (!fieldValue) {
-                    fnPushErrorField(sField);
+                    fnPushErrorField(foundMetaField);
                   }
                   break;
                 case "Edm.Decimal":
                   if (!+fieldValue) {
-                    fnPushErrorField(sField);
+                    fnPushErrorField(foundMetaField);
                   }
                   break;
                 case "Edm.Int16":
                   if (!+fieldValue) {
-                    fnPushErrorField(sField);
+                    fnPushErrorField(foundMetaField);
                   }
                   break;
                 default:
                   if (!fieldValue) {
-                    fnPushErrorField(sField);
+                    fnPushErrorField(foundMetaField);
                   }
                   break;
               }
@@ -594,11 +685,10 @@ sap.ui.define(
           };
 
           const fnCheckPositions = (oEntryPosition) => {
-            const { path, items, requiredFields } = oEntryPosition;
-            const fnPushErrorField = (sFieldPath) => {
-              this.setStateProperty(`${sFieldPath}_error`, true);
-              hasError = true;
-            };
+            const { path, items, requiredFields, entitySet, groupName } =
+                oEntryPosition,
+              aMetaFields =
+                oModel.oMetadata._getEntityTypeByPath(entitySet).property;
 
             if (!items.length) {
               hasError = true;
@@ -609,7 +699,14 @@ sap.ui.define(
               requiredFields.forEach((sField) => {
                 const foundFromErrors = oItem[`${sField}_error`];
                 if (!oItem[sField] || foundFromErrors) {
-                  fnPushErrorField(`${path}/${index}/${sField}`);
+                  const foundMetaField = aMetaFields.find(
+                    (o) => o.name === sField
+                  );
+                  fnPushErrorField(foundMetaField, {
+                    path: path,
+                    index: index,
+                    groupName: groupName,
+                  });
                 }
               });
             });
@@ -617,12 +714,21 @@ sap.ui.define(
 
           fnCheckFormData();
 
-          if (oParams.switches.defect) {
-            fnCheckPositions(oParams.defects);
+          if (oSwitchesData.defect) {
+            oDefectsData.entitySet = "DEFECTSet";
+            oDefectsData.groupName = "Позиции дефектов";
+            fnCheckPositions(oDefectsData);
           }
 
-          if (oParams.switches.downTime) {
-            fnCheckPositions(oParams.downTimes);
+          if (oSwitchesData.downTime) {
+            oDownTimesData.entitySet = "DOWNTIMESet";
+            oDownTimesData.groupName = "Позиции простоев";
+            fnCheckPositions(oDownTimesData);
+          }
+
+          if (oSwitchesData.roll && oFormData.Zformat1 !== oFormData.Zformat2) {
+            fnPushErrorField(aMetaFields.find((o) => o.name === "Zformat1"));
+            fnPushErrorField(aMetaFields.find((o) => o.name === "Zformat2"));
           }
           return hasError;
         },
@@ -643,8 +749,13 @@ sap.ui.define(
           });
         },
 
-        __clearStatesFields() {
+        __clearErrorFields() {
           this.setStateProperty("/errorFields", {});
+          this.__clearMessages();
+        },
+
+        __clearStatesFields() {
+          this.__clearErrorFields();
           this.setStateProperty("/tables/defect/items", []);
           this.setStateProperty("/tables/downTime/items", []);
           this.setStateProperty("/switches", {

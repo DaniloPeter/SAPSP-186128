@@ -13,5 +13,15 @@ sap.ui.define([], () => {
       }
       return `(${sValue})`;
     },
+
+    formatValueState(bError, sFormat) {
+      if (!bError) {
+        return "";
+      }
+      if (sFormat) {
+        return sFormat;
+      }
+      return "Недействительный ввод";
+    },
   };
 });
