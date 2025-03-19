@@ -182,8 +182,7 @@ sap.ui.define(
           const oSource = oEvent.getSource(),
             sValue = oSource.getValue(),
             iValue = this.utils.stringToNumber(sValue),
-            oView = this.getView(),
-            oBindingContext = oView.getBindingContext(),
+            oBindingContext = oSource.getBindingContext(),
             oBindingData = oBindingContext.getObject(),
             iFormat1 = this.utils.stringToNumber(oBindingData.Zformat1),
             iFormat2 = this.utils.stringToNumber(oBindingData.Zformat2),
@@ -209,9 +208,21 @@ sap.ui.define(
 
         onChangeRollNum(oEvent) {
           const oSource = oEvent.getSource(),
+            oBindingContext = oSource.getBindingContext(),
+            oBindingData = oBindingContext.getObject(),
             sValue = oSource.getValue(),
             sBindingValue = oSource.getBinding("value").getPath(),
             sRollNum = sBindingValue.includes("1") ? "1" : "2";
+
+          if (oBindingData.RollNum1 === oBindingData.RollNum2) {
+            this.setStateProperty("/errorFields/RollNum1", true);
+            this.setStateProperty("/errorFields/RollNum2", true);
+            MessageBox.error("№ рулона 1 не должен совпадать с № рулона 2.");
+            return;
+          }
+
+          this.setStateProperty("/errorFields/RollNum1", false);
+          this.setStateProperty("/errorFields/RollNum2", false);
 
           this.onChangeCommonField(oSource);
 
@@ -228,57 +239,62 @@ sap.ui.define(
             oBindingContext = oView.getBindingContext(),
             sBindingPath = oBindingContext.getPath(),
             oBindingData = oBindingContext.getObject(),
+            bSwitchActive = this.getStateProperty("/switches/roll"),
             { Werks, Lgort } = oBindingData;
 
           if (!Werks || !Lgort) {
             return;
           }
 
-          const fnSetValuesByIndex = (oValues, index) => {
-            const { ValueFrom, Matnr, Charg } = oValues;
-            const formattedValue = this.utils.formatStringValueFrom(ValueFrom);
-            if (formattedValue) {
-              oModel.setProperty(
-                `${sBindingPath}/Zformat${index}`,
-                formattedValue
-              );
-              this.setStateProperty(`/errorFields/Zformat${index}`, false);
-            }
-            this.setStateProperty(`/rollData/roll${index}/Material`, Matnr);
-            this.setStateProperty(`/rollData/roll${index}/Charg`, Charg);
+          const fnSetState = (hasError = false) => {
+            this.setStateProperty(`/errorFields/RollNum1`, hasError);
+            this.setStateProperty(`/errorFields/Zformat1`, hasError);
+            this.setStateProperty(`/errorFields/RollNum2`, hasError);
+            this.setStateProperty(`/errorFields/Zformat2`, hasError);
           };
 
-          const fnCallBackend = (value, number) => {
+          const fnSetValues = (oValues) => {
+            const { ValueFrom, Matnr, Charg } = oValues,
+              sAnotherRoll = sRollNum === "1" ? "2" : "1",
+              sAnotherRollValue = oBindingData[`Zformat${sAnotherRoll}`],
+              formatterAnotherValue =
+                this.utils.formatStringValueFrom(sAnotherRollValue),
+              formattedValue = this.utils.formatStringValueFrom(ValueFrom);
+
+            if (bSwitchActive && +formattedValue !== +formatterAnotherValue) {
+              fnSetState(true);
+              MessageBox.error("Форматы исходных рулонов должны совпадать.");
+              return;
+            }
+            if (formattedValue) {
+              oModel.setProperty(
+                `${sBindingPath}/Zformat${sRollNum}`,
+                formattedValue
+              );
+              fnSetState();
+            }
+            this.setStateProperty(`/rollData/roll${sRollNum}/Material`, Matnr);
+            this.setStateProperty(`/rollData/roll${sRollNum}/Charg`, Charg);
+          };
+
+          const fnCallBackend = (value) => {
             this.callODataFunction("/GetDataRoll", {
               Werks: Werks,
               Lgort: Lgort,
               RollNum: value,
-            }).then((oResponse) => {
-              if (number) {
-                fnSetValuesByIndex(oResponse, number);
-                return;
-              }
-              fnSetValuesByIndex(oResponse, 1);
-              fnSetValuesByIndex(oResponse, 2);
-            });
+            })
+              .then((oResponse) => {
+                fnSetValues(oResponse);
+              })
+              .catch((oError) => {
+                this.setStateProperty(`/errorFields/RollNum${sRollNum}`, true);
+                this.setStateProperty(`/errorFields/Zformat${sRollNum}`, true);
+              });
           };
 
           if (sRollNum) {
-            fnCallBackend(sRollValue, sRollNum);
+            fnCallBackend(sRollValue);
             return;
-          }
-
-          const sRollValue1 = oBindingData.RollNum1,
-            sRollValue2 = oBindingData.RollNum2;
-
-          if (sRollValue1 && sRollValue1 !== sRollValue2) {
-            fnCallBackend(sRollValue1, 1);
-          }
-          if (sRollValue2 && sRollValue1 !== sRollValue2) {
-            fnCallBackend(sRollValue2, 2);
-          }
-          if (sRollValue1 && sRollValue2 && sRollValue1 === sRollValue2) {
-            fnCallBackend(sRollValue1);
           }
         },
 
@@ -367,10 +383,9 @@ sap.ui.define(
             case "roll":
               if (!bSelected) {
                 const oModel = this.getModel(),
-                  sBindingPath = oEvent
-                    .getSource()
-                    .getBindingContext()
-                    .getPath();
+                  oBindingContext = oEvent.getSource().getBindingContext(),
+                  oBindingData = oBindingContext.getObject(),
+                  sBindingPath = oBindingContext.getPath();
                 oModel.setProperty(`${sBindingPath}/RollNum2`, "");
                 oModel.setProperty(
                   `${sBindingPath}/Zformat2`,
@@ -383,6 +398,13 @@ sap.ui.define(
                 this.setStateProperty(`/errorFields/RollNum2`, false);
                 this.setStateProperty(`/errorFields/Zformat2`, false);
                 this.setStateProperty(`/errorFields/Zradius2`, false);
+
+                if (oBindingData.RollNum1) {
+                  this.setStateProperty(`/errorFields/RollNum1`, false);
+                }
+                if (+oBindingData.Zformat1) {
+                  this.setStateProperty(`/errorFields/Zformat1`, false);
+                }
               }
               break;
           }
@@ -608,9 +630,15 @@ sap.ui.define(
             oFieldsFormat = this.getStateProperty("/fieldsFormat");
           let hasError = false;
 
-          this.__clearErrorFields();
+          this.__clearMessages();
 
-          const fnPushErrorField = (oMetaField, oParams) => {
+          const fnPushErrorField = (
+            oMetaField,
+            oParams,
+            fieldHasError = false
+          ) => {
+            hasError = true;
+
             const sFieldName = oMetaField.name,
               sFieldLabel =
                 oMetaField.extensions.find((o) => o.name === "label")?.value ||
@@ -635,13 +663,17 @@ sap.ui.define(
               group: oParams ? oParams.groupName : "Данные формы",
               type: oParams ? "Warning" : "Error",
             });
+
+            if (fieldHasError) {
+              return;
+            }
+
             if (oParams) {
               const sFieldPath = `${oParams.path}/${oParams.index}/${sFieldName}`;
               this.setStateProperty(`${sFieldPath}_error`, true);
             } else {
               this.setStateProperty(`/errorFields/${sFieldName}`, true);
             }
-            hasError = true;
           };
 
           const fnCheckFormData = () => {
@@ -652,7 +684,8 @@ sap.ui.define(
                 ),
                 foundMetaField = aMetaFields.find((o) => o.name === sField);
               if (foundFromErrors) {
-                fnPushErrorField(foundMetaField);
+                fnPushErrorField(foundMetaField, null, true);
+                return;
               }
               switch (foundMetaField?.type) {
                 case "Edm.String":
@@ -726,10 +759,6 @@ sap.ui.define(
             fnCheckPositions(oDownTimesData);
           }
 
-          if (oSwitchesData.roll && oFormData.Zformat1 !== oFormData.Zformat2) {
-            fnPushErrorField(aMetaFields.find((o) => o.name === "Zformat1"));
-            fnPushErrorField(aMetaFields.find((o) => o.name === "Zformat2"));
-          }
           return hasError;
         },
 
@@ -749,13 +778,8 @@ sap.ui.define(
           });
         },
 
-        __clearErrorFields() {
-          this.setStateProperty("/errorFields", {});
-          this.__clearMessages();
-        },
-
         __clearStatesFields() {
-          this.__clearErrorFields();
+          this.__clearMessages();
           this.setStateProperty("/tables/defect/items", []);
           this.setStateProperty("/tables/downTime/items", []);
           this.setStateProperty("/switches", {

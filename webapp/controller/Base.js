@@ -158,8 +158,6 @@ sap.ui.define(
             }
           }
 
-          let aSkipErrors = [sBindingValue];
-
           if (
             oFoundSomething &&
             oFoundSomething.data &&
@@ -170,7 +168,6 @@ sap.ui.define(
               `${sBindingPath}/Lgort`,
               oFoundSomething.data.Lgort
             );
-            aSkipErrors.push("Lgort");
             this.setStateProperty("/errorFields/Lgort", false);
           }
 
@@ -197,24 +194,23 @@ sap.ui.define(
                 ? `${sBindingValue}_${indexPosition}`
                 : sBindingValue;
 
-            if (sFieldName === "Znewformat") {
-              aSkipErrors.push(...["Zformat1", "Zformat2"]);
-            }
-
-            if (sFieldName === "Zpm" || sFieldName === "Zlengthreport") {
-              aSkipErrors.push("Zstamp");
-            }
-
-            if (sFieldName === "Aufnr") {
-              aSkipErrors.push("Klishe");
-            }
+            const oMappingFields = {
+                Znewformat: ["Zformat1", "Zformat2"],
+                Zpm: ["Zstamp"],
+                Zlengthreport: ["Zstamp"],
+                Aufnr: ["Klishe"],
+                WpResource: ["Lgort", "/VHTplnrCollection()"],
+                RollNum1: ["/VHRollCollection()"],
+                RollNum2: ["/VHRollCollection()"],
+              },
+              aSkipFields = [sFieldName, ...(oMappingFields[sFieldName] ?? [])];
 
             if (aMessagesData.length) {
               const aNewMessages = aMessagesData.filter((o) => {
-                if (aSkipErrors.length > 1) {
-                  return !aSkipErrors.includes(o.technicalDetails);
+                if (aSkipFields.length > 1) {
+                  return !aSkipFields.includes(o.target);
                 }
-                return o.technicalDetails !== sFieldName;
+                return o.target !== sFieldName && o.target;
               });
               oMessageManager.removeMessages(aMessagesData);
               oMessageManager.addMessages(aNewMessages);
@@ -237,7 +233,7 @@ sap.ui.define(
             additionalText: oMessage.additionalText || "",
             type: oMessage.type,
             code: oMessage.group,
-            technicalDetails: oMessage.field,
+            target: oMessage.field,
             processor: this.getView().getModel(),
           });
           sap.ui.getCore().getMessageManager().addMessages(oMessageTemplate);
