@@ -30,46 +30,16 @@
                         </VBox>
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Ресурс:" required="true" />
-                            <Input
-                                maxLength="12"
+                            <Select forceSelection="false"
                                 width="100%"
-                                showSuggestion="true"
-                                maxSuggestionWidth="60rem"
-                                value="{WpResource}"
-                                valueState="{=!!${state>/errorFields/WpResource} ? 'Error' : 'None'}"
-                                suggestionRows="{
-                                    path: '/WORKPLACESet'
-                                }"
-                                change="onChangeWpResource">
-                                <suggestionColumns>
-                                    <Column>
-                                        <Text text="{/#WORKPLACE/WpResource/@sap:label}" />
-                                    </Column>
-                                    <Column>
-                                        <Text text="{/#WORKPLACE/WpResourceText/@sap:label}" />
-                                    </Column>
-                                    <Column>
-                                        <Text text="{/#WORKPLACE/WpParameter/@sap:label}" />
-                                    </Column>
-                                    <Column>
-                                        <Text text="{/#WORKPLACE/Werks/@sap:label}" />
-                                    </Column>
-                                    <Column>
-                                        <Text text="{/#WORKPLACE/Lgort/@sap:label}" />
-                                    </Column>
-                                </suggestionColumns>
-                                <suggestionRows>
-                                    <ColumnListItem>
-                                        <cells>
-                                            <Text text="{WpResource}" />
-                                            <Text text="{WpResourceText}" />
-                                            <Text text="{WpParameter}" />
-                                            <Text text="{Werks}" />
-                                            <Text text="{Lgort}" />
-                                        </cells>
-                                    </ColumnListItem>
-                                </suggestionRows>
-                            </Input>
+                                showSecondaryValues="true"
+                                selectedKey="{WpResource}"
+                                change="onChangeWpResource"
+                                items="{/WORKPLACESet}"
+                                valueState="{=!!${state>/errorFields/WpResource} ? 'Error' : 'None'}">
+                                <core:ListItem key="{WpResource}" text="{WpResource}"
+                                    additionalText="{WpResourceText}" />
+                            </Select>
                         </VBox>
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Склад:" required="true" />
@@ -106,37 +76,18 @@
                         </VBox>
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Смена:" required="true" />
-                            <Input
+                            <Select forceSelection="false"
                                 width="100%"
-                                showSuggestion="true"
-                                maxSuggestionWidth="60rem"
-                                value="{Smen}"
+                                showSecondaryValues="true"
+                                selectedKey="{Smen}"
+                                items="{
+                                        path: '/SMENSet',
+                                        templateShareable: false
+                                    }"
                                 valueState="{=!!${state>/errorFields/Smen} ? 'Error' : 'None'}"
-                                suggestionRows="{
-                                    path: '/SMENSet'
-                                }"
                                 change="onChangeCommonField">
-                                <suggestionColumns>
-                                    <Column>
-                                        <Text text="{/#SMEN/Smen/@sap:label}" />
-                                    </Column>
-                                    <Column>
-                                        <Text text="{/#SMEN/Period/@sap:label}" />
-                                    </Column>
-                                    <Column>
-                                        <Text text="{/#SMEN/Werks/@sap:label}" />
-                                    </Column>
-                                </suggestionColumns>
-                                <suggestionRows>
-                                    <ColumnListItem>
-                                        <cells>
-                                            <Text text="{Smen}" />
-                                            <Text text="{Period}" />
-                                            <Text text="{Werks}" />
-                                        </cells>
-                                    </ColumnListItem>
-                                </suggestionRows>
-                            </Input>
+                                <core:ListItem key="{Smen}" text="{Period}" />
+                            </Select>
                         </VBox>
                         <VBox width="100%">
                             <Label text="Бригада:" required="true" />
@@ -160,7 +111,12 @@
                     <VBox
                         class="sapUiFormResGrid sapUiFormBackgrTranslucent sapUiSmallMarginEnd"
                         width="100%">
-                        <Title text="Заказ" level="H2" />
+                        <HBox height="56px" justifyContent="SpaceBetween" alignItems="Center">
+                            <Title text="Заказ" level="H2" />
+                            <Button icon="sap-icon://paste"
+                                tooltip="Вставить последнее значение заказа"
+                                press="onPressPasteAufnr" />
+                        </HBox>
                         <VBox>
                             <Label text="Заказ" required="true" />
                             <MaskInput width="100%" mask="1200000AAAAA" placeholderSymbol="_"
@@ -240,7 +196,9 @@
                         </VBox>
                     </VBox>
                     <VBox class="sapUiFormResGrid sapUiFormBackgrTranslucent" width="100%">
-                        <Title text="Рулон" level="H2" />
+                        <HBox height="56px" justifyContent="SpaceBetween" alignItems="Center">
+                            <Title text="Рулон" level="H2" />
+                        </HBox>
                         <VBox>
                             <Label
                                 text="№ Рулона 1 {parts: [{ path: 'state>/rollData/roll1/Material'}],
@@ -337,7 +295,7 @@
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Погонные метры" required="true" />
                             <customControls:NumberInput required="true" numericValue="{Zpm}"
-                                maxIntegerDigits="3"
+                                maxIntegerDigits="5"
                                 maxFractionDigits="0"
                                 valueState="{=!!${state>/errorFields/Zpm} ? 'Error' : 'None'}"
                                 valueStateText="{ parts: [{ path: 'state>/errorFields/Zpm'},{ path: 'state>/fieldsFormat/Zpm'}],
@@ -398,7 +356,7 @@
                     </HBox>
                 </VBox>
 
-                <VBox class="sapUiTinyMarginBottom sapUiFormResGrid sapUiFormBackgrTranslucent">
+                <VBox class="sapUiSmallMarginBottom sapUiFormResGrid sapUiFormBackgrTranslucent">
                     <Table items="{state>/tables/defect/items}"
                         mode="MultiSelect">
                         <headerToolbar>
@@ -601,6 +559,10 @@
                     type="Reject"
                     press="onMessagePopoverPress" />
                 <ToolbarSpacer />
+                <Button
+                    type="Reject"
+                    text="Очистить форму"
+                    press="onClearFormData" />
                 <Button
                     type="Emphasized"
                     text="Подтвердить"

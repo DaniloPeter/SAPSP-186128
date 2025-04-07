@@ -77,10 +77,15 @@ sap.ui.define(
           if (isNaN(roundedValue)) {
             return "error";
           }
+
+          if (maxFractionDigits === 0) {
+            roundedValue = dotSeparatedValue.replace(".", "");
+          }
+
           const splittedValue = roundedValue.split(".");
           let fractionalPart = splittedValue[1] || "";
           let integerValue = splittedValue[0];
-          
+
           if (fractionalPart.length > maxFractionDigits) {
             return "error";
           }

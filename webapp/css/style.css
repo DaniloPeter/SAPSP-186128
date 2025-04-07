@@ -1,7 +1,36 @@
-.sapMInputBase,
-.sapMSlt {
-  margin-top: 0;
+/* Увеличиваем базовый размер шрифта */
+.sapUiBody {
+  font-size: 1rem !important; /* стандартный размер +2px */
 }
+
+/* Увеличиваем заголовки */
+.sapMTitle,
+.sapMLabel {
+  font-size: 1.15rem !important; /* стандартный 16px +2px */
+}
+
+/* Увеличиваем текст в контролах */
+.sapMInputBaseInner,
+.sapMBtnContent,
+.sapMText,
+.sapMSelectListItemBase,
+.sapUiFormTitleH5,
+.sapMSlt > .sapMSltLabel {
+  font-size: 1rem !important;
+}
+
+.sapMLIB td {
+  padding-top: 0.5rem !important;
+}
+
+.sapMLIB:first-child td {
+  padding-top: 0.75rem !important;
+}
+
+.sapMLIB:last-child td {
+  padding-bottom: 0.75rem !important;
+}
+
 .sapMLIB.sapMListTblRow {
   background: transparent;
 }
@@ -11,9 +40,7 @@
 .sapMListTblNavigatedCell {
   border: none;
 }
-.sapUiFormTitleH5 {
-  font-size: 1rem !important;
-}
+
 .sapMLabelTextWrapper {
   font-weight: bold !important;
 }

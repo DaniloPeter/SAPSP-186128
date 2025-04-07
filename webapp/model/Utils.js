@@ -14,6 +14,18 @@ sap.ui.define([], function () {
       return time + new Date().getTimezoneOffset() * 60 * 1000;
     },
 
+    isoDurationToDate(isoDuration) {
+      const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
+      const matches = isoDuration.match(regex);
+      const hours = parseInt(matches[1] || "0", 10);
+      const minutes = parseInt(matches[2] || "0", 10);
+      const seconds = parseInt(matches[3] || "0", 10);
+
+      const date = new Date();
+      date.setHours(hours, minutes, seconds, 0);
+      return date;
+    },
+
     fromDateToEdmTime(date) {
       const hours = String(date.getHours()).padStart(2, "0");
       const minutes = String(date.getMinutes()).padStart(2, "0");

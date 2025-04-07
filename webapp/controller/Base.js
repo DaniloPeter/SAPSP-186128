@@ -2,17 +2,18 @@ sap.ui.define(
   [
     "sap/ui/core/mvc/Controller",
     "sap/ui/core/Fragment",
-    "sap/ui/core/message/Message",
     "com/segezha/form/roll/conversion/model/formatter",
     "com/segezha/form/roll/conversion/model/Utils",
+    "com/segezha/form/roll/conversion/model/Storage",
   ],
-  (Controller, Fragment, Message, formatter, Utils) => {
+  (Controller, Fragment, formatter, Utils, Storage) => {
     "use strict";
     return Controller.extend(
       "com.segezha.form.roll.conversion.controller.Base",
       {
         formatter: formatter,
         utils: Utils,
+        storage: Storage,
 
         getOwnerComponent() {
           return Controller.prototype.getOwnerComponent.call(this);
@@ -106,8 +107,7 @@ sap.ui.define(
         },
 
         onChangeCommonField(oEvent) {
-          const oSource = oEvent.getSource ? oEvent.getSource() : oEvent,
-            oModel = this.getModel();
+          const oSource = oEvent.getSource ? oEvent.getSource() : oEvent;
           let oValue = "";
           let oBindingValue = null;
 
@@ -124,8 +124,7 @@ sap.ui.define(
             oBindingValue = oSource.getBinding("selectedKey");
           }
 
-          const sBindingPath = oSource.getBindingContext().getPath(),
-            sBindingValue = oBindingValue.getPath(),
+          const sBindingValue = oBindingValue.getPath(),
             oSuggestionBinding = oSource.getBinding("suggestionRows"),
             iMinValue = oSource.getMin && oSource.getMin(),
             isRequired = oSource.getRequired && oSource.getRequired(),
@@ -158,19 +157,6 @@ sap.ui.define(
             }
           }
 
-          if (
-            oFoundSomething &&
-            oFoundSomething.data &&
-            oFoundSomething.data.hasOwnProperty("Lgort") &&
-            sBindingValue === "WpResource"
-          ) {
-            oModel.setProperty(
-              `${sBindingPath}/Lgort`,
-              oFoundSomething.data.Lgort
-            );
-            this.setStateProperty("/errorFields/Lgort", false);
-          }
-
           const hasError = !oFoundSomething;
 
           if (oItemTableBinding) {
@@ -184,40 +170,72 @@ sap.ui.define(
           }
 
           if (!hasError) {
-            const oMessageManager = sap.ui.getCore().getMessageManager(),
-              oMessageModel = oMessageManager.getMessageModel(),
-              aMessagesData = oMessageModel.getData(),
-              indexPosition = oItemTableBinding
-                ? oItemTableBinding.getPath().split("/items/")[1]
-                : "",
-              sFieldName = indexPosition
-                ? `${sBindingValue}_${indexPosition}`
-                : sBindingValue;
-
-            const oMappingFields = {
-                Znewformat: ["Zformat1", "Zformat2"],
-                Zpm: ["Zstamp"],
-                Zlengthreport: ["Zstamp"],
-                Aufnr: ["Klishe"],
-                WpResource: ["Lgort", "/VHTplnrCollection()"],
-                RollNum1: ["/VHRollCollection()"],
-                RollNum2: ["/VHRollCollection()"],
-              },
-              aSkipFields = [sFieldName, ...(oMappingFields[sFieldName] ?? [])];
-
-            if (aMessagesData.length) {
-              const aNewMessages = aMessagesData.filter((o) => {
-                if (aSkipFields.length > 1) {
-                  return !aSkipFields.includes(o.target);
-                }
-                return o.target !== sFieldName && o.target;
-              });
-              oMessageManager.removeMessages(aMessagesData);
-              oMessageManager.addMessages(aNewMessages);
-            }
+            this.__oMessageModel.__filterMessages({
+              bindingValue: sBindingValue,
+              tableBinding: oItemTableBinding,
+            });
           }
 
           return hasError;
+        },
+
+        getFormData() {
+          const oModel = this.getModel(),
+            oBindingData = this.getView().getBindingContext().getObject(),
+            aTableData = this.getStateProperty("/tables"),
+            oSwitches = this.getStateProperty("/switches"),
+            oDefects = aTableData.defect,
+            oDownTimes = aTableData.downTime;
+
+          const aIgnoredFields = [
+              "__metadata",
+              "Idconvroll",
+              "Zfullnameqa",
+              "toDefect",
+              "toDowntime",
+            ],
+            aMetaFields =
+              oModel.oMetadata._getEntityTypeByPath(
+                "/OPER_CONV_ROOLSet"
+              ).property,
+            oFormData = Object.entries(oBindingData)
+              .filter(([key]) => !aIgnoredFields.includes(key))
+              .reduce((acc, [key, value]) => {
+                const oMetaField = aMetaFields.find((o) => o.name === key);
+                if (
+                  oMetaField &&
+                  (oMetaField.type === "Edm.Int16" ||
+                    oMetaField.type === "Edm.Int32")
+                ) {
+                  value = +value;
+                }
+                return { ...acc, [key]: value };
+              }, {});
+
+          if (oSwitches.defect) {
+            oFormData.toDefect = this.__mappingPositions(oDefects);
+          }
+          if (oSwitches.downTime) {
+            oFormData.toDowntime = this.__mappingPositions(oDownTimes);
+          }
+
+          return oFormData;
+        },
+
+        __mappingPositions(oEntryPosition) {
+          const { items } = oEntryPosition;
+          return items.map((o) => {
+            return Object.entries(o).reduce((acc, [key, value]) => {
+              if (key.includes("error")) {
+                return acc;
+              }
+              acc[key] = value;
+              if (value && value.getDate) {
+                acc[key] = this.utils.fromDateToEdmTime(value);
+              }
+              return acc;
+            }, {});
+          });
         },
 
         onMessagePopoverPress() {
@@ -225,22 +243,6 @@ sap.ui.define(
           this.getDialog("MessagePopover").then((oDialog) =>
             setTimeout(() => oDialog.openBy(oButton), 0)
           );
-        },
-
-        __addErrorMessage(oMessage) {
-          const oMessageTemplate = new Message({
-            message: oMessage.message,
-            additionalText: oMessage.additionalText || "",
-            type: oMessage.type,
-            code: oMessage.group,
-            target: oMessage.field,
-            processor: this.getView().getModel(),
-          });
-          sap.ui.getCore().getMessageManager().addMessages(oMessageTemplate);
-        },
-
-        __clearMessages() {
-          sap.ui.getCore().getMessageManager().removeAllMessages();
         },
       }
     );
