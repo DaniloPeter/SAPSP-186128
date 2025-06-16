@@ -1,0 +1,16 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+    <ResponsivePopover showHeader="false">
+        <content>
+            <List
+                items="{
+                path: 'state>/draftData'
+            }">
+                <StandardListItem
+                    title="{state>text}"
+                />
+            </List>
+        </content>
+    </ResponsivePopover>
+</core:FragmentDefinition>

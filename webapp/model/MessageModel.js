@@ -19,7 +19,6 @@ sap.ui.define(
 
           oMessageManager.getMessageModel().setDefaultBindingMode("TwoWay");
           oView.setModel(oMessageManager.getMessageModel(), "message");
-          oMessageManager.registerObject(oView, true);
         },
 
         __addErrorMessage(oMessage) {
@@ -77,6 +76,10 @@ sap.ui.define(
             this.__oMessageManager.removeMessages(aMessagesData);
             this.__oMessageManager.addMessages(aNewMessages);
           }
+        },
+
+        __getMessages() {
+          return this.__oMessageManager.getMessageModel().getData();
         },
         __clearMessages() {
           this.__oMessageManager.removeAllMessages();

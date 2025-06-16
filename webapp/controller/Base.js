@@ -2,11 +2,12 @@ sap.ui.define(
   [
     "sap/ui/core/mvc/Controller",
     "sap/ui/core/Fragment",
+    "sap/m/MessageBox",
     "com/segezha/form/roll/conversion/model/formatter",
     "com/segezha/form/roll/conversion/model/Utils",
     "com/segezha/form/roll/conversion/model/Storage",
   ],
-  (Controller, Fragment, formatter, Utils, Storage) => {
+  (Controller, Fragment, MessageBox, formatter, Utils, Storage) => {
     "use strict";
     return Controller.extend(
       "com.segezha.form.roll.conversion.controller.Base",
@@ -107,9 +108,16 @@ sap.ui.define(
         },
 
         onChangeCommonField(oEvent) {
-          const oSource = oEvent.getSource ? oEvent.getSource() : oEvent;
-          let oValue = "";
-          let oBindingValue = null;
+          const oModel = this.getModel(),
+            oSource = oEvent.getSource ? oEvent.getSource() : oEvent,
+            isOnlyValueHelp = oSource.getValueHelpOnly && oSource.getValueHelpOnly(),
+            aMetaFields =
+              oModel.oMetadata._getEntityTypeByPath(
+                "/OPER_CONV_ROOLSet"
+              ).property;
+
+          let oValue = "",
+            oBindingValue = null;
 
           if (oSource.getBinding("value")) {
             oValue = oSource.getValue();
@@ -125,11 +133,24 @@ sap.ui.define(
           }
 
           const sBindingValue = oBindingValue.getPath(),
+            oFoundType = aMetaFields.find(
+              (o) =>
+                o.name === sBindingValue &&
+                (o.type.includes("Int") || o.type.includes("Decimal"))
+            ),
             oSuggestionBinding = oSource.getBinding("suggestionRows"),
             iMinValue = oSource.getMin && oSource.getMin(),
             isRequired = oSource.getRequired && oSource.getRequired(),
             oItemTableBinding = oSource.getBindingContext("state"),
             sCustomCheckField = oSource.data("checkField");
+
+          if (oFoundType && oValue === "") {
+            oSource.setValue("0");
+            if (isRequired) {
+              this.setStateProperty(`/errorFields/${sBindingValue}`, true);
+            }
+            return;
+          }
 
           if (oValue === "error") {
             oSource.setValue("0");
@@ -141,7 +162,7 @@ sap.ui.define(
           if (iMinValue !== undefined && isRequired) {
             oFoundSomething = this.utils.stringToNumber(oValue) > iMinValue;
           }
-          if (oSuggestionBinding && oValue) {
+          if (oSuggestionBinding && oValue && !isOnlyValueHelp) {
             const aSuggestionRows = oSource.getSuggestionRows().map((o) => ({
               data: o.getBindingContext().getObject(),
               path: o.getBindingContext().getPath(),
@@ -176,6 +197,8 @@ sap.ui.define(
             });
           }
 
+          this.__attachPropertyChange();
+
           return hasError;
         },
 
@@ -202,12 +225,18 @@ sap.ui.define(
               .filter(([key]) => !aIgnoredFields.includes(key))
               .reduce((acc, [key, value]) => {
                 const oMetaField = aMetaFields.find((o) => o.name === key);
-                if (
-                  oMetaField &&
-                  (oMetaField.type === "Edm.Int16" ||
-                    oMetaField.type === "Edm.Int32")
-                ) {
-                  value = +value;
+                switch (oMetaField?.type) {
+                  case "Edm.Decimal":
+                    value = value || "0";
+                    break;
+                  case "Edm.Int16":
+                    value = +value || 0;
+                    break;
+                  case "Edm.Int32":
+                    value = +value || 0;
+                    break;
+                  default:
+                    break;
                 }
                 return { ...acc, [key]: value };
               }, {});
@@ -236,6 +265,21 @@ sap.ui.define(
               return acc;
             }, {});
           });
+        },
+
+        saveStorageData(key, data, errors = null) {
+          const saveData = async () => {
+            try {
+              await this.storage.saveData(key, data, errors);
+            } catch (oError) {
+              const sErrorText = oError.error;
+              if (sErrorText) {
+                MessageBox.error(sErrorText);
+              }
+            }
+          };
+
+          saveData();
         },
 
         onMessagePopoverPress() {

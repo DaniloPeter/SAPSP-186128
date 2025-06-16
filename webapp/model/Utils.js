@@ -7,7 +7,7 @@ sap.ui.define([], function () {
         iReportLength = +reportLength;
       if (!iPrintMeters || !iReportLength) return 0;
 
-      return (iPrintMeters / (iReportLength * 0.01)).toFixed(0);
+      return Math.floor((iPrintMeters / (iReportLength * 0.01))).toString();
     },
 
     removeTimeZoneTime(time) {
