@@ -49,7 +49,7 @@ sap.ui.define([], function () {
           const processedData = this._processData(item.data);
           resolve({
             data: processedData,
-            errors: item.errors || null,
+            errors: item?.errors || null,
           });
         } catch (error) {
           const errorMsg = this._getErrorMessage(error);

@@ -76,8 +76,7 @@ sap.ui.define(
               bInitial = false
             ) => {
               try {
-                const oFormData = await this.storage.getData("sessionFormData")
-                    ?.data,
+                const oFormData = await this.storage.getData("sessionFormData"),
                   oDraftFormSettings = await this.storage.getData(
                     "draftFormData"
                   ),
@@ -85,16 +84,17 @@ sap.ui.define(
                   oDraftFormErrors = oDraftFormSettings?.errors;
                 let oExistedFields = {};
                 if (oFormData) {
+                  const { data } = oFormData;
                   oExistedFields = {
-                    WpResource: oFormData.WpResource,
-                    Lgort: oFormData.Lgort,
-                    Smen: oFormData.Smen,
-                    Brig: oFormData.Brig,
-                    Zprinter: oFormData.Zprinter,
+                    WpResource: data.WpResource,
+                    Lgort: data.Lgort,
+                    Smen: data.Smen,
+                    Brig: data.Brig,
+                    Zprinter: data.Zprinter,
                   };
                   this.setStateProperty(
                     "/valueHelps/BRIGSet",
-                    oFormData?.BrigSet || []
+                    data?.BrigSet || []
                   );
                 }
                 if (oDraftFormData) {
@@ -168,9 +168,18 @@ sap.ui.define(
                 oModel.setProperty(`${sPath}/Zfullnameqa`, "");
 
                 if (bInitial) {
-                  const sRollNum1 = oDraftFormData?.RollNum1;
+                  const sRollNum1 = oDraftFormData?.RollNum1,
+                    sRollNum2 = oDraftFormData?.RollNum2;
+
+                  if (sRollNum1 && sRollNum2) {
+                    this.__getDataRoll();
+                    return;
+                  }
                   if (sRollNum1) {
                     this.__getDataRoll(sRollNum1, "1");
+                  }
+                  if (sRollNum2) {
+                    this.__getDataRoll(sRollNum2, "2");
                   }
                 }
               } catch (oError) {
@@ -449,7 +458,6 @@ sap.ui.define(
             oBindingData = oBindingContext.getObject(),
             bSwitchActive = this.getStateProperty("/switches/roll"),
             { Werks, Lgort } = oBindingData;
-
           if (!Werks || !Lgort) {
             return;
           }
@@ -461,19 +469,37 @@ sap.ui.define(
             this.setStateProperty(`/errorFields/Zformat2`, hasError);
           };
 
-          const fnSetValues = (oValues) => {
+          const fnSetValues = (oValues, sRollNum) => {
             const { ValueFrom, Matnr, Charg } = oValues,
               sAnotherRoll = sRollNum === "1" ? "2" : "1",
-              sAnotherRollValue = oBindingData[`Zformat${sAnotherRoll}`],
-              formatterAnotherValue =
-                this.utils.formatStringValueFrom(sAnotherRollValue),
+              oAnotherRollData = this.getStateProperty(
+                `/rollData/roll${sAnotherRoll}`
+              ),
+              sAnotherFormatValue = oBindingData[`Zformat${sAnotherRoll}`],
+              formattedAnotherValue =
+                this.utils.formatStringValueFrom(sAnotherFormatValue),
               formattedValue = this.utils.formatStringValueFrom(ValueFrom);
+            let aFrontErrors = [];
 
-            if (bSwitchActive && +formattedValue !== +formatterAnotherValue) {
-              fnSetState(true);
-              MessageBox.error("Форматы исходных рулонов должны совпадать.");
-              return;
+            this.setStateProperty(`/rollData/roll${sRollNum}/Material`, Matnr);
+            this.setStateProperty(`/rollData/roll${sRollNum}/Charg`, Charg);
+
+            if (bSwitchActive) {
+              if (
+                oAnotherRollData &&
+                oAnotherRollData.Material &&
+                oAnotherRollData.Material !== Matnr
+              ) {
+                aFrontErrors.push(`Материалы рулонов должны совпадать.`);
+              }
+              if (+formattedValue !== +formattedAnotherValue) {
+                aFrontErrors.push(`Форматы исходных рулонов должны совпадать.`);
+              }
+              if (aFrontErrors.length) {
+                return aFrontErrors;
+              }
             }
+
             if (formattedValue) {
               oModel.setProperty(
                 `${sBindingPath}/Zformat${sRollNum}`,
@@ -481,30 +507,60 @@ sap.ui.define(
               );
               fnSetState();
             }
-            this.setStateProperty(`/rollData/roll${sRollNum}/Material`, Matnr);
-            this.setStateProperty(`/rollData/roll${sRollNum}/Charg`, Charg);
           };
 
-          const fnCallBackend = (value) => {
-            this.callODataFunction("/GetDataRoll", {
-              Werks: Werks,
-              Lgort: Lgort,
-              RollNum: value,
-            })
-              .then((oResponse) => {
-                fnSetValues(oResponse);
+          const fnCallBackend = (sRollValue, sRollNum) => {
+            return new Promise((resolve, reject) => {
+              this.callODataFunction("/GetDataRoll", {
+                Werks: Werks,
+                Lgort: Lgort,
+                RollNum: sRollValue,
               })
-              .catch((oError) => {
-                this.setStateProperty(`/errorFields/RollNum${sRollNum}`, true);
-                this.setStateProperty(`/errorFields/Zformat${sRollNum}`, true);
-              })
-              .finally(() => this.__attachPropertyChange());
+                .then((oResponse) => {
+                  this.__oMessageModel.__filterMessages({
+                    bindingValue: `RollNum${sRollNum}`,
+                  });
+                  const oValuesSet = fnSetValues(oResponse, sRollNum);
+                  resolve(oValuesSet);
+                })
+                .catch((oError) => {
+                  this.setStateProperty(
+                    `/errorFields/RollNum${sRollNum}`,
+                    true
+                  );
+                  this.setStateProperty(
+                    `/errorFields/Zformat${sRollNum}`,
+                    true
+                  );
+                  reject(oError);
+                })
+                .finally(() => this.__attachPropertyChange());
+            });
           };
 
+          let aPromises = [];
           if (sRollNum) {
-            fnCallBackend(sRollValue);
-            return;
+            aPromises.push(fnCallBackend(sRollValue, sRollNum));
           }
+
+          if (oBindingData.RollNum1 && oBindingData.RollNum2) {
+            aPromises = [
+              fnCallBackend(oBindingData.RollNum1, "1"),
+              fnCallBackend(oBindingData.RollNum2, "2"),
+            ];
+          }
+          Promise.all(aPromises).then((aFrontErrors) => {
+            let sErrorText = "";
+            if (aFrontErrors && aFrontErrors.length) {
+              sErrorText = [...new Set(aFrontErrors.flatMap((o) => o))]
+                .map((o) => o)
+                .join(`\n`);
+            }
+            if (sErrorText) {
+              fnSetState(true);
+              MessageBox.error(sErrorText);
+            }
+          });
         },
 
         onChangeMetersOrReport(oEvent) {
@@ -1041,7 +1097,7 @@ sap.ui.define(
               }
 
               aData.push({
-                text: `${sKey}: ${oValue}`
+                text: `${sKey}: ${oValue}`,
               });
             });
           }
@@ -1050,7 +1106,7 @@ sap.ui.define(
           this.getDialog("DraftData").then((oDialog) =>
             oDialog.openBy(oButton)
           );
-        }
+        },
       }
     );
   }

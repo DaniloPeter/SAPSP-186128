@@ -558,10 +558,6 @@
                     press="onMessagePopoverPress" />
                 <ToolbarSpacer />
                 <Button
-                    icon="sap-icon://notes"
-                    text="Данные черновика"
-                    press="onViewDraftData" />
-                <Button
                     type="Reject"
                     text="Очистить форму"
                     press="onClearFormData" />
