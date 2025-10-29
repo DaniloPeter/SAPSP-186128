@@ -51,7 +51,7 @@
                         </VBox>
                         <VBox width="100%">
                             <Label text="Режим флексопечати:" required="true" />
-                            <Select forceSelection="false"
+                            <Select id="customDisableWpOperatingmodeId" class="customDisableWpOperatingmode" forceSelection="false"
                                 width="100%"
                                 showSecondaryValues="true"
                                 selectedKey="{WpOperatingmode}"

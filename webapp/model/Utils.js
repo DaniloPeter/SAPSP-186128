@@ -7,7 +7,7 @@ sap.ui.define([], function () {
         iReportLength = +reportLength;
       if (!iPrintMeters || !iReportLength) return 0;
 
-      return Math.floor((iPrintMeters / (iReportLength * 0.01))).toString();
+      return Math.floor(iPrintMeters / (iReportLength * 0.01)).toString();
     },
 
     removeTimeZoneTime(time) {
@@ -59,6 +59,20 @@ sap.ui.define([], function () {
 
     zeroString(iFixed = 3) {
       return (0).toFixed(iFixed);
+    },
+
+    mergePreserveFilled(existedFields, newFields) {
+      const result = { ...existedFields };
+
+      for (const [key, value] of Object.entries(newFields)) {
+        const existsInOriginal = key in existedFields;
+        const isFilled = value !== null && value !== undefined && value !== "";
+
+        if (!existsInOriginal || isFilled) {
+          result[key] = value;
+        }
+      }
+      return result;
     },
   };
 });

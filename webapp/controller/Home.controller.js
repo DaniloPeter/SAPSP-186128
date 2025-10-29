@@ -112,10 +112,10 @@ sap.ui.define(
                       },
                       {}
                     );
-                  oExistedFields = {
-                    ...oExistedFields,
-                    ...oNewDraftData,
-                  };
+                  oExistedFields = this.utils.mergePreserveFilled(
+                    oExistedFields,
+                    oNewDraftData
+                  );
 
                   this.setStateProperty(
                     "/valueHelps/BRIGSet",
@@ -230,12 +230,29 @@ sap.ui.define(
         },
 
         onChangeWpResource(oEvent) {
-          const oSource = oEvent.getSource(),
-            oSelectedItem = oSource.getSelectedItem(),
-            { WpResource, Lgort } = oSelectedItem
-              .getBindingContext()
-              .getObject(),
-            oBindingContext = this.getView().getBindingContext(),
+          const oSource = oEvent.getSource();
+          const oSelectedItem = oSource.getSelectedItem();
+
+          if (!oSelectedItem) {
+            MessageBox.warning("Нет выбранного элемента в списке");
+            return;
+          }
+
+          const oItemContext = oSelectedItem.getBindingContext();
+          if (!oItemContext) {
+            MessageBox.warning("Нету привязки к модели данных у выбранного элемента");
+            return;
+          }
+
+          const { WpResource, Lgort } = oItemContext.getObject() || {};
+          if (!Lgort) {
+            MessageBox.warning(
+              "Поле Lgort не определено для ресурса:",
+              WpResource
+            );
+            return;
+          }
+          const oBindingContext = this.getView().getBindingContext(),
             oBindingData = oBindingContext.getObject(),
             sBindingPath = oBindingContext.getPath(),
             oModel = this.getModel();
@@ -281,7 +298,6 @@ sap.ui.define(
             oModel = this.getModel(),
             sSelectedKey = oSource.getSelectedKey(),
             sBindingPath = this.getView().getBindingContext().getPath();
-          this.onChangeCommonField(oSource);
 
           if (sSelectedKey === "1141" || sSelectedKey === "1142") {
             this.setStateProperty("/switches/roll", false);
@@ -295,9 +311,11 @@ sap.ui.define(
               `${sBindingPath}/Zradius2`,
               this.utils.zeroString(0)
             );
-            return;
+          } else {
+            this.setStateProperty("/switches/rollEnabled", true);
           }
-          this.setStateProperty("/switches/rollEnabled", true);
+
+          this.onChangeCommonField(oSource);
         },
 
         onChangeZprinter(oEvent) {
@@ -437,7 +455,6 @@ sap.ui.define(
             oBindingData.RollNum1 === oBindingData.RollNum2
           ) {
             this.setStateProperty("/errorFields/RollNum1", true);
-            this.setStateProperty("/errorFields/RollNum2", true);
             MessageBox.error("№ рулона 1 не должен совпадать с № рулона 2.");
             return;
           }
@@ -450,117 +467,105 @@ sap.ui.define(
           this.__getDataRoll(sValue, sRollNum);
         },
 
-        __getDataRoll(sRollValue, sRollNum) {
-          const oModel = this.getModel(),
-            oView = this.getView(),
-            oBindingContext = oView.getBindingContext(),
-            sBindingPath = oBindingContext.getPath(),
-            oBindingData = oBindingContext.getObject(),
-            bSwitchActive = this.getStateProperty("/switches/roll"),
-            { Werks, Lgort } = oBindingData;
-          if (!Werks || !Lgort) {
-            return;
-          }
+        async __getDataRoll(sRollValue, sRollNum) {
+          const oModel = this.getModel();
+          const oView = this.getView();
+          const oBindingContext = oView.getBindingContext();
+          const sBindingPath = oBindingContext.getPath();
+          const oBindingData = oBindingContext.getObject();
+          const bSwitchActive = this.getStateProperty("/switches/roll");
+          const { Werks, Lgort } = oBindingData;
 
-          const fnSetState = (hasError = false) => {
-            this.setStateProperty(`/errorFields/RollNum1`, hasError);
-            this.setStateProperty(`/errorFields/Zformat1`, hasError);
-            this.setStateProperty(`/errorFields/RollNum2`, hasError);
-            this.setStateProperty(`/errorFields/Zformat2`, hasError);
+          if (!Werks || !Lgort) return;
+
+          const setErrorFields = (state = false) => {
+            ["RollNum1", "Zformat1"].forEach((field) =>
+              this.setStateProperty(`/errorFields/${field}`, state)
+            );
           };
 
-          const fnSetValues = (oValues, sRollNum) => {
-            const { ValueFrom, Matnr, Charg } = oValues,
-              sAnotherRoll = sRollNum === "1" ? "2" : "1",
-              oAnotherRollData = this.getStateProperty(
-                `/rollData/roll${sAnotherRoll}`
-              ),
-              sAnotherFormatValue = oBindingData[`Zformat${sAnotherRoll}`],
-              formattedAnotherValue =
-                this.utils.formatStringValueFrom(sAnotherFormatValue),
-              formattedValue = this.utils.formatStringValueFrom(ValueFrom);
-            let aFrontErrors = [];
+          const setValues = (oValues, sRollNum) => {
+            const { ValueFrom, Matnr, Charg } = oValues;
+            const sAnotherRoll = sRollNum === "1" ? "2" : "1";
+            const oAnotherRollData = this.getStateProperty(
+              `/rollData/roll${sAnotherRoll}`
+            );
+            const sAnotherFormatValue = oBindingData[`Zformat${sAnotherRoll}`];
+
+            const formattedValue = this.utils.formatStringValueFrom(ValueFrom);
+            const formattedAnotherValue =
+              this.utils.formatStringValueFrom(sAnotherFormatValue);
 
             this.setStateProperty(`/rollData/roll${sRollNum}/Material`, Matnr);
             this.setStateProperty(`/rollData/roll${sRollNum}/Charg`, Charg);
 
+            let errors = [];
+
             if (bSwitchActive) {
               if (
-                oAnotherRollData &&
-                oAnotherRollData.Material &&
+                oAnotherRollData?.Material &&
                 oAnotherRollData.Material !== Matnr
               ) {
-                aFrontErrors.push(`Материалы рулонов должны совпадать.`);
+                errors.push(`Материалы рулонов должны совпадать.`);
               }
               if (+formattedValue !== +formattedAnotherValue) {
-                aFrontErrors.push(`Форматы исходных рулонов должны совпадать.`);
-              }
-              if (aFrontErrors.length) {
-                return aFrontErrors;
+                errors.push(`Форматы исходных рулонов должны совпадать.`);
               }
             }
 
-            if (formattedValue) {
+            if (!errors.length && formattedValue) {
               oModel.setProperty(
                 `${sBindingPath}/Zformat${sRollNum}`,
                 formattedValue
               );
-              fnSetState();
             }
+
+            return errors;
           };
 
-          const fnCallBackend = (sRollValue, sRollNum) => {
-            return new Promise((resolve, reject) => {
-              this.callODataFunction("/GetDataRoll", {
-                Werks: Werks,
-                Lgort: Lgort,
+          const callBackend = async (sRollValue, sRollNum) => {
+            try {
+              const oResponse = await this.callODataFunction("/GetDataRoll", {
+                Werks,
+                Lgort,
                 RollNum: sRollValue,
-              })
-                .then((oResponse) => {
-                  this.__oMessageModel.__filterMessages({
-                    bindingValue: `RollNum${sRollNum}`,
-                  });
-                  const oValuesSet = fnSetValues(oResponse, sRollNum);
-                  resolve(oValuesSet);
-                })
-                .catch((oError) => {
-                  this.setStateProperty(
-                    `/errorFields/RollNum${sRollNum}`,
-                    true
-                  );
-                  this.setStateProperty(
-                    `/errorFields/Zformat${sRollNum}`,
-                    true
-                  );
-                  reject(oError);
-                })
-                .finally(() => this.__attachPropertyChange());
-            });
+              });
+
+              this.__oMessageModel.__filterMessages({
+                bindingValue: `RollNum${sRollNum}`,
+              });
+
+              const errors = setValues(oResponse, sRollNum);
+              return { errors };
+            } catch (err) {
+              setErrorFields(true);
+            } finally {
+              this.__attachPropertyChange();
+            }
           };
 
-          let aPromises = [];
-          if (sRollNum) {
-            aPromises.push(fnCallBackend(sRollValue, sRollNum));
-          }
+          try {
+            let responses = [];
 
-          if (oBindingData.RollNum1 && oBindingData.RollNum2) {
-            aPromises = [
-              fnCallBackend(oBindingData.RollNum1, "1"),
-              fnCallBackend(oBindingData.RollNum2, "2"),
-            ];
+            if (sRollNum) {
+              responses = [await callBackend(sRollValue, sRollNum)];
+            } else if (oBindingData.RollNum1 && oBindingData.RollNum2) {
+              responses = await Promise.all([
+                callBackend(oBindingData.RollNum1, "1"),
+                callBackend(oBindingData.RollNum2, "2"),
+              ]);
+            }
+
+            const allErrors = responses.flatMap((r) => r.errors || []);
+            if (allErrors.length) {
+              setErrorFields(true);
+              MessageBox.error([...new Set(allErrors)].join("\n"));
+            } else {
+              setErrorFields(false);
+            }
+          } catch (e) {
+            console.error("Ошибка при обработке рулонов:", e);
           }
-          Promise.all(aPromises).then((aFrontErrors) => {
-            let sErrorText = "";
-            if (aFrontErrors && aFrontErrors.length) {
-              sErrorText = [...new Set(aFrontErrors.flatMap((o) => o))]
-                .map((o) => o)
-                .join(`\n`);
-            }
-            if (sErrorText) {
-              fnSetState(true);
-              MessageBox.error(sErrorText);
-            }
-          });
         },
 
         onChangeMetersOrReport(oEvent) {

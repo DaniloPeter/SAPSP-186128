@@ -74,3 +74,10 @@
   background-color: #fff;
   border-radius: 0.75rem;
 }
+
+li[id*="customDisableWpOperatingmodeId-1"] {
+  pointer-events: none !important;
+}
+li[id*="customDisableWpOperatingmodeId-2"] {
+  pointer-events: none !important;
+}
