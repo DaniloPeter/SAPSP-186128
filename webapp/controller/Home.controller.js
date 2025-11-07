@@ -96,6 +96,7 @@ sap.ui.define(
                     "/valueHelps/BRIGSet",
                     data?.BrigSet || []
                   );
+                  this.setStateProperty("/valueHelps/QMSet", data?.QMSet || []);
                 }
                 if (oDraftFormData) {
                   const aSkipFields = [
@@ -120,6 +121,11 @@ sap.ui.define(
                   this.setStateProperty(
                     "/valueHelps/BRIGSet",
                     oDraftFormData?.BrigSet || []
+                  );
+
+                  this.setStateProperty(
+                    "/valueHelps/QMSet",
+                    oDraftFormData?.QMSet || []
                   );
 
                   if (oDraftFormErrors) {
@@ -217,10 +223,14 @@ sap.ui.define(
         __attachPropertyChange() {
           const oFormData = this.getFormData(),
             aBrigSet = this.getStateProperty("/valueHelps/BRIGSet"),
+            aQmSet = this.getStateProperty("/valueHelps/QMSet"),
             oErrorFields = this.getStateProperty("/errorFields"),
             oSwitchesData = this.getStateProperty("/switches");
           if (aBrigSet && aBrigSet.length) {
             oFormData.BrigSet = aBrigSet;
+          }
+          if (aQmSet && aQmSet.length) {
+            oFormData.QMSet = aQmSet;
           }
           if (oSwitchesData) {
             oFormData.switches = oSwitchesData;
@@ -240,7 +250,9 @@ sap.ui.define(
 
           const oItemContext = oSelectedItem.getBindingContext();
           if (!oItemContext) {
-            MessageBox.warning("Нету привязки к модели данных у выбранного элемента");
+            MessageBox.warning(
+              "Нету привязки к модели данных у выбранного элемента"
+            );
             return;
           }
 
@@ -273,14 +285,23 @@ sap.ui.define(
             }
           });
 
+          const aFilters = [
+            new Filter("WpResource", FilterOperator.EQ, WpResource),
+            new Filter("Werks", FilterOperator.EQ, oBindingData.Werks),
+          ];
+
           this.readOData("/BRIGSet", {
-            filters: [
-              new Filter("WpResource", FilterOperator.EQ, WpResource),
-              new Filter("Werks", FilterOperator.EQ, oBindingData.Werks),
-            ],
+            filters: aFilters,
           }).then((oResponse) => {
             this.setStateProperty("/valueHelps/BRIGSet", oResponse.results);
             oModel.setProperty(`${sBindingPath}/Brig`, "");
+            this.__attachPropertyChange();
+          });
+
+          this.readOData("/QMSet", {
+            filters: aFilters,
+          }).then((oResponse) => {
+            this.setStateProperty("/valueHelps/QMSet", oResponse.results);
             this.__attachPropertyChange();
           });
 
@@ -555,14 +576,6 @@ sap.ui.define(
                 callBackend(oBindingData.RollNum2, "2"),
               ]);
             }
-
-            const allErrors = responses.flatMap((r) => r.errors || []);
-            if (allErrors.length) {
-              setErrorFields(true);
-              MessageBox.error([...new Set(allErrors)].join("\n"));
-            } else {
-              setErrorFields(false);
-            }
           } catch (e) {
             console.error("Ошибка при обработке рулонов:", e);
           }
@@ -782,10 +795,10 @@ sap.ui.define(
 
         onVHDownTimeRequested(oEvent) {
           const oSource = oEvent.getSource(),
-            oSuggestionBinding = oSource.getBinding("suggestionRows"),
-            sSuggestionPath = oSuggestionBinding.getPath(),
-            aSuggestionFields = oSuggestionBinding.oEntityType.property;
-
+            oModel = this.getModel(),
+            sEntitySet = "QMSet",
+            aSuggestionFields =
+              oModel.oMetadata.mEntitySets[sEntitySet].__entityType.property;
           this._oInputVH = oSource;
           this._oBasicSearchField = new SearchField();
           this.getDialog("VHDownTime").then((oDialog) => {
@@ -802,6 +815,9 @@ sap.ui.define(
               if (oTable.getBinding("rows")) {
                 return;
               }
+              if (oTable) {
+                oTable.setNoData("Заполните ресурс для получения результатов.");
+              }
               if (oTable.bindRows) {
                 aSuggestionFields.forEach((oField, index) => {
                   const tempLabel =
@@ -813,7 +829,7 @@ sap.ui.define(
                       }),
                       template: new Text({
                         wrapping: false,
-                        text: `{${oField.name}}`,
+                        text: `{state>${oField.name}}`,
                       }),
                     });
 
@@ -824,7 +840,7 @@ sap.ui.define(
                 });
 
                 oTable.bindAggregation("rows", {
-                  path: sSuggestionPath,
+                  path: "state>/valueHelps/QMSet",
                   events: {
                     dataReceived: function () {
                       oDialog.update();
@@ -892,7 +908,8 @@ sap.ui.define(
 
         __fireSave(sEntity, oFormData) {
           const fnFireSave = () => {
-            this.sendData(sEntity, oFormData).then(() => {
+            oFormData.Brig === "151"
+            this.sendData(sEntity, {...oFormData, Brig: "151"}).then(() => {
               const oBrigSet = this.getStateProperty("/valueHelps/BRIGSet"),
                 oSessionData = {
                   ...oFormData,
