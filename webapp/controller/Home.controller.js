@@ -94,7 +94,7 @@ sap.ui.define(
                   };
                   this.setStateProperty(
                     "/valueHelps/BRIGSet",
-                    data?.BrigSet || []
+                    data?.BRIGSet || []
                   );
                   this.setStateProperty("/valueHelps/QMSet", data?.QMSet || []);
                 }
@@ -102,7 +102,8 @@ sap.ui.define(
                   const aSkipFields = [
                       "toDefect",
                       "toDowntime",
-                      "BrigSet",
+                      "BRIGSet",
+                      "QMSet",
                       "switches",
                     ],
                     oNewDraftData = Object.entries(oDraftFormData).reduce(
@@ -120,7 +121,7 @@ sap.ui.define(
 
                   this.setStateProperty(
                     "/valueHelps/BRIGSet",
-                    oDraftFormData?.BrigSet || []
+                    oDraftFormData?.BRIGSet || []
                   );
 
                   this.setStateProperty(
@@ -227,7 +228,7 @@ sap.ui.define(
             oErrorFields = this.getStateProperty("/errorFields"),
             oSwitchesData = this.getStateProperty("/switches");
           if (aBrigSet && aBrigSet.length) {
-            oFormData.BrigSet = aBrigSet;
+            oFormData.BRIGSet = aBrigSet;
           }
           if (aQmSet && aQmSet.length) {
             oFormData.QMSet = aQmSet;
@@ -566,16 +567,15 @@ sap.ui.define(
           };
 
           try {
-            let responses = [];
-
             if (sRollNum) {
-              responses = [await callBackend(sRollValue, sRollNum)];
+              await callBackend(sRollValue, sRollNum);
             } else if (oBindingData.RollNum1 && oBindingData.RollNum2) {
-              responses = await Promise.all([
+              await Promise.all([
                 callBackend(oBindingData.RollNum1, "1"),
                 callBackend(oBindingData.RollNum2, "2"),
               ]);
             }
+            setErrorFields(false);
           } catch (e) {
             console.error("Ошибка при обработке рулонов:", e);
           }
@@ -795,10 +795,7 @@ sap.ui.define(
 
         onVHDownTimeRequested(oEvent) {
           const oSource = oEvent.getSource(),
-            oModel = this.getModel(),
-            sEntitySet = "QMSet",
-            aSuggestionFields =
-              oModel.oMetadata.mEntitySets[sEntitySet].__entityType.property;
+            aFields = ["Qmcod", "Kurztext", "Qmgrp", "Kurztext2"];
           this._oInputVH = oSource;
           this._oBasicSearchField = new SearchField();
           this.getDialog("VHDownTime").then((oDialog) => {
@@ -819,21 +816,18 @@ sap.ui.define(
                 oTable.setNoData("Заполните ресурс для получения результатов.");
               }
               if (oTable.bindRows) {
-                aSuggestionFields.forEach((oField, index) => {
-                  const tempLabel =
-                      oField.extensions.find((e) => e.name === "label")
-                        ?.value || oField.name,
-                    tempColumn = new UIColumn({
-                      label: new Label({
-                        text: tempLabel,
-                      }),
-                      template: new Text({
-                        wrapping: false,
-                        text: `{state>${oField.name}}`,
-                      }),
-                    });
+                aFields.forEach((sField, index) => {
+                  const tempColumn = new UIColumn({
+                    label: new Label({
+                      text: `{/#QM/${sField}/@sap:label}`,
+                    }),
+                    template: new Text({
+                      wrapping: false,
+                      text: `{state>${sField}}`,
+                    }),
+                  });
 
-                  if (index === 3) {
+                  if (index === 1 || index === 3) {
                     tempColumn.setWidth("350px");
                   }
                   oTable.addColumn(tempColumn);
@@ -908,21 +902,25 @@ sap.ui.define(
 
         __fireSave(sEntity, oFormData) {
           const fnFireSave = () => {
-            oFormData.Brig === "151"
-            this.sendData(sEntity, {...oFormData, Brig: "151"}).then(() => {
-              const oBrigSet = this.getStateProperty("/valueHelps/BRIGSet"),
-                oSessionData = {
-                  ...oFormData,
-                  BrigSet: oBrigSet,
-                };
-              this.saveStorageData("sessionFormData", oSessionData);
+            this.setBusy(true);
+            this.sendData(sEntity, oFormData)
+              .then(() => {
+                const oValueHelps = this.getStateProperty("/valueHelps") || {},
+                  oSessionData = {
+                    ...oFormData,
+                    ...oValueHelps,
+                  };
+                this.saveStorageData("sessionFormData", oSessionData);
 
-              this.storage.clearData("draftFormData");
+                this.storage.clearData("draftFormData");
 
-              this.__clearStatesFields();
-              this.__bindView();
-              MessageBox.success("Форма успешно отправлена.");
-            });
+                this.__clearStatesFields();
+                this.__bindView();
+                MessageBox.success("Форма успешно отправлена.");
+              })
+              .finally(() => {
+                this.setBusy(false);
+              });
           };
 
           MessageBox.information(

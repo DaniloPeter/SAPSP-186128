@@ -51,7 +51,8 @@
                         </VBox>
                         <VBox width="100%">
                             <Label text="Режим флексопечати:" required="true" />
-                            <Select id="customDisableWpOperatingmodeId" class="customDisableWpOperatingmode" forceSelection="false"
+                            <Select id="customDisableWpOperatingmodeId"
+                                class="customDisableWpOperatingmode" forceSelection="false"
                                 width="100%"
                                 showSecondaryValues="true"
                                 selectedKey="{WpOperatingmode}"
@@ -475,29 +476,25 @@
                                     </customData>
                                     <suggestionColumns>
                                         <Column>
+                                            <Text text="{/#QM/Qmcod/@sap:label}" />
+                                        </Column>
+                                        <Column>
                                             <Text text="{/#QM/Kurztext/@sap:label}" />
-                                        </Column>
-                                        <Column>
-                                            <Text text="{/#QM/Kurztext2/@sap:label}" />
-                                        </Column>
-                                        <Column>
-                                            <Text text="{/#QM/Rbnr/@sap:label}" />
                                         </Column>
                                         <Column>
                                             <Text text="{/#QM/Qmgrp/@sap:label}" />
                                         </Column>
                                         <Column>
-                                            <Text text="{/#QM/Qmcod/@sap:label}" />
+                                            <Text text="{/#QM/Kurztext2/@sap:label}" />
                                         </Column>
                                     </suggestionColumns>
                                     <suggestionRows>
                                         <ColumnListItem>
                                             <cells>
-                                                <Text text="{state>Kurztext}" />
-                                                <Text text="{state>Kurztext2}" />
-                                                <Text text="{state>Rbnr}" />
-                                                <Text text="{state>Qmgrp}" />
                                                 <Text text="{state>Qmcod}" />
+                                                <Text text="{state>Kurztext}" />
+                                                <Text text="{state>Qmgrp}" />
+                                                <Text text="{state>Kurztext2}" />
                                             </cells>
                                         </ColumnListItem>
                                     </suggestionRows>

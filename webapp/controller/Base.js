@@ -46,6 +46,9 @@ sap.ui.define(
           this.getView().setModel(oModel, sName);
           return this;
         },
+        setBusy(bBusy) {
+          this.getView().setBusy(bBusy);
+        },
         readOData(sPath, oParams) {
           return new Promise((resolve, reject) => {
             const oModel = this.getModel();
@@ -216,6 +219,8 @@ sap.ui.define(
               "Zfullnameqa",
               "toDefect",
               "toDowntime",
+              "QMSet",
+              "BRIGSet",
             ],
             aMetaFields =
               oModel.oMetadata._getEntityTypeByPath(
