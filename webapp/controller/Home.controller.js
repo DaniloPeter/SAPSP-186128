@@ -86,11 +86,9 @@ sap.ui.define(
                 if (oFormData) {
                   const { data } = oFormData;
                   oExistedFields = {
-                    WpResource: data.WpResource,
-                    Lgort: data.Lgort,
-                    Smen: data.Smen,
+                    Werks: data.Werks,
                     Brig: data.Brig,
-                    Zprinter: data.Zprinter,
+                    Aufnr: data.Aufnr,
                   };
                   this.setStateProperty(
                     "/valueHelps/BRIGSet",
@@ -871,11 +869,23 @@ sap.ui.define(
         },
 
         onClearFormData() {
-          const fnClear = () => {
+          const fnClear = async () => {
             this.__clearStatesFields();
-            this.__bindView();
+
+            const oFormData = await this.storage.getData("sessionFormData");
+            if (oFormData && oFormData.data) {
+              const oSessionData = {
+                Werks: oFormData.data.Werks,
+                Brig: oFormData.data.Brig,
+                Aufnr: oFormData.data.Aufnr,
+              };
+              this.saveStorageData("sessionFormData", oSessionData);
+            } else {
+              this.storage.clearData("sessionFormData");
+            }
+
             this.storage.clearData("draftFormData");
-            this.storage.clearData("sessionFormData");
+            this.__bindView();
           };
 
           MessageBox.information("Вы уверены, что хотите очистить форму?", {
@@ -905,11 +915,11 @@ sap.ui.define(
             this.setBusy(true);
             this.sendData(sEntity, oFormData)
               .then(() => {
-                const oValueHelps = this.getStateProperty("/valueHelps") || {},
-                  oSessionData = {
-                    ...oFormData,
-                    ...oValueHelps,
-                  };
+                const oSessionData = {
+                  Werks: oFormData.Werks,
+                  Brig: oFormData.Brig,
+                  Aufnr: oFormData.Aufnr,
+                };
                 this.saveStorageData("sessionFormData", oSessionData);
 
                 this.storage.clearData("draftFormData");
@@ -917,6 +927,15 @@ sap.ui.define(
                 this.__clearStatesFields();
                 this.__bindView();
                 MessageBox.success("Форма успешно отправлена.");
+              })
+              .catch((oError) => {
+                this.storage.clearData("draftFormData");
+                this.__clearStatesFields();
+                this.__bindView();
+                const sErrorText = oError?.error;
+                if (sErrorText) {
+                  MessageBox.error(sErrorText);
+                }
               })
               .finally(() => {
                 this.setBusy(false);
