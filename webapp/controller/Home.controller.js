@@ -88,7 +88,6 @@ sap.ui.define(
                   oExistedFields = {
                     Werks: data.Werks,
                     Zlogin: data.Zlogin,
-                    Aufnr: data.Aufnr,
                   };
                   this.setStateProperty(
                     "/valueHelps/BRIGSet",
@@ -392,9 +391,16 @@ sap.ui.define(
         onChangeAufnr(oEvent) {
           const oSource = oEvent.getSource(),
             oModel = this.getModel(),
-            sBindingPath = this.getView().getBindingContext().getPath(),
+            oBindingContext =
+              oSource.getBindingContext() || this.getView().getBindingContext(),
+            sBindingPath = oBindingContext ? oBindingContext.getPath() : null,
             sValue = oSource.getValue(),
             isFullValue = sValue && !sValue.includes("_");
+
+          if (!oBindingContext) {
+            MessageBox.warning("Нету привязки к модели для поля заказа");
+            return;
+          }
 
           if (!isFullValue) {
             oModel.setProperty(`${sBindingPath}/Klishe`, "");
@@ -429,32 +435,8 @@ sap.ui.define(
         },
 
         onChangeZnewformat(oEvent) {
-          const oSource = oEvent.getSource(),
-            sValue = oSource.getValue(),
-            iValue = this.utils.stringToNumber(sValue),
-            oBindingContext = this.getView().getBindingContext(),
-            oBindingData = oBindingContext.getObject(),
-            iFormat1 = this.utils.stringToNumber(oBindingData.Zformat1),
-            iFormat2 = this.utils.stringToNumber(oBindingData.Zformat2),
-            bSelected = this.getStateProperty("/switches/roll");
-
-          const fnPushErrorField = (iNumber) => {
-            MessageBox.error(
-              `Формат запечатанного рулона не должен превышать формат исходного рулона ${iNumber}.`
-            );
-            this.setStateProperty("/errorFields/Znewformat", true);
-          };
-          if (iValue > iFormat1) {
-            fnPushErrorField(1);
-            this.__attachPropertyChange();
-            return;
-          }
-          if (iValue > iFormat2 && bSelected) {
-            fnPushErrorField(2);
-            this.__attachPropertyChange();
-            return;
-          }
-
+          const oSource = oEvent.getSource();
+          // отключил клиентскую проверку
           this.onChangeCommonField(oSource);
         },
 
@@ -828,7 +810,6 @@ sap.ui.define(
                 const oSessionData = {
                   Werks: oFormData.Werks,
                   Zlogin: oFormData.Zlogin,
-                  Aufnr: oFormData.Aufnr,
                 };
                 this.saveStorageData("sessionFormData", oSessionData);
 
@@ -932,6 +913,15 @@ sap.ui.define(
 
           const fnCheckFormData = () => {
             aRequiredFields.forEach((sField) => {
+              // Temporarily skip client-side validation for certain backend-driven fields;
+              // backend (DATA_ROLL_GET) provides authoritative values for formats and Klishe.
+              if (
+                ["Zformat1", "Zformat2", "Znewformat", "Klishe"].includes(
+                  sField
+                )
+              ) {
+                return;
+              }
               const fieldValue = oFormData[sField],
                 foundFromErrors = this.getStateProperty(
                   `/errorFields/${sField}`
