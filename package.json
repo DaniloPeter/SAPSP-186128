@@ -6,7 +6,8 @@
   "scripts": {
     "start": "ui5 serve -o index.html",
     "build": "ui5 build",
-    "build_dev": "ui5 build dev --clean-dest=true --loglevel=info"
+    "build_dev": "ui5 build dev --clean-dest=true --loglevel=info",
+    "build_force": "ui5 build --config ui5.yaml --include-task ui5-task-nwabap-deployer"
   },
   "keywords": [
     "fiori",

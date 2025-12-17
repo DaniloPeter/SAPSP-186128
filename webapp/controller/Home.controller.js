@@ -87,7 +87,7 @@ sap.ui.define(
                   const { data } = oFormData;
                   oExistedFields = {
                     Werks: data.Werks,
-                    Brig: data.Brig,
+                    Zlogin: data.Zlogin,
                     Aufnr: data.Aufnr,
                   };
                   this.setStateProperty(
@@ -177,14 +177,13 @@ sap.ui.define(
                     sRollNum2 = oDraftFormData?.RollNum2;
 
                   if (sRollNum1 && sRollNum2) {
-                    this.__getDataRoll();
                     return;
                   }
                   if (sRollNum1) {
-                    this.__getDataRoll(sRollNum1, "1");
+                    return;
                   }
                   if (sRollNum2) {
-                    this.__getDataRoll(sRollNum2, "2");
+                    return;
                   }
                 }
               } catch (oError) {
@@ -277,12 +276,19 @@ sap.ui.define(
             Werks: oBindingData.Werks,
           };
 
-          this.callODataFunction("/GetTplnr", oPayload).then((oResponse) => {
-            const { TPLNR } = oResponse.TPLNR;
-            if (TPLNR) {
-              oModel.setProperty(`${sBindingPath}/Tplnr`, TPLNR);
-            }
-          });
+          this.callODataFunction("/GetTplnr", oPayload)
+            .then((oResponse) => {
+              const { TPLNR } = oResponse.TPLNR;
+              if (TPLNR) {
+                oModel.setProperty(`${sBindingPath}/Tplnr`, TPLNR);
+              }
+            })
+            .catch((err) => {
+              MessageBox.warning(
+                "Не удалось определить TPLNR для выбранного ресурса."
+              );
+              console.error("GetTplnr error:", err);
+            });
 
           const aFilters = [
             new Filter("WpResource", FilterOperator.EQ, WpResource),
@@ -291,26 +297,36 @@ sap.ui.define(
 
           this.readOData("/BRIGSet", {
             filters: aFilters,
-          }).then((oResponse) => {
-            this.setStateProperty("/valueHelps/BRIGSet", oResponse.results);
-            oModel.setProperty(`${sBindingPath}/Brig`, "");
-            this.__attachPropertyChange();
-          });
+          })
+            .then((oResponse) => {
+              this.setStateProperty("/valueHelps/BRIGSet", oResponse.results);
+              oModel.setProperty(`${sBindingPath}/Brig`, "");
+              this.__attachPropertyChange();
+            })
+            .catch((err) => {
+              this.setStateProperty("/valueHelps/BRIGSet", []);
+              this.__attachPropertyChange();
+              MessageBox.warning(
+                "Не удалось получить список бригад (BRIGSet)."
+              );
+              console.error("BRIGSet read error:", err);
+            });
 
           this.readOData("/QMSet", {
             filters: aFilters,
-          }).then((oResponse) => {
-            this.setStateProperty("/valueHelps/QMSet", oResponse.results);
-            this.__attachPropertyChange();
-          });
+          })
+            .then((oResponse) => {
+              this.setStateProperty("/valueHelps/QMSet", oResponse.results);
+              this.__attachPropertyChange();
+            })
+            .catch((err) => {
+              this.setStateProperty("/valueHelps/QMSet", []);
+              this.__attachPropertyChange();
+              MessageBox.warning("Не удалось получить список QM (QMSet).");
+              console.error("QMSet read error:", err);
+            });
 
-          if (oBindingData.RollNum1) {
-            this.__getDataRoll(oBindingData.RollNum1, "1");
-          }
-
-          if (oBindingData.RollNum2) {
-            this.__getDataRoll(oBindingData.RollNum2, "2");
-          }
+          // проверка рулонов отключена — не вызываем __getDataRoll
         },
 
         onChangeWpOperatingmode(oEvent) {
@@ -390,21 +406,12 @@ sap.ui.define(
           this.setStateProperty("/errorFields/Aufnr", false);
 
           this.onChangeCommonField(oSource);
-
-          this.callODataFunction("/GetKlishe", {
-            Aufnr: sValue,
-          }).then((oResponse) => {
-            const { Matnr, Maktx } = oResponse.GetKlishe;
-            if (Matnr) {
-              oModel.setProperty(`${sBindingPath}/Klishe`, Matnr);
-              this.setStateProperty("/errorFields/Klishe", false);
-            }
-            if (Maktx) {
-              oModel.setProperty(`${sBindingPath}/Zklishetext`, Maktx);
-            }
-
-            this.__attachPropertyChange();
-          });
+          // отключен запрос на сервер для получения клише по заказу
+          // только локальные изменения в модели
+          oModel.setProperty(`${sBindingPath}/Klishe`, "");
+          oModel.setProperty(`${sBindingPath}/Zklishetext`, "");
+          this.setStateProperty("/errorFields/Klishe", false);
+          this.__attachPropertyChange();
         },
 
         onSuggestionZloginSelected(oEvent) {
@@ -483,100 +490,12 @@ sap.ui.define(
           this.setStateProperty("/errorFields/RollNum2", false);
 
           this.onChangeCommonField(oSource);
-
-          this.__getDataRoll(sValue, sRollNum);
+          // отключена проверка рулона не вызываем __getDataRoll
         },
 
-        async __getDataRoll(sRollValue, sRollNum) {
-          const oModel = this.getModel();
-          const oView = this.getView();
-          const oBindingContext = oView.getBindingContext();
-          const sBindingPath = oBindingContext.getPath();
-          const oBindingData = oBindingContext.getObject();
-          const bSwitchActive = this.getStateProperty("/switches/roll");
-          const { Werks, Lgort } = oBindingData;
-
-          if (!Werks || !Lgort) return;
-
-          const setErrorFields = (state = false) => {
-            ["RollNum1", "Zformat1"].forEach((field) =>
-              this.setStateProperty(`/errorFields/${field}`, state)
-            );
-          };
-
-          const setValues = (oValues, sRollNum) => {
-            const { ValueFrom, Matnr, Charg } = oValues;
-            const sAnotherRoll = sRollNum === "1" ? "2" : "1";
-            const oAnotherRollData = this.getStateProperty(
-              `/rollData/roll${sAnotherRoll}`
-            );
-            const sAnotherFormatValue = oBindingData[`Zformat${sAnotherRoll}`];
-
-            const formattedValue = this.utils.formatStringValueFrom(ValueFrom);
-            const formattedAnotherValue =
-              this.utils.formatStringValueFrom(sAnotherFormatValue);
-
-            this.setStateProperty(`/rollData/roll${sRollNum}/Material`, Matnr);
-            this.setStateProperty(`/rollData/roll${sRollNum}/Charg`, Charg);
-
-            let errors = [];
-
-            if (bSwitchActive) {
-              if (
-                oAnotherRollData?.Material &&
-                oAnotherRollData.Material !== Matnr
-              ) {
-                errors.push(`Материалы рулонов должны совпадать.`);
-              }
-              if (+formattedValue !== +formattedAnotherValue) {
-                errors.push(`Форматы исходных рулонов должны совпадать.`);
-              }
-            }
-
-            if (!errors.length && formattedValue) {
-              oModel.setProperty(
-                `${sBindingPath}/Zformat${sRollNum}`,
-                formattedValue
-              );
-            }
-
-            return errors;
-          };
-
-          const callBackend = async (sRollValue, sRollNum) => {
-            try {
-              const oResponse = await this.callODataFunction("/GetDataRoll", {
-                Werks,
-                Lgort,
-                RollNum: sRollValue,
-              });
-
-              this.__oMessageModel.__filterMessages({
-                bindingValue: `RollNum${sRollNum}`,
-              });
-
-              const errors = setValues(oResponse, sRollNum);
-              return { errors };
-            } catch (err) {
-              setErrorFields(true);
-            } finally {
-              this.__attachPropertyChange();
-            }
-          };
-
-          try {
-            if (sRollNum) {
-              await callBackend(sRollValue, sRollNum);
-            } else if (oBindingData.RollNum1 && oBindingData.RollNum2) {
-              await Promise.all([
-                callBackend(oBindingData.RollNum1, "1"),
-                callBackend(oBindingData.RollNum2, "2"),
-              ]);
-            }
-            setErrorFields(false);
-          } catch (e) {
-            console.error("Ошибка при обработке рулонов:", e);
-          }
+        async __getDataRoll(/* sRollValue, sRollNum */) {
+          // проверка рулонов отключена — no-op
+          return Promise.resolve();
         },
 
         onChangeMetersOrReport(oEvent) {
@@ -872,19 +791,10 @@ sap.ui.define(
           const fnClear = async () => {
             this.__clearStatesFields();
 
-            const oFormData = await this.storage.getData("sessionFormData");
-            if (oFormData && oFormData.data) {
-              const oSessionData = {
-                Werks: oFormData.data.Werks,
-                Brig: oFormData.data.Brig,
-                Aufnr: oFormData.data.Aufnr,
-              };
-              this.saveStorageData("sessionFormData", oSessionData);
-            } else {
-              this.storage.clearData("sessionFormData");
-            }
+            // очищаем все данные в localStorage
+            await this.storage.clearData("sessionFormData");
+            await this.storage.clearData("draftFormData");
 
-            this.storage.clearData("draftFormData");
             this.__bindView();
           };
 
@@ -917,7 +827,7 @@ sap.ui.define(
               .then(() => {
                 const oSessionData = {
                   Werks: oFormData.Werks,
-                  Brig: oFormData.Brig,
+                  Zlogin: oFormData.Zlogin,
                   Aufnr: oFormData.Aufnr,
                 };
                 this.saveStorageData("sessionFormData", oSessionData);
@@ -929,7 +839,9 @@ sap.ui.define(
                 MessageBox.success("Форма успешно отправлена.");
               })
               .catch((oError) => {
+                // при ошибке тоже очищаем все данные в localStorage и форме
                 this.storage.clearData("draftFormData");
+                this.storage.clearData("sessionFormData");
                 this.__clearStatesFields();
                 this.__bindView();
                 const sErrorText = oError?.error;
