@@ -21,7 +21,7 @@ sap.ui.define(
     Text,
     Filter,
     FilterOperator,
-    MessageModel
+    MessageModel,
   ) => {
     "use strict";
 
@@ -73,13 +73,12 @@ sap.ui.define(
 
             const updateModelProperties = async (
               oResponse,
-              bInitial = false
+              bInitial = false,
             ) => {
               try {
                 const oFormData = await this.storage.getData("sessionFormData"),
-                  oDraftFormSettings = await this.storage.getData(
-                    "draftFormData"
-                  ),
+                  oDraftFormSettings =
+                    await this.storage.getData("draftFormData"),
                   oDraftFormData = oDraftFormSettings?.data,
                   oDraftFormErrors = oDraftFormSettings?.errors;
                 let oExistedFields = {};
@@ -91,7 +90,7 @@ sap.ui.define(
                   };
                   this.setStateProperty(
                     "/valueHelps/BRIGSet",
-                    data?.BRIGSet || []
+                    data?.BRIGSet || [],
                   );
                   this.setStateProperty("/valueHelps/QMSet", data?.QMSet || []);
                 }
@@ -109,21 +108,21 @@ sap.ui.define(
                         acc[key] = value;
                         return acc;
                       },
-                      {}
+                      {},
                     );
                   oExistedFields = this.utils.mergePreserveFilled(
                     oExistedFields,
-                    oNewDraftData
+                    oNewDraftData,
                   );
 
                   this.setStateProperty(
                     "/valueHelps/BRIGSet",
-                    oDraftFormData?.BRIGSet || []
+                    oDraftFormData?.BRIGSet || [],
                   );
 
                   this.setStateProperty(
                     "/valueHelps/QMSet",
-                    oDraftFormData?.QMSet || []
+                    oDraftFormData?.QMSet || [],
                   );
 
                   if (oDraftFormErrors) {
@@ -138,7 +137,7 @@ sap.ui.define(
                 if (oDraftFormData?.toDefect) {
                   this.setStateProperty(
                     "/tables/defect/items",
-                    oDraftFormData.toDefect
+                    oDraftFormData.toDefect,
                   );
                 }
 
@@ -156,7 +155,7 @@ sap.ui.define(
                         }
                         return acc;
                       }, {});
-                    })
+                    }),
                   );
                 }
 
@@ -165,9 +164,9 @@ sap.ui.define(
                     if (key === "__metadata") return;
                     oModel.setProperty(
                       `${sPath}/${key}`,
-                      oExistedFields[key] || value
+                      oExistedFields[key] || value,
                     );
-                  }
+                  },
                 );
                 oModel.setProperty(`${sPath}/Zfullnameqa`, "");
 
@@ -176,13 +175,14 @@ sap.ui.define(
                     sRollNum2 = oDraftFormData?.RollNum2;
 
                   if (sRollNum1 && sRollNum2) {
+                    this.__getDataRoll();
                     return;
                   }
                   if (sRollNum1) {
-                    return;
+                    this.__getDataRoll(sRollNum1, "1");
                   }
                   if (sRollNum2) {
-                    return;
+                    this.__getDataRoll(sRollNum2, "2");
                   }
                 }
               } catch (oError) {
@@ -212,7 +212,7 @@ sap.ui.define(
           });
 
           oStateModel.attachPropertyChange(
-            this.__attachPropertyChange.bind(this)
+            this.__attachPropertyChange.bind(this),
           );
           oModel.attachPropertyChange(this.__attachPropertyChange.bind(this));
         },
@@ -248,7 +248,7 @@ sap.ui.define(
           const oItemContext = oSelectedItem.getBindingContext();
           if (!oItemContext) {
             MessageBox.warning(
-              "Нету привязки к модели данных у выбранного элемента"
+              "Нету привязки к модели данных у выбранного элемента",
             );
             return;
           }
@@ -257,7 +257,7 @@ sap.ui.define(
           if (!Lgort) {
             MessageBox.warning(
               "Поле Lgort не определено для ресурса:",
-              WpResource
+              WpResource,
             );
             return;
           }
@@ -284,7 +284,7 @@ sap.ui.define(
             })
             .catch((err) => {
               MessageBox.warning(
-                "Не удалось определить TPLNR для выбранного ресурса."
+                "Не удалось определить TPLNR для выбранного ресурса.",
               );
               console.error("GetTplnr error:", err);
             });
@@ -306,7 +306,7 @@ sap.ui.define(
               this.setStateProperty("/valueHelps/BRIGSet", []);
               this.__attachPropertyChange();
               MessageBox.warning(
-                "Не удалось получить список бригад (BRIGSet)."
+                "Не удалось получить список бригад (BRIGSet).",
               );
               console.error("BRIGSet read error:", err);
             });
@@ -326,6 +326,15 @@ sap.ui.define(
             });
 
           // проверка рулонов отключена — не вызываем __getDataRoll
+          // вернули проверку рулонов
+
+          if (oBindingData.RollNum1) {
+            this.__getDataRoll(oBindingData.RollNum1, "1");
+          }
+
+          if (oBindingData.RollNum2) {
+            this.__getDataRoll(oBindingData.RollNum2, "2");
+          }
         },
 
         onChangeWpOperatingmode(oEvent) {
@@ -340,11 +349,11 @@ sap.ui.define(
             oModel.setProperty(`${sBindingPath}/RollNum2`, "");
             oModel.setProperty(
               `${sBindingPath}/Zformat2`,
-              this.utils.zeroString(3)
+              this.utils.zeroString(3),
             );
             oModel.setProperty(
               `${sBindingPath}/Zradius2`,
-              this.utils.zeroString(0)
+              this.utils.zeroString(0),
             );
           } else {
             this.setStateProperty("/switches/rollEnabled", true);
@@ -376,7 +385,7 @@ sap.ui.define(
             oBindingData = oBindingContext.getObject(),
             sBindingPath = oBindingContext.getPath(),
             aTechFields = Object.entries(oBindingData).filter(
-              ([sKey, sValue]) => !!sValue && sKey.includes("Tech")
+              ([sKey, sValue]) => !!sValue && sKey.includes("Tech"),
             );
 
           aTechFields.forEach(([sKey, sValue]) => {
@@ -414,10 +423,26 @@ sap.ui.define(
           this.onChangeCommonField(oSource);
           // отключен запрос на сервер для получения клише по заказу
           // только локальные изменения в модели
-          oModel.setProperty(`${sBindingPath}/Klishe`, "");
-          oModel.setProperty(`${sBindingPath}/Zklishetext`, "");
-          this.setStateProperty("/errorFields/Klishe", false);
-          this.__attachPropertyChange();
+          // oModel.setProperty(`${sBindingPath}/Klishe`, "");
+          // oModel.setProperty(`${sBindingPath}/Zklishetext`, "");
+          // this.setStateProperty("/errorFields/Klishe", false);
+          // this.__attachPropertyChange();
+
+          //TODO вернули заполнение клише по номеру заказа
+          this.callODataFunction("/GetKlishe", {
+            Aufnr: sValue,
+          }).then((oResponse) => {
+            const { Matnr, Maktx } = oResponse.GetKlishe;
+            if (Matnr) {
+              oModel.setProperty(`${sBindingPath}/Klishe`, Matnr);
+              this.setStateProperty("/errorFields/Klishe", false);
+            }
+            if (Maktx) {
+              oModel.setProperty(`${sBindingPath}/Zklishetext`, Maktx);
+            }
+
+            this.__attachPropertyChange();
+          });
         },
 
         onSuggestionZloginSelected(oEvent) {
@@ -429,7 +454,7 @@ sap.ui.define(
             oModel = this.getModel();
           oModel.setProperty(
             `${sBindingPath}/Zlogin`,
-            oSelectedRowBinding.Zlogin
+            oSelectedRowBinding.Zlogin,
           );
           this.__attachPropertyChange();
         },
@@ -473,11 +498,101 @@ sap.ui.define(
 
           this.onChangeCommonField(oSource);
           // отключена проверка рулона не вызываем __getDataRoll
+
+          //TODO вернули проверку рулона
+          this.__getDataRoll(sValue, sRollNum);
         },
 
-        async __getDataRoll(/* sRollValue, sRollNum */) {
-          // проверка рулонов отключена — no-op
-          return Promise.resolve();
+        async __getDataRoll(sRollValue, sRollNum) {
+          const oModel = this.getModel();
+          const oView = this.getView();
+          const oBindingContext = oView.getBindingContext();
+          const sBindingPath = oBindingContext.getPath();
+          const oBindingData = oBindingContext.getObject();
+          const bSwitchActive = this.getStateProperty("/switches/roll");
+          const { Werks, Lgort } = oBindingData;
+
+          if (!Werks || !Lgort) return;
+
+          const setErrorFields = (state = false) => {
+            ["RollNum1", "Zformat1"].forEach((field) =>
+              this.setStateProperty(`/errorFields/${field}`, state),
+            );
+          };
+
+          const setValues = (oValues, sRollNum) => {
+            const { ValueFrom, Matnr, Charg } = oValues;
+            const sAnotherRoll = sRollNum === "1" ? "2" : "1";
+            const oAnotherRollData = this.getStateProperty(
+              `/rollData/roll${sAnotherRoll}`,
+            );
+            const sAnotherFormatValue = oBindingData[`Zformat${sAnotherRoll}`];
+
+            const formattedValue = this.utils.formatStringValueFrom(ValueFrom);
+            const formattedAnotherValue =
+              this.utils.formatStringValueFrom(sAnotherFormatValue);
+
+            this.setStateProperty(`/rollData/roll${sRollNum}/Material`, Matnr);
+            this.setStateProperty(`/rollData/roll${sRollNum}/Charg`, Charg);
+
+            let errors = [];
+
+            if (bSwitchActive) {
+              if (
+                oAnotherRollData?.Material &&
+                oAnotherRollData.Material !== Matnr
+              ) {
+                errors.push(`Материалы рулонов должны совпадать.`);
+              }
+              if (+formattedValue !== +formattedAnotherValue) {
+                errors.push(`Форматы исходных рулонов должны совпадать.`);
+              }
+            }
+
+            if (!errors.length && formattedValue) {
+              oModel.setProperty(
+                `${sBindingPath}/Zformat${sRollNum}`,
+                formattedValue,
+              );
+            }
+
+            return errors;
+          };
+
+          const callBackend = async (sRollValue, sRollNum) => {
+            try {
+              const oResponse = await this.callODataFunction("/GetDataRoll", {
+                Werks,
+                Lgort,
+                RollNum: sRollValue,
+              });
+
+              this.__oMessageModel.__filterMessages({
+                bindingValue: `RollNum${sRollNum}`,
+              });
+
+              const errors = setValues(oResponse, sRollNum);
+              return { errors };
+            } catch (err) {
+              setErrorFields(true);
+            } finally {
+              this.__attachPropertyChange();
+            }
+          };
+
+          try {
+            if (sRollNum) {
+              await callBackend(sRollValue, sRollNum);
+            } else if (oBindingData.RollNum1 && oBindingData.RollNum2) {
+              await Promise.all([
+                callBackend(oBindingData.RollNum1, "1"),
+                callBackend(oBindingData.RollNum2, "2"),
+              ]);
+            }
+            setErrorFields(false);
+          } catch (e) {
+            console.error("Ошибка при обработке рулонов:", e);
+          }
         },
 
         onChangeMetersOrReport(oEvent) {
@@ -490,7 +605,7 @@ sap.ui.define(
           if (this.onChangeCommonField(oSource)) {
             oModel.setProperty(
               `${sBindingPath}/Zstamp`,
-              this.utils.zeroString(0)
+              this.utils.zeroString(0),
             );
             this.setStateProperty("/errorFields/Zstamp", true);
             return;
@@ -501,7 +616,7 @@ sap.ui.define(
             iReportLength = +oBindingData.Zlengthreport,
             sCalcOverPrints = this.utils.calculateOverPrints(
               iPrintMeters,
-              iReportLength
+              iReportLength,
             ),
             isError = sCalcOverPrints.length > 5 || +sCalcOverPrints <= 0;
 
@@ -517,7 +632,7 @@ sap.ui.define(
             if (isChangeZpm && +oBindingData.Zpm <= 99) {
               this.setStateProperty("/errorFields/Zpm", true);
               MessageBox.error(
-                "Количество 'Погонных метров' должно быть больше 99 и не может превышать 99999."
+                "Количество 'Погонных метров' должно быть больше 99 и не может превышать 99999.",
               );
               oSource.setValue("0");
             }
@@ -558,13 +673,13 @@ sap.ui.define(
 
           const iCalcDownTime = this.utils.calculateDownTime(
               oItem.Auztv,
-              oItem.Auztb
+              oItem.Auztb,
             ),
             isError = !iCalcDownTime;
 
           if (isError && oItem.Auztb) {
             MessageBox.error(
-              "Введите время начала простоя, не превышающее время окончания."
+              "Введите время начала простоя, не превышающее время окончания.",
             );
           }
           this.setStateProperty(`${sItemPath}/Zdownhours_error`, isError);
@@ -604,11 +719,11 @@ sap.ui.define(
                 oModel.setProperty(`${sBindingPath}/RollNum2`, "");
                 oModel.setProperty(
                   `${sBindingPath}/Zformat2`,
-                  this.utils.zeroString()
+                  this.utils.zeroString(),
                 );
                 oModel.setProperty(
                   `${sBindingPath}/Zradius2`,
-                  this.utils.zeroString(1)
+                  this.utils.zeroString(1),
                 );
                 this.setStateProperty(`/errorFields/RollNum2`, false);
                 this.setStateProperty(`/errorFields/Zformat2`, false);
@@ -681,7 +796,7 @@ sap.ui.define(
         _removeRows(sBindingTable, aSelectedIndexes) {
           let aTablePositions = this.getStateProperty(sBindingTable);
           aTablePositions = aTablePositions.filter(
-            (_, index) => !aSelectedIndexes.includes(index)
+            (_, index) => !aSelectedIndexes.includes(index),
           );
           this.setStateProperty(sBindingTable, aTablePositions);
           this.__oMessageModel.__filterMessages({
@@ -844,7 +959,7 @@ sap.ui.define(
                   fnFireSave();
                 }
               },
-            }
+            },
           );
         },
 
@@ -857,7 +972,7 @@ sap.ui.define(
             oDownTimesData = aTableData.downTime,
             aMetaFields =
               oModel.oMetadata._getEntityTypeByPath(
-                "/OPER_CONV_ROOLSet"
+                "/OPER_CONV_ROOLSet",
               ).property,
             aRequiredFields = this.getStateProperty("/requiredFields"),
             oFieldsFormat = this.getStateProperty("/fieldsFormat");
@@ -868,7 +983,7 @@ sap.ui.define(
           const fnPushErrorField = (
             oMetaField,
             oParams,
-            fieldHasError = false
+            fieldHasError = false,
           ) => {
             hasError = true;
 
@@ -913,18 +1028,17 @@ sap.ui.define(
 
           const fnCheckFormData = () => {
             aRequiredFields.forEach((sField) => {
-              // Temporarily skip client-side validation for certain backend-driven fields;
-              // backend (DATA_ROLL_GET) provides authoritative values for formats and Klishe.
+              // пропускаем валидацию
               if (
                 ["Zformat1", "Zformat2", "Znewformat", "Klishe"].includes(
-                  sField
+                  sField,
                 )
               ) {
                 return;
               }
               const fieldValue = oFormData[sField],
                 foundFromErrors = this.getStateProperty(
-                  `/errorFields/${sField}`
+                  `/errorFields/${sField}`,
                 ),
                 foundMetaField = aMetaFields.find((o) => o.name === sField);
               if (foundFromErrors) {
@@ -982,7 +1096,7 @@ sap.ui.define(
                 const foundFromErrors = oItem[`${sField}_error`];
                 if (!oItem[sField] || foundFromErrors) {
                   const foundMetaField = aMetaFields.find(
-                    (o) => o.name === sField
+                    (o) => o.name === sField,
                   );
                   fnPushErrorField(foundMetaField, {
                     path: path,
@@ -1045,10 +1159,10 @@ sap.ui.define(
 
           this.setStateProperty("/draftData", aData);
           this.getDialog("DraftData").then((oDialog) =>
-            oDialog.openBy(oButton)
+            oDialog.openBy(oButton),
           );
         },
-      }
+      },
     );
-  }
+  },
 );
