@@ -232,8 +232,15 @@ sap.ui.define(
           if (oSwitchesData) {
             oFormData.switches = oSwitchesData;
           }
+          const oCutFormData = {
+            WpResource: oFormData.WpResource,
+            WpOperatingmode: oFormData.WpOperatingmode,
+            Smen: oFormData.Smen,
+            Brig: oFormData.Brig,
+            Zprinter: oFormData.Zprinter,
+          };
 
-          this.saveStorageData("draftFormData", oFormData, oErrorFields);
+          this.saveStorageData("draftFormData", oCutFormData, oErrorFields);
         },
 
         onChangeWpResource(oEvent) {
@@ -924,11 +931,15 @@ sap.ui.define(
               .then(() => {
                 const oSessionData = {
                   Werks: oFormData.Werks,
-                  Zlogin: oFormData.Zlogin,
+                  WpResource: oFormData.WpResource,
+                  WpOperatingmode: oFormData.WpOperatingmode,
+                  Smen: oFormData.Smen,
+                  Brig: oFormData.Brig,
+                  Zprinter: oFormData.Zprinter,
                 };
                 this.saveStorageData("sessionFormData", oSessionData);
 
-                this.storage.clearData("draftFormData");
+                // this.storage.clearData("draftFormData");
 
                 this.__clearStatesFields();
                 this.__bindView();
@@ -936,8 +947,7 @@ sap.ui.define(
               })
               .catch((oError) => {
                 // при ошибке тоже очищаем все данные в localStorage и форме
-                this.storage.clearData("draftFormData");
-                this.storage.clearData("sessionFormData");
+                // this.storage.clearData("draftFormData");
                 this.__clearStatesFields();
                 this.__bindView();
                 const sErrorText = oError?.error;
@@ -1029,11 +1039,7 @@ sap.ui.define(
           const fnCheckFormData = () => {
             aRequiredFields.forEach((sField) => {
               // пропускаем валидацию
-              if (
-                ["Zformat1", "Zformat2", "Znewformat", "Klishe"].includes(
-                  sField,
-                )
-              ) {
+              if (["Zformat1", "Zformat2", "Klishe"].includes(sField)) {
                 return;
               }
               const fieldValue = oFormData[sField],
