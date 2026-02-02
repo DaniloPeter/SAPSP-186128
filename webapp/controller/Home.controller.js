@@ -76,7 +76,6 @@ sap.ui.define(
               bInitial = false,
             ) => {
               try {
-                debugger;
                 const oFormData = await this.storage.getData("sessionFormData"),
                   oDraftFormSettings =
                     await this.storage.getData("draftFormData"),
@@ -236,17 +235,8 @@ sap.ui.define(
           if (oSwitchesData) {
             oFormData.switches = oSwitchesData;
           }
-          debugger;
-          const oCutFormData = {
-            WpResource: oFormData.WpResource,
-            WpOperatingmode: oFormData.WpOperatingmode,
-            Smen: oFormData.Smen,
-            Brig: oFormData.Brig,
-            Zprinter: oFormData.Zprinter,
-            Lgort: oFormData.Lgort,
-          };
 
-          this.saveStorageData("draftFormData", oCutFormData, oErrorFields);
+          this.saveStorageData("draftFormData", oFormData, oErrorFields);
         },
 
         onChangeWpResource(oEvent) {
@@ -413,16 +403,9 @@ sap.ui.define(
         onChangeAufnr(oEvent) {
           const oSource = oEvent.getSource(),
             oModel = this.getModel(),
-            oBindingContext =
-              oSource.getBindingContext() || this.getView().getBindingContext(),
-            sBindingPath = oBindingContext ? oBindingContext.getPath() : null,
+            sBindingPath = this.getView().getBindingContext().getPath(),
             sValue = oSource.getValue(),
             isFullValue = sValue && !sValue.includes("_");
-
-          if (!oBindingContext) {
-            MessageBox.warning("Нету привязки к модели для поля заказа");
-            return;
-          }
 
           if (!isFullValue) {
             oModel.setProperty(`${sBindingPath}/Klishe`, "");
@@ -935,15 +918,11 @@ sap.ui.define(
             this.setBusy(true);
             this.sendData(sEntity, oFormData)
               .then(() => {
-                const oSessionData = {
-                  Werks: oFormData.Werks,
-                  WpResource: oFormData.WpResource,
-                  WpOperatingmode: oFormData.WpOperatingmode,
-                  Smen: oFormData.Smen,
-                  Brig: oFormData.Brig,
-                  Zprinter: oFormData.Zprinter,
-                  Lgort: oFormData.Lgort,
-                };
+                const oValueHelps = this.getStateProperty("/valueHelps") || {},
+                  oSessionData = {
+                    ...oFormData,
+                    ...oValueHelps,
+                  };
                 this.saveStorageData("sessionFormData", oSessionData);
                 this.saveStorageData("draftFormData", oSessionData);
                 // this.storage.clearData("draftFormData");

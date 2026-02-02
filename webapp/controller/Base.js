@@ -39,7 +39,7 @@ sap.ui.define(
             sPath,
             oValue,
             oContext,
-            bAsyncUpdate
+            bAsyncUpdate,
           );
         },
         setModel(oModel, sName) {
@@ -113,10 +113,11 @@ sap.ui.define(
         onChangeCommonField(oEvent) {
           const oModel = this.getModel(),
             oSource = oEvent.getSource ? oEvent.getSource() : oEvent,
-            isOnlyValueHelp = oSource.getValueHelpOnly && oSource.getValueHelpOnly(),
+            isOnlyValueHelp =
+              oSource.getValueHelpOnly && oSource.getValueHelpOnly(),
             aMetaFields =
               oModel.oMetadata._getEntityTypeByPath(
-                "/OPER_CONV_ROOLSet"
+                "/OPER_CONV_ROOLSet",
               ).property;
 
           let oValue = "",
@@ -139,7 +140,7 @@ sap.ui.define(
             oFoundType = aMetaFields.find(
               (o) =>
                 o.name === sBindingValue &&
-                (o.type.includes("Int") || o.type.includes("Decimal"))
+                (o.type.includes("Int") || o.type.includes("Decimal")),
             ),
             oSuggestionBinding = oSource.getBinding("suggestionRows"),
             iMinValue = oSource.getMin && oSource.getMin(),
@@ -172,11 +173,11 @@ sap.ui.define(
             }));
             if (sCustomCheckField) {
               oFoundSomething = aSuggestionRows.find(
-                (o) => o.data[sCustomCheckField] === oValue
+                (o) => o.data[sCustomCheckField] === oValue,
               );
             } else {
               oFoundSomething = aSuggestionRows.find((o) =>
-                o.path.includes(`${sBindingValue}='${oValue}'`)
+                o.path.includes(`${sBindingValue}='${oValue}'`),
               );
             }
           }
@@ -187,7 +188,7 @@ sap.ui.define(
             const sItemPath = oItemTableBinding.getPath();
             this.setStateProperty(
               `${sItemPath}/${sBindingValue}_error`,
-              hasError
+              hasError,
             );
           } else {
             this.setStateProperty(`/errorFields/${sBindingValue}`, hasError);
@@ -224,7 +225,7 @@ sap.ui.define(
             ],
             aMetaFields =
               oModel.oMetadata._getEntityTypeByPath(
-                "/OPER_CONV_ROOLSet"
+                "/OPER_CONV_ROOLSet",
               ).property,
             oFormData = Object.entries(oBindingData)
               .filter(([key]) => !aIgnoredFields.includes(key))
@@ -290,10 +291,10 @@ sap.ui.define(
         onMessagePopoverPress() {
           const oButton = this.byId("btnMessagePopoverId");
           this.getDialog("MessagePopover").then((oDialog) =>
-            setTimeout(() => oDialog.openBy(oButton), 0)
+            setTimeout(() => oDialog.openBy(oButton), 0),
           );
         },
-      }
+      },
     );
-  }
+  },
 );
