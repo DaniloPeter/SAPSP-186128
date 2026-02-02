@@ -76,6 +76,7 @@ sap.ui.define(
               bInitial = false,
             ) => {
               try {
+                debugger;
                 const oFormData = await this.storage.getData("sessionFormData"),
                   oDraftFormSettings =
                     await this.storage.getData("draftFormData"),
@@ -85,8 +86,11 @@ sap.ui.define(
                 if (oFormData) {
                   const { data } = oFormData;
                   oExistedFields = {
-                    Werks: data.Werks,
-                    Zlogin: data.Zlogin,
+                    WpResource: data.WpResource,
+                    Lgort: data.Lgort,
+                    Smen: data.Smen,
+                    Brig: data.Brig,
+                    Zprinter: data.Zprinter,
                   };
                   this.setStateProperty(
                     "/valueHelps/BRIGSet",
@@ -232,12 +236,14 @@ sap.ui.define(
           if (oSwitchesData) {
             oFormData.switches = oSwitchesData;
           }
+          debugger;
           const oCutFormData = {
             WpResource: oFormData.WpResource,
             WpOperatingmode: oFormData.WpOperatingmode,
             Smen: oFormData.Smen,
             Brig: oFormData.Brig,
             Zprinter: oFormData.Zprinter,
+            Lgort: oFormData.Lgort,
           };
 
           this.saveStorageData("draftFormData", oCutFormData, oErrorFields);
@@ -936,9 +942,10 @@ sap.ui.define(
                   Smen: oFormData.Smen,
                   Brig: oFormData.Brig,
                   Zprinter: oFormData.Zprinter,
+                  Lgort: oFormData.Lgort,
                 };
                 this.saveStorageData("sessionFormData", oSessionData);
-
+                this.saveStorageData("draftFormData", oSessionData);
                 // this.storage.clearData("draftFormData");
 
                 this.__clearStatesFields();
