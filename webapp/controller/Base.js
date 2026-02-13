@@ -206,7 +206,7 @@ sap.ui.define(
           return hasError;
         },
 
-        getFormData() {
+        getFormData(aKeepFields = []) {
           const oModel = this.getModel(),
             oBindingData = this.getView().getBindingContext().getObject(),
             aTableData = this.getStateProperty("/tables"),
@@ -215,37 +215,39 @@ sap.ui.define(
             oDownTimes = aTableData.downTime;
 
           const aIgnoredFields = [
-              "__metadata",
-              "Idconvroll",
-              "Zfullnameqa",
-              "toDefect",
-              "toDowntime",
-              "QMSet",
-              "BRIGSet",
-            ],
-            aMetaFields =
-              oModel.oMetadata._getEntityTypeByPath(
-                "/OPER_CONV_ROOLSet",
-              ).property,
-            oFormData = Object.entries(oBindingData)
-              .filter(([key]) => !aIgnoredFields.includes(key))
-              .reduce((acc, [key, value]) => {
-                const oMetaField = aMetaFields.find((o) => o.name === key);
-                switch (oMetaField?.type) {
-                  case "Edm.Decimal":
-                    value = value || "0";
-                    break;
-                  case "Edm.Int16":
-                    value = +value || 0;
-                    break;
-                  case "Edm.Int32":
-                    value = +value || 0;
-                    break;
-                  default:
-                    break;
-                }
-                return { ...acc, [key]: value };
-              }, {});
+            "__metadata",
+            "Idconvroll",
+            "Zfullnameqa",
+            "toDefect",
+            "toDowntime",
+            "QMSet",
+            "BRIGSet",
+          ].filter((sField) => !aKeepFields.includes(sField));
+
+          const aMetaFields =
+            oModel.oMetadata._getEntityTypeByPath(
+              "/OPER_CONV_ROOLSet",
+            ).property;
+
+          const oFormData = Object.entries(oBindingData)
+            .filter(([key]) => !aIgnoredFields.includes(key))
+            .reduce((acc, [key, value]) => {
+              const oMetaField = aMetaFields.find((o) => o.name === key);
+              switch (oMetaField?.type) {
+                case "Edm.Decimal":
+                  value = value || "0";
+                  break;
+                case "Edm.Int16":
+                  value = +value || 0;
+                  break;
+                case "Edm.Int32":
+                  value = +value || 0;
+                  break;
+                default:
+                  break;
+              }
+              return { ...acc, [key]: value };
+            }, {});
 
           if (oSwitches.defect) {
             oFormData.toDefect = this.__mappingPositions(oDefects);

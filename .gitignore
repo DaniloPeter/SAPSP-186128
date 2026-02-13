@@ -1,7 +1,8 @@
 node_modules
 sapui5-sdk
 webapp/resources
-webapp/resources3
+webapp/resources
+webapp/test-resources
 dist/
 .DS_Store
 .vscode/

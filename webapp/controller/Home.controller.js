@@ -221,7 +221,7 @@ sap.ui.define(
         },
 
         __attachPropertyChange() {
-          const oFormData = this.getFormData(),
+          const oFormData = this.getFormData(["Zfullnameqa"]),
             aBrigSet = this.getStateProperty("/valueHelps/BRIGSet"),
             aQmSet = this.getStateProperty("/valueHelps/QMSet"),
             oErrorFields = this.getStateProperty("/errorFields"),
@@ -881,14 +881,11 @@ sap.ui.define(
         },
 
         onClearFormData() {
-          const fnClear = async () => {
+          const fnClear = () => {
             this.__clearStatesFields();
-
-            // очищаем все данные в localStorage
-            await this.storage.clearData("sessionFormData");
-            await this.storage.clearData("draftFormData");
-
             this.__bindView();
+            this.storage.clearData("draftFormData");
+            this.storage.clearData("sessionFormData");
           };
 
           MessageBox.information("Вы уверены, что хотите очистить форму?", {
@@ -924,7 +921,23 @@ sap.ui.define(
                     ...oValueHelps,
                   };
                 this.saveStorageData("sessionFormData", oSessionData);
-                this.saveStorageData("draftFormData", oSessionData);
+                const aFieldsToKeep = [
+                  "WpResource",
+                  "Lgort",
+                  "WpOperatingmode",
+                  "Smen",
+                  "Brig",
+                  "Zprinter",
+                  "BRIGSet",
+                  "QMSet",
+                ];
+
+                const oCleanedFormData = {};
+                aFieldsToKeep.forEach((field) => {
+                  oCleanedFormData[field] = oSessionData[field];
+                });
+
+                this.saveStorageData("draftFormData", oCleanedFormData, null);
                 // this.storage.clearData("draftFormData");
 
                 this.__clearStatesFields();
@@ -932,8 +945,31 @@ sap.ui.define(
                 MessageBox.success("Форма успешно отправлена.");
               })
               .catch((oError) => {
-                // при ошибке тоже очищаем все данные в localStorage и форме
+                const oValueHelps = this.getStateProperty("/valueHelps") || {},
+                  oSessionData = {
+                    ...oFormData,
+                    ...oValueHelps,
+                  };
+                this.saveStorageData("sessionFormData", oSessionData);
+                const aFieldsToKeep = [
+                  "WpResource",
+                  "Lgort",
+                  "WpOperatingmode",
+                  "Smen",
+                  "Brig",
+                  "Zprinter",
+                  "BRIGSet",
+                  "QMSet",
+                ];
+
+                const oCleanedFormData = {};
+                aFieldsToKeep.forEach((field) => {
+                  oCleanedFormData[field] = oSessionData[field];
+                });
+
+                this.saveStorageData("draftFormData", oCleanedFormData, null);
                 // this.storage.clearData("draftFormData");
+
                 this.__clearStatesFields();
                 this.__bindView();
                 const sErrorText = oError?.error;

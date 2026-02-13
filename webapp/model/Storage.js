@@ -2,69 +2,35 @@ sap.ui.define([], function () {
   "use strict";
 
   return {
-    saveData(key, data, errors = null, storageType = "local") {
+    saveData(key, data, errors = null) {
       return new Promise((resolve, reject) => {
         try {
-          const storage = this._getStorage(storageType);
-          if (!storage) {
-            throw new Error(`${storageType}Storage не доступен`);
-          }
-          const allowedFields = [
-            "Werks",
-            "WpResource",
-            "WpOperatingmode",
-            "Smen",
-            "Brig",
-            "Zprinter",
-            "Lgort",
-          ];
-          const filteredData = {};
-          allowedFields.forEach((field) => {
-            if (data.hasOwnProperty(field)) {
-              filteredData[field] = data[field];
-            }
-            if (field === "Brig" && data.hasOwnProperty("BRIGSet")) {
-              filteredData["BRIGSet"] = data["BRIGSet"];
-            }
-          });
-
-          const item = {
-            data: filteredData,
-            timestamp: Date.now(),
-          };
-          if (errors) {
-            const filteredErrors = {};
-            allowedFields.forEach((field) => {
-              if (errors.hasOwnProperty(field)) {
-                filteredErrors[field] = errors[field];
-              }
-            });
-            item.errors = filteredErrors;
+          if (!window.localStorage) {
+            throw new Error("localStorage не доступен");
           }
 
-          storage.setItem(key, JSON.stringify(item));
+          const item = { data, timestamp: Date.now() };
+          if (errors) item.errors = errors;
+
+          localStorage.setItem(key, JSON.stringify(item));
           resolve();
         } catch (error) {
           const errorMsg = this._getErrorMessage(error);
-          console.error(
-            `StorageService.saveData error (${storageType}):`,
-            errorMsg,
-          );
+          console.error("StorageService.saveData error:", errorMsg);
           reject({ error: errorMsg });
         }
       });
     },
 
     // Функция для получения данных
-    getData(key, validateTime = true, storageType = "local") {
+    getData(key, validateTime = true) {
       return new Promise((resolve, reject) => {
         try {
-          const storage = this._getStorage(storageType);
-          if (!storage) {
-            throw new Error(`${storageType}Storage не доступен`);
+          if (!window.localStorage) {
+            throw new Error("localStorage не доступен");
           }
 
-          const itemStr = storage.getItem(key);
+          const itemStr = localStorage.getItem(key);
           if (!itemStr) return resolve();
 
           const item = JSON.parse(itemStr);
@@ -75,7 +41,7 @@ sap.ui.define([], function () {
             validateTime &&
             Date.now() - item.timestamp > 12 * 60 * 60 * 1000
           ) {
-            storage.removeItem(key);
+            localStorage.removeItem(key);
             return resolve();
           }
 
@@ -87,40 +53,23 @@ sap.ui.define([], function () {
           });
         } catch (error) {
           const errorMsg = this._getErrorMessage(error);
-          console.error(
-            `StorageService.getData error (${storageType}):`,
-            errorMsg,
-          );
+          console.error("StorageService.getData error:", errorMsg);
           reject({ error: errorMsg });
         }
       });
     },
 
-    clearData(key, storageType = "local") {
+    clearData(key) {
       return new Promise((resolve, reject) => {
         try {
-          const storage = this._getStorage(storageType);
-          storage.removeItem(key);
+          localStorage.removeItem(key);
           resolve();
         } catch (error) {
           const errorMsg = this._getErrorMessage(error);
-          console.error(
-            `StorageService.clearData error (${storageType}):`,
-            errorMsg,
-          );
+          console.error("StorageService.clearData error:", errorMsg);
           reject({ error: errorMsg });
         }
       });
-    },
-
-    // Вспомогательный метод для получения нужного хранилища
-    _getStorage(type) {
-      if (type === "session" && window.sessionStorage) {
-        return sessionStorage;
-      } else if (type === "local" && window.localStorage) {
-        return localStorage;
-      }
-      return null;
     },
 
     // Вспомогательные методы

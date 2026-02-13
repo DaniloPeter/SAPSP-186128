@@ -139,10 +139,7 @@
             "defect": {
               "path": "/tables/defect/items",
               "items": [],
-              "requiredFields": [
-                "Zobjdefect",
-                "Zcommentdefect"
-              ]
+              "requiredFields": ["Zobjdefect", "Zcommentdefect"]
             },
             "downTime": {
               "path": "/tables/downTime/items",
