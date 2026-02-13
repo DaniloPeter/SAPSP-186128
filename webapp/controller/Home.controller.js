@@ -171,7 +171,7 @@ sap.ui.define(
                     );
                   },
                 );
-                oModel.setProperty(`${sPath}/Zfullnameqa`, "");
+                // oModel.setProperty(`${sPath}/Zfullnameqa`, "");
 
                 if (bInitial) {
                   const sRollNum1 = oDraftFormData?.RollNum1,
