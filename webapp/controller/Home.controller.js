@@ -925,6 +925,7 @@ sap.ui.define(
                 const aFieldsToKeep = [
                   "WpResource",
                   "Lgort",
+                  "Zlogin",
                   "WpOperatingmode",
                   "Smen",
                   "Brig",
@@ -956,6 +957,7 @@ sap.ui.define(
                 const aFieldsToKeep = [
                   "WpResource",
                   "Lgort",
+                  "Zlogin",
                   "WpOperatingmode",
                   "Smen",
                   "Brig",
