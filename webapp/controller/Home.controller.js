@@ -906,14 +906,15 @@ sap.ui.define(
             return;
           }
 
-          const oFormData = this.getFormData();
+          const oFormData = this.getFormData(["Zfullnameqa"]);
           this.__fireSave("/OPER_CONV_ROOLSet", oFormData);
         },
 
         __fireSave(sEntity, oFormData) {
+          const { Zfullnameqa, ...oSendData } = oFormData;
           const fnFireSave = () => {
             this.setBusy(true);
-            this.sendData(sEntity, oFormData)
+            this.sendData(sEntity, oSendData)
               .then(() => {
                 const oValueHelps = this.getStateProperty("/valueHelps") || {},
                   oSessionData = {
@@ -928,6 +929,7 @@ sap.ui.define(
                   "Smen",
                   "Brig",
                   "Zprinter",
+                  "Zfullnameqa",
                   "BRIGSet",
                   "QMSet",
                 ];
@@ -958,6 +960,7 @@ sap.ui.define(
                   "Smen",
                   "Brig",
                   "Zprinter",
+                  "Zfullnameqa",
                   "BRIGSet",
                   "QMSet",
                 ];
