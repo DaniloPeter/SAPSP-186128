@@ -328,9 +328,6 @@ sap.ui.define(
               console.error("QMSet read error:", err);
             });
 
-          // проверка рулонов отключена — не вызываем __getDataRoll
-          // вернули проверку рулонов
-
           if (oBindingData.RollNum1) {
             this.__getDataRoll(oBindingData.RollNum1, "1");
           }
@@ -417,14 +414,7 @@ sap.ui.define(
           this.setStateProperty("/errorFields/Aufnr", false);
 
           this.onChangeCommonField(oSource);
-          // отключен запрос на сервер для получения клише по заказу
-          // только локальные изменения в модели
-          // oModel.setProperty(`${sBindingPath}/Klishe`, "");
-          // oModel.setProperty(`${sBindingPath}/Zklishetext`, "");
-          // this.setStateProperty("/errorFields/Klishe", false);
-          // this.__attachPropertyChange();
 
-          //TODO вернули заполнение клише по номеру заказа
           this.callODataFunction("/GetKlishe", {
             Aufnr: sValue,
           }).then((oResponse) => {
@@ -493,9 +483,7 @@ sap.ui.define(
           this.setStateProperty("/errorFields/RollNum2", false);
 
           this.onChangeCommonField(oSource);
-          // отключена проверка рулона не вызываем __getDataRoll
 
-          //TODO вернули проверку рулона
           this.__getDataRoll(sValue, sRollNum);
         },
 
@@ -532,7 +520,6 @@ sap.ui.define(
             this.setStateProperty(`/rollData/roll${sRollNum}/Charg`, Charg);
 
             let errors = [];
-
             if (bSwitchActive) {
               if (
                 oAnotherRollData?.Material &&
@@ -568,22 +555,33 @@ sap.ui.define(
               });
 
               const errors = setValues(oResponse, sRollNum);
-              return { errors };
+              return errors;
             } catch (err) {
               setErrorFields(true);
+              throw err;
             } finally {
               this.__attachPropertyChange();
             }
           };
 
           try {
+            let allErrors = [];
             if (sRollNum) {
-              await callBackend(sRollValue, sRollNum);
+              const errors = await callBackend(sRollValue, sRollNum);
+              allErrors.push(...errors);
             } else if (oBindingData.RollNum1 && oBindingData.RollNum2) {
-              await Promise.all([
+              const results = await Promise.all([
                 callBackend(oBindingData.RollNum1, "1"),
                 callBackend(oBindingData.RollNum2, "2"),
               ]);
+              results.forEach((errors) => allErrors.push(...errors));
+            }
+            if (allErrors.length > 0) {
+              const uniqueErrors = [...new Set(allErrors)];
+              const errorMessageText = uniqueErrors.join(" ");
+              MessageBox.error(errorMessageText);
+              setErrorFields(true);
+              return;
             }
             setErrorFields(false);
           } catch (e) {
@@ -1066,7 +1064,7 @@ sap.ui.define(
           const fnCheckFormData = () => {
             aRequiredFields.forEach((sField) => {
               // пропускаем валидацию
-              if (["Zformat1", "Zformat2", "Klishe"].includes(sField)) {
+              if (["Klishe"].includes(sField)) {
                 return;
               }
               const fieldValue = oFormData[sField],
