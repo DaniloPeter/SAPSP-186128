@@ -459,7 +459,7 @@ sap.ui.define(
             sBindingPath = oBindingContext.getPath(),
             sValue = oSource.getValue(),
             sBindingValue = oSource.getBinding("value").getPath(),
-            bSwitchActive = this.getStateProperty("/switches/roll"),
+            // bSwitchActive = this.getStateProperty("/switches/roll"),
             sRollNum = sBindingValue.includes("1") ? "1" : "2";
 
           if (!sValue) {
@@ -470,14 +470,14 @@ sap.ui.define(
             return;
           }
 
-          if (
-            bSwitchActive &&
-            oBindingData.RollNum1 === oBindingData.RollNum2
-          ) {
-            this.setStateProperty("/errorFields/RollNum1", true);
-            MessageBox.error("№ рулона 1 не должен совпадать с № рулона 2.");
-            return;
-          }
+          // if (
+          //   bSwitchActive &&
+          //   oBindingData.RollNum1 === oBindingData.RollNum2
+          // ) {
+          //   this.setStateProperty("/errorFields/RollNum1", true);
+          //   MessageBox.error("№ рулона 1 не должен совпадать с № рулона 2.");
+          //   return;
+          // }
 
           this.setStateProperty("/errorFields/RollNum1", false);
           this.setStateProperty("/errorFields/RollNum2", false);
@@ -506,42 +506,58 @@ sap.ui.define(
 
           const setValues = (oValues, sRollNum) => {
             const { ValueFrom, Matnr, Charg } = oValues;
-            const sAnotherRoll = sRollNum === "1" ? "2" : "1";
-            const oAnotherRollData = this.getStateProperty(
-              `/rollData/roll${sAnotherRoll}`,
-            );
-            const sAnotherFormatValue = oBindingData[`Zformat${sAnotherRoll}`];
-
-            const formattedValue = this.utils.formatStringValueFrom(ValueFrom);
-            const formattedAnotherValue =
-              this.utils.formatStringValueFrom(sAnotherFormatValue);
 
             this.setStateProperty(`/rollData/roll${sRollNum}/Material`, Matnr);
             this.setStateProperty(`/rollData/roll${sRollNum}/Charg`, Charg);
 
-            let errors = [];
-            if (bSwitchActive) {
-              if (
-                oAnotherRollData?.Material &&
-                oAnotherRollData.Material !== Matnr
-              ) {
-                errors.push(`Материалы рулонов должны совпадать.`);
-              }
-              if (+formattedValue !== +formattedAnotherValue) {
-                errors.push(`Форматы исходных рулонов должны совпадать.`);
-              }
-            }
-
-            if (!errors.length && formattedValue) {
+            const formattedValue = this.utils.formatStringValueFrom(ValueFrom);
+            if (formattedValue) {
               oModel.setProperty(
                 `${sBindingPath}/Zformat${sRollNum}`,
                 formattedValue,
               );
             }
 
+            const oCurrentBindingData = oView.getBindingContext().getObject();
+            const sAnotherRoll = sRollNum === "1" ? "2" : "1";
+            const oAnotherRollData = this.getStateProperty(
+              `/rollData/roll${sAnotherRoll}`,
+            );
+            const sAnotherFormatValue =
+              oCurrentBindingData[`Zformat${sAnotherRoll}`];
+
+            const formattedAnotherValue =
+              this.utils.formatStringValueFrom(sAnotherFormatValue);
+
+            let errors = [];
+            if (bSwitchActive) {
+              const sCurrentRollNumField = `RollNum${sRollNum}`;
+              const sAnotherRollNumField = `RollNum${sAnotherRoll}`;
+              if (
+                oCurrentBindingData[sCurrentRollNumField] &&
+                oCurrentBindingData[sAnotherRollNumField] &&
+                oCurrentBindingData[sCurrentRollNumField] ===
+                  oCurrentBindingData[sAnotherRollNumField]
+              ) {
+                errors.push(`№ рулона 1 не должен совпадать с № рулона 2.`);
+              }
+              if (
+                oAnotherRollData?.Material &&
+                oAnotherRollData.Material !== Matnr
+              ) {
+                errors.push(`Материалы рулонов должны совпадать.`);
+              }
+              if (
+                formattedValue &&
+                formattedAnotherValue &&
+                +formattedValue !== +formattedAnotherValue
+              ) {
+                errors.push(`Форматы исходных рулонов должны совпадать.`);
+              }
+            }
+
             return errors;
           };
-
           const callBackend = async (sRollValue, sRollNum) => {
             try {
               const oResponse = await this.callODataFunction("/GetDataRoll", {
@@ -557,7 +573,7 @@ sap.ui.define(
               const errors = setValues(oResponse, sRollNum);
               return errors;
             } catch (err) {
-              setErrorFields(true);
+              // setErrorFields(true);
               throw err;
             } finally {
               this.__attachPropertyChange();
