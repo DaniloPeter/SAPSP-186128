@@ -924,73 +924,55 @@ sap.ui.define(
           this.__fireSave("/OPER_CONV_ROOLSet", oFormData);
         },
 
+        _createAndSaveFormData(oFormData) {
+          const oValueHelps = this.getStateProperty("/valueHelps") || {};
+          const oSwithes = this.getStateProperty("/switches") || {};
+
+          const oSessionData = {
+            ...oFormData,
+            ...oValueHelps,
+            switches: oSwithes,
+          };
+
+          this.saveStorageData("sessionFormData", oSessionData);
+
+          const aFieldsToKeep = [
+            "WpResource",
+            "Lgort",
+            "Zlogin",
+            "WpOperatingmode",
+            "Smen",
+            "Brig",
+            "Zprinter",
+            "Zfullnameqa",
+            "BRIGSet",
+            "QMSet",
+            "switches",
+          ];
+
+          const oCleanedFormData = {};
+          aFieldsToKeep.forEach((field) => {
+            oCleanedFormData[field] = oSessionData[field];
+          });
+
+          this.saveStorageData("draftFormData", oCleanedFormData, null);
+
+          this.__clearStatesFields();
+          this.__bindView();
+        },
+
         __fireSave(sEntity, oFormData) {
           const { Zfullnameqa, ...oSendData } = oFormData;
+
           const fnFireSave = () => {
             this.setBusy(true);
             this.sendData(sEntity, oSendData)
               .then(() => {
-                const oValueHelps = this.getStateProperty("/valueHelps") || {},
-                  oSessionData = {
-                    ...oFormData,
-                    ...oValueHelps,
-                  };
-                this.saveStorageData("sessionFormData", oSessionData);
-                const aFieldsToKeep = [
-                  "WpResource",
-                  "Lgort",
-                  "Zlogin",
-                  "WpOperatingmode",
-                  "Smen",
-                  "Brig",
-                  "Zprinter",
-                  "Zfullnameqa",
-                  "BRIGSet",
-                  "QMSet",
-                ];
-
-                const oCleanedFormData = {};
-                aFieldsToKeep.forEach((field) => {
-                  oCleanedFormData[field] = oSessionData[field];
-                });
-
-                this.saveStorageData("draftFormData", oCleanedFormData, null);
-                // this.storage.clearData("draftFormData");
-
-                this.__clearStatesFields();
-                this.__bindView();
+                this._createAndSaveFormData(oFormData);
                 MessageBox.success("Форма успешно отправлена.");
               })
               .catch((oError) => {
-                const oValueHelps = this.getStateProperty("/valueHelps") || {},
-                  oSessionData = {
-                    ...oFormData,
-                    ...oValueHelps,
-                  };
-                this.saveStorageData("sessionFormData", oSessionData);
-                const aFieldsToKeep = [
-                  "WpResource",
-                  "Lgort",
-                  "Zlogin",
-                  "WpOperatingmode",
-                  "Smen",
-                  "Brig",
-                  "Zprinter",
-                  "Zfullnameqa",
-                  "BRIGSet",
-                  "QMSet",
-                ];
-
-                const oCleanedFormData = {};
-                aFieldsToKeep.forEach((field) => {
-                  oCleanedFormData[field] = oSessionData[field];
-                });
-
-                this.saveStorageData("draftFormData", oCleanedFormData, null);
-                // this.storage.clearData("draftFormData");
-
-                this.__clearStatesFields();
-                this.__bindView();
+                this._createAndSaveFormData(oFormData);
                 const sErrorText = oError?.error;
                 if (sErrorText) {
                   MessageBox.error(sErrorText);
