@@ -10,6 +10,7 @@ sap.ui.define(
     "sap/ui/model/Filter",
     "sap/ui/model/FilterOperator",
     "com/segezha/form/roll/conversion/model/MessageModel",
+    "sap/ui/core/Fragment",
   ],
   (
     BaseController,
@@ -22,6 +23,7 @@ sap.ui.define(
     Filter,
     FilterOperator,
     MessageModel,
+    Fragment,
   ) => {
     "use strict";
 
@@ -822,15 +824,24 @@ sap.ui.define(
             aFields = ["Qmcod", "Kurztext", "Qmgrp", "Kurztext2"];
           this._oInputVH = oSource;
           this._oBasicSearchField = new SearchField();
-          this.getDialog("VHDownTime").then((oDialog) => {
-            const oFilterBar = oDialog.getFilterBar();
 
-            oFilterBar.setFilterBarExpanded(false);
-            oFilterBar.setBasicSearch(this._oBasicSearchField);
+          Fragment.load({
+            id: this.getView().getId(),
+            name: "com.segezha.form.roll.conversion.view.fragments.VHDownTime",
+            controller: this,
+          }).then((oDialog) => {
+            this.getView().addDependent(oDialog);
 
-            this._oBasicSearchField.attachSearch(function () {
-              oFilterBar.search();
-            });
+            const oFilterBar = this.byId("vhFilterBar");
+
+            if (oFilterBar) {
+              oFilterBar.setFilterBarExpanded(false);
+              oFilterBar.setBasicSearch(this._oBasicSearchField);
+
+              this._oBasicSearchField.attachSearch(() => {
+                oFilterBar.search();
+              });
+            }
 
             oDialog.getTableAsync().then((oTable) => {
               if (oTable.getBinding("rows")) {
@@ -839,7 +850,7 @@ sap.ui.define(
               if (oTable) {
                 oTable.setNoData("Заполните ресурс для получения результатов.");
               }
-              if (oTable.bindRows) {
+              if (!oTable.getBinding("rows")) {
                 aFields.forEach((sField, index) => {
                   const tempColumn = new UIColumn({
                     label: new Label({
@@ -873,51 +884,46 @@ sap.ui.define(
         },
 
         onValueHelpOkPress(oEvent) {
-          const aTokens = oEvent.getParameter("tokens");
+          const oDialog = oEvent.getSource();
 
           if (!this._oInputVH) {
             console.error("Не найдено поле ввода для ValueHelp.");
-            oEvent.getSource().close();
+            oDialog.close();
+            oDialog.destroy();
             return;
           }
 
-          const oItemContext = this._oInputVH.getBindingContext("state");
-          if (!oItemContext) {
-            console.error("Не найден контекст привязки для поля ввода.");
-            oEvent.getSource().close();
-            return;
-          }
-          const sItemPath = oItemContext.getPath();
+          oDialog.getTableAsync().then((oTable) => {
+            const iIndex = oTable.getSelectedIndex();
 
-          if (!aTokens.length) {
-            console.log("Очистка значения в диалоге.");
-            this.setStateProperty(`${sItemPath}/Kurztext`, null);
-            this.setStateProperty(`${sItemPath}/Kurztext_error`, false);
-            this.setStateProperty(`${sItemPath}/Qmgrp`, null);
-            this.setStateProperty(`${sItemPath}/Qmcod`, null);
-
-            this.onChangeCommonField(this._oInputVH);
-          } else {
-            const oTokenData = aTokens[0].data("row");
-
-            if (!oTokenData) {
-              console.error("Данные для выбранного токена отсутствуют.");
-              oEvent.getSource().close();
+            if (iIndex < 0) {
+              oDialog.close();
+              oDialog.destroy();
               return;
             }
 
-            this.setStateProperty(`${sItemPath}/Kurztext`, oTokenData.Kurztext);
+            const oContext = oTable.getContextByIndex(iIndex);
+            const oData = oContext.getObject();
+
+            const oItemContext = this._oInputVH.getBindingContext("state");
+            const sItemPath = oItemContext.getPath();
+
+            this.setStateProperty(`${sItemPath}/Kurztext`, oData.Kurztext);
             this.setStateProperty(`${sItemPath}/Kurztext_error`, false);
-            this.setStateProperty(`${sItemPath}/Qmgrp`, oTokenData.Qmgrp);
-            this.setStateProperty(`${sItemPath}/Qmcod`, oTokenData.Qmcod);
+            this.setStateProperty(`${sItemPath}/Qmgrp`, oData.Qmgrp);
+            this.setStateProperty(`${sItemPath}/Qmcod`, oData.Qmcod);
 
             this.onChangeCommonField(this._oInputVH);
-          }
-          oEvent.getSource().close();
+
+            oDialog.close();
+            oDialog.destroy();
+          });
         },
 
         onValueHelpCancelPress(oEvent) {
-          oEvent.getSource().close();
+          const oDialog = oEvent.getSource();
+          oDialog.close();
+          oDialog.destroy();
         },
 
         onClearFormData() {

@@ -12,7 +12,7 @@
 		key="Qmcod"
 		descriptionKey="Kurztext">
 		<filterBar>
-			<fb:FilterBar advancedMode="true" search=".onFilterBarSearch">
+			<fb:FilterBar  id="vhFilterBar" advancedMode="true" search=".onFilterBarSearch">
 				<fb:filterGroupItems>
 					<fb:FilterGroupItem
 						groupName="__$INTERNAL$"
