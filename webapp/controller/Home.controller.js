@@ -874,19 +874,45 @@ sap.ui.define(
 
         onValueHelpOkPress(oEvent) {
           const aTokens = oEvent.getParameter("tokens");
-          if (!aTokens.length || !this._oInputVH) {
+
+          if (!this._oInputVH) {
+            console.error("Не найдено поле ввода для ValueHelp.");
+            oEvent.getSource().close();
             return;
           }
-          const oTokenData = aTokens[0].data("row"),
-            oItemContext = this._oInputVH.getBindingContext("state"),
-            sItemPath = oItemContext.getPath();
 
-          this.setStateProperty(`${sItemPath}/Kurztext`, oTokenData.Kurztext);
-          this.setStateProperty(`${sItemPath}/Kurztext_error`, false);
-          this.setStateProperty(`${sItemPath}/Qmgrp`, oTokenData.Qmgrp);
-          this.setStateProperty(`${sItemPath}/Qmcod`, oTokenData.Qmcod);
+          const oItemContext = this._oInputVH.getBindingContext("state");
+          if (!oItemContext) {
+            console.error("Не найден контекст привязки для поля ввода.");
+            oEvent.getSource().close();
+            return;
+          }
+          const sItemPath = oItemContext.getPath();
 
-          this.onChangeCommonField(this._oInputVH);
+          if (!aTokens.length) {
+            console.log("Очистка значения в диалоге.");
+            this.setStateProperty(`${sItemPath}/Kurztext`, null);
+            this.setStateProperty(`${sItemPath}/Kurztext_error`, false);
+            this.setStateProperty(`${sItemPath}/Qmgrp`, null);
+            this.setStateProperty(`${sItemPath}/Qmcod`, null);
+
+            this.onChangeCommonField(this._oInputVH);
+          } else {
+            const oTokenData = aTokens[0].data("row");
+
+            if (!oTokenData) {
+              console.error("Данные для выбранного токена отсутствуют.");
+              oEvent.getSource().close();
+              return;
+            }
+
+            this.setStateProperty(`${sItemPath}/Kurztext`, oTokenData.Kurztext);
+            this.setStateProperty(`${sItemPath}/Kurztext_error`, false);
+            this.setStateProperty(`${sItemPath}/Qmgrp`, oTokenData.Qmgrp);
+            this.setStateProperty(`${sItemPath}/Qmcod`, oTokenData.Qmcod);
+
+            this.onChangeCommonField(this._oInputVH);
+          }
           oEvent.getSource().close();
         },
 
@@ -926,12 +952,10 @@ sap.ui.define(
 
         _createAndSaveFormData(oFormData) {
           const oValueHelps = this.getStateProperty("/valueHelps") || {};
-          const oSwithes = this.getStateProperty("/switches") || {};
 
           const oSessionData = {
             ...oFormData,
             ...oValueHelps,
-            switches: oSwithes,
           };
 
           this.saveStorageData("sessionFormData", oSessionData);
@@ -947,14 +971,18 @@ sap.ui.define(
             "Zfullnameqa",
             "BRIGSet",
             "QMSet",
-            "switches",
           ];
 
           const oCleanedFormData = {};
           aFieldsToKeep.forEach((field) => {
             oCleanedFormData[field] = oSessionData[field];
           });
-
+          oCleanedFormData["switches"] = {
+            defect: false,
+            downTime: false,
+            roll: false,
+            rollEnabled: true,
+          };
           this.saveStorageData("draftFormData", oCleanedFormData, null);
 
           this.__clearStatesFields();
