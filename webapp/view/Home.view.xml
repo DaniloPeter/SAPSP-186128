@@ -76,6 +76,14 @@
                             />
                         </VBox>
                         <VBox width="100%" class="sapUiSmallMarginEnd">
+                            <Label text="Дата проводки:" required="true" />
+                            <DatePicker
+                                dateValue="{Budat}"
+                                valueState="{=!!${state>/errorFields/Budat} ? 'Error' : 'None'}"
+                                width="100%"
+                            />
+                        </VBox>
+                        <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Смена:" required="true" />
                             <Select forceSelection="false"
                                 width="100%"
