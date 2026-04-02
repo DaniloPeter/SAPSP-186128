@@ -78,8 +78,9 @@
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Дата проводки:" required="true" />
                             <DatePicker
-                                dateValue="{Budat}"
-                                valueState="{=!!${state>/errorFields/Budat} ? 'Error' : 'None'}"
+                                displayFormat="dd.MM.yyyy"
+                                dateValue="{Zbudat}"
+                                valueState="{=!!${state>/errorFields/Zbudat} ? 'Error' : 'None'}"
                                 width="100%"
                             />
                         </VBox>
