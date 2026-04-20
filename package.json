@@ -27,6 +27,7 @@
     ]
   },
   "dependencies": {
-    "http-proxy": "^1.18.1"
+    "http-proxy": "^1.18.1",
+    "date-fns": "^2.30.0"
   }
 }

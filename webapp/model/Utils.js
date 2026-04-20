@@ -1,6 +1,24 @@
 sap.ui.define([], function () {
   "use strict";
 
+  const parseISO = function (dateString) {
+    if (typeof dateString !== "string") {
+      return new Date(NaN);
+    }
+    const timestamp = Date.parse(dateString);
+    if (Number.isNaN(timestamp)) {
+      return new Date(NaN);
+    }
+    return new Date(timestamp);
+  };
+
+  const isValid = function (date) {
+    if (date instanceof Date) {
+      return !Number.isNaN(date.getTime());
+    }
+    return false;
+  };
+
   return {
     calculateOverPrints(printMeters, reportLength) {
       const iPrintMeters = +printMeters,
@@ -73,6 +91,44 @@ sap.ui.define([], function () {
         }
       }
       return result;
+    },
+
+    parseDateValue(val, fieldName) {
+      if (fieldName !== "Zbudat" && fieldName !== "Zdatetime") {
+        return val;
+      }
+
+      if (val == null) return val;
+      if (val instanceof Date) return val;
+      // numbers - treat as ms since epoch
+      if (typeof val === "number" && !Number.isNaN(val)) {
+        const d = new Date(val);
+        return isValid(d) ? d : val;
+      }
+      if (typeof val === "string") {
+        // Microsoft JSON date /Date(1234567890)/
+        const msMatch = val.match(/\/Date\((-?\d+)\)\//);
+        if (msMatch) {
+          const d = new Date(Number(msMatch[1]));
+          if (isValid(d)) return d;
+        }
+
+        // ISO8601 pattern (YYYY-MM-DD or T)
+        if (/^\d{4}-\d{2}-\d{2}/.test(val) || /T\d{2}:\d{2}:\d{2}/.test(val)) {
+          try {
+            const d = parseISO(val);
+            if (isValid(d)) return d;
+          } catch (e) {
+            // ignore
+          }
+        }
+
+        if (/^-?\d+$/.test(val)) {
+          const d = new Date(Number(val));
+          if (isValid(d)) return d;
+        }
+      }
+      return val;
     },
   };
 });

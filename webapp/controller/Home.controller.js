@@ -999,6 +999,11 @@ sap.ui.define(
           const { Zfullnameqa, ...oSendData } = oFormData;
 
           const fnFireSave = () => {
+            Object.keys(oSendData).forEach((k) => {
+              const newVal = this.utils.parseDateValue(oSendData[k], k);
+              oSendData[k] = newVal;
+            });
+
             this.setBusy(true);
             this.sendData(sEntity, oSendData)
               .then(() => {
