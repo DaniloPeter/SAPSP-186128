@@ -9,6 +9,13 @@
   font-size: 1.15rem !important; /* стандартный 16px +2px */
 }
 
+.myClearButton .sapMBtnInner.sapMBtnReject {
+  display: block !important;
+}
+.myConfirmButton .sapMBtnInner.sapMBtnReject {
+  display: block !important;
+}
+
 /* Увеличиваем текст в контролах */
 .sapMInputBaseInner,
 .sapMBtnContent,

@@ -1,11 +1,9 @@
-<mvc:View
-    controllerName="com.segezha.form.roll.conversion.controller.Home"
+<mvc:View controllerName="com.segezha.form.roll.conversion.controller.Home"
     xmlns:customControls="com.segezha.form.roll.conversion.customControls"
     xmlns="sap.m"
     xmlns:mvc="sap.ui.core.mvc"
     xmlns:core="sap.ui.core"
-    xmlns:f="sap.ui.layout.form"
-    displayBlock="true">
+    xmlns:f="sap.ui.layout.form" displayBlock="true">
     <Page id="homePageId">
         <customHeader>
             <Toolbar>
@@ -20,121 +18,65 @@
                     <HBox>
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Завод:" required="true" />
-                            <Input
-                                enabled="false"
-                                width="100%"
-                                value="{Werks}"
-                                valueState="{=!!${state>/errorFields/Werks} ? 'Error' : 'None'}"
-                                change="onChangeCommonField">
+                            <Input enabled="false" width="100%" value="{Werks}" valueState="{=!!${state>/errorFields/Werks} ? 'Error' : 'None'}" change="onChangeCommonField">
                             </Input>
                         </VBox>
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Ресурс:" required="true" />
-                            <Select forceSelection="false"
-                                width="100%"
-                                showSecondaryValues="true"
-                                selectedKey="{WpResource}"
-                                change="onChangeWpResource"
-                                items="{/WORKPLACESet}"
-                                valueState="{=!!${state>/errorFields/WpResource} ? 'Error' : 'None'}">
-                                <core:ListItem key="{WpResource}" text="{WpResource}"
-                                    additionalText="{WpResourceText}" />
+                            <Select forceSelection="false" width="100%" showSecondaryValues="true" selectedKey="{WpResource}" change="onChangeWpResource" items="{/WORKPLACESet}" valueState="{=!!${state>/errorFields/WpResource} ? 'Error' : 'None'}">
+                                <core:ListItem key="{WpResource}" text="{WpResource}" additionalText="{WpResourceText}" />
                             </Select>
                         </VBox>
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Склад:" required="true" />
-                            <Input enabled="false"
-                                width="100%"
-                                value="{Lgort}"
-                                valueState="{=!!${state>/errorFields/Lgort} ? 'Error' : 'None'}">
+                            <Input enabled="false" width="100%" value="{Lgort}" valueState="{=!!${state>/errorFields/Lgort} ? 'Error' : 'None'}">
                             </Input>
                         </VBox>
                         <VBox width="100%">
                             <Label text="Режим флексопечати:" required="true" />
-                            <Select id="customDisableWpOperatingmodeId"
-                                class="customDisableWpOperatingmode" forceSelection="false"
-                                width="100%"
-                                showSecondaryValues="true"
-                                selectedKey="{WpOperatingmode}"
-                                change="onChangeWpOperatingmode"
-                                items="{/OPERATINGMODESet}"
-                                valueState="{=!!${state>/errorFields/WpOperatingmode} ? 'Error' : 'None'}">
-                                <core:ListItem key="{WpOperatingmode}" text="{WpOperatingmode}"
-                                    additionalText="{Text}" />
+                            <Select id="customDisableWpOperatingmodeId" class="customDisableWpOperatingmode" forceSelection="false" width="100%" showSecondaryValues="true" selectedKey="{WpOperatingmode}" change="onChangeWpOperatingmode" items="{/OPERATINGMODESet}" valueState="{=!!${state>/errorFields/WpOperatingmode} ? 'Error' : 'None'}">
+                                <core:ListItem key="{WpOperatingmode}" text="{WpOperatingmode}" additionalText="{Text}" />
                             </Select>
                         </VBox>
                     </HBox>
                     <HBox>
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Дата и время:" required="true" />
-                            <DateTimePicker
-                                enabled="false"
-                                dateValue="{Zdatetime}"
-                                valueState="{=!!${state>/errorFields/Zdatetime} ? 'Error' : 'None'}"
-                                width="100%"
-                                displayFormat="dd.MM.yyyy HH:mm:ss"
-                            />
+                            <DateTimePicker enabled="false" dateValue="{Zdatetime}" valueState="{=!!${state>/errorFields/Zdatetime} ? 'Error' : 'None'}" width="100%" displayFormat="dd.MM.yyyy HH:mm:ss" />
                         </VBox>
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Дата проводки:" required="true" />
-                            <DatePicker
-                                displayFormat="dd.MM.yyyy"
-                                dateValue="{Zbudat}"
-                                valueState="{=!!${state>/errorFields/Zbudat} ? 'Error' : 'None'}"
-                                width="100%"
-                            />
+                            <DatePicker displayFormat="dd.MM.yyyy" dateValue="{Zbudat}" valueState="{=!!${state>/errorFields/Zbudat} ? 'Error' : 'None'}" width="100%" />
                         </VBox>
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Смена:" required="true" />
-                            <Select forceSelection="false"
-                                width="100%"
-                                showSecondaryValues="true"
-                                selectedKey="{Smen}"
-                                items="{
+                            <Select forceSelection="false" width="100%" showSecondaryValues="true" selectedKey="{Smen}" items="{
                                         path: '/SMENSet',
                                         templateShareable: false
-                                    }"
-                                valueState="{=!!${state>/errorFields/Smen} ? 'Error' : 'None'}"
-                                change="onChangeCommonField">
+                                    }" valueState="{=!!${state>/errorFields/Smen} ? 'Error' : 'None'}" change="onChangeCommonField">
                                 <core:ListItem key="{Smen}" text="{Period}" />
                             </Select>
                         </VBox>
                         <VBox width="100%">
                             <Label text="Бригада:" required="true" />
-                            <Select forceSelection="false"
-                                width="100%"
-                                showSecondaryValues="true"
-                                selectedKey="{Brig}"
-                                items="{
+                            <Select forceSelection="false" width="100%" showSecondaryValues="true" selectedKey="{Brig}" items="{
                                         path: 'state>/valueHelps/BRIGSet',
                                         templateShareable: false
-                                    }"
-                                valueState="{=!!${state>/errorFields/Brig} ? 'Error' : 'None'}"
-                                change="onChangeCommonField">
-                                <core:ListItem key="{state>Brig}" text="{state>Brig}"
-                                    additionalText="{state>BrigName}" />
+                                    }" valueState="{=!!${state>/errorFields/Brig} ? 'Error' : 'None'}" change="onChangeCommonField">
+                                <core:ListItem key="{state>Brig}" text="{state>Brig}" additionalText="{state>BrigName}" />
                             </Select>
                         </VBox>
                     </HBox>
                 </VBox>
                 <HBox class="sapUiSmallMarginBottom">
-                    <VBox
-                        class="sapUiFormResGrid sapUiFormBackgrTranslucent sapUiSmallMarginEnd"
-                        width="100%">
+                    <VBox class="sapUiFormResGrid sapUiFormBackgrTranslucent sapUiSmallMarginEnd" width="100%">
                         <HBox height="56px" justifyContent="SpaceBetween" alignItems="Center">
                             <Title text="Заказ" level="H2" />
-                            <Button icon="sap-icon://paste"
-                                tooltip="Вставить последнее значение заказа"
-                                press="onPressPasteAufnr" />
+                            <Button icon="sap-icon://paste" tooltip="Вставить последнее значение заказа" press="onPressPasteAufnr" />
                         </HBox>
                         <VBox>
                             <Label text="Заказ" required="true" />
-                            <MaskInput width="100%" mask="1200000AAAAA" placeholderSymbol="_"
-                                value="{Aufnr}"
-                                valueState="{=!!${state>/errorFields/Aufnr} ? 'Error' : 'None'}"
-                                change="onChangeAufnr"
-                                placeholder="Номер технологического заказа"
-                            >
+                            <MaskInput width="100%" mask="1200000AAAAA" placeholderSymbol="_" value="{Aufnr}" valueState="{=!!${state>/errorFields/Aufnr} ? 'Error' : 'None'}" change="onChangeAufnr" placeholder="Номер технологического заказа">
                                 <rules>
                                     <MaskInputRule maskFormatSymbol="A" regex="[0-9]" />
                                 </rules>
@@ -142,48 +84,24 @@
                         </VBox>
                         <VBox>
                             <Label text="Клише" required="true" />
-                            <Input maxLength="40"
-                                enabled="false"
-                                value="{Zklishetext}"
-                                change="onChangeCommonField"
-                                placeholder="Клише"
-                            />
+                            <Input maxLength="40" enabled="false" value="{Zklishetext}" change="onChangeCommonField" placeholder="Клише" />
                         </VBox>
                         <VBox>
                             <Label text="Описание клише" />
-                            <Input maxLength="40"
-                                value="{Zklishedescr}" placeholder="Описание клише" />
+                            <Input maxLength="40" value="{Zklishedescr}" placeholder="Описание клише" />
                         </VBox>
                         <VBox>
                             <Label text="Скорость машины" />
-                            <customControls:NumberInput numericValue="{Zobjspeed}"
-                                maxIntegerDigits="3"
-                                maxFractionDigits="0"
-                                valueState="{=!!${state>/errorFields/Zobjspeed} ? 'Error' : 'None'}"
-                                valueStateText="{ parts: [{ path: 'state>/errorFields/Zobjspeed'},{ path: 'state>/fieldsFormat/Zobjspeed'}],
-                                            formatter: '.formatter.formatValueState' }"
-                                change="onChangeCommonField"
-                                placeholder="Скорость машины" />
+                            <customControls:NumberInput numericValue="{Zobjspeed}" maxIntegerDigits="3" maxFractionDigits="0" valueState="{=!!${state>/errorFields/Zobjspeed} ? 'Error' : 'None'}" valueStateText="{ parts: [{ path: 'state>/errorFields/Zobjspeed'},{ path: 'state>/fieldsFormat/Zobjspeed'}],
+                                            formatter: '.formatter.formatValueState' }" change="onChangeCommonField" placeholder="Скорость машины" />
                         </VBox>
                         <VBox>
                             <Label text="Печатник высокой печати" required="true" />
-                            <Input value="{Zprinter}"
-                                valueState="{=!!${state>/errorFields/Zprinter} ? 'Error' : 'None'}"
-                                maxLength="150"
-                                liveChange="onChangeZprinter"
-                                placeholder="ФИО печатника" />
+                            <Input value="{Zprinter}" valueState="{=!!${state>/errorFields/Zprinter} ? 'Error' : 'None'}" maxLength="150" liveChange="onChangeZprinter" placeholder="ФИО печатника" />
                         </VBox>
                         <VBox>
                             <Label text="Инженер по качеству" />
-                            <Input
-                                change="onChangeCommonField"
-                                suggestionItemSelected="onSuggestionZloginSelected"
-                                width="100%"
-                                showSuggestion="true"
-                                maxSuggestionWidth="60rem"
-                                value="{Zfullnameqa}"
-                                valueState="{=!!${state>/errorFields/Zfullnameqa} ? 'Error' : 'None'}"
-                                suggestionRows="{
+                            <Input change="onChangeCommonField" suggestionItemSelected="onSuggestionZloginSelected" width="100%" showSuggestion="true" maxSuggestionWidth="60rem" value="{Zfullnameqa}" valueState="{=!!${state>/errorFields/Zfullnameqa} ? 'Error' : 'None'}" suggestionRows="{
                                     path: '/QASet'
                                 }">
                                 <customData>
@@ -209,80 +127,39 @@
                             <Title text="Рулон" level="H2" />
                         </HBox>
                         <VBox>
-                            <Label
-                                text="№ Рулона 1 {parts: [{ path: 'state>/rollData/roll1/Material'}],
-                                            formatter: '.formatter.formatLabelWithBrackets' }"
-                                required="true" />
-                            <Input maxLength="30" required="true" value="{RollNum1}"
-                                valueState="{=!!${state>/errorFields/RollNum1} ? 'Error' : 'None'}"
-                                change="onChangeRollNum"
-                                placeholder="Номер рулона 1" />
+                            <Label text="№ Рулона 1 {parts: [{ path: 'state>/rollData/roll1/Material'}],
+                                            formatter: '.formatter.formatLabelWithBrackets' }" required="true" />
+                            <Input maxLength="30" required="true" value="{RollNum1}" valueState="{=!!${state>/errorFields/RollNum1} ? 'Error' : 'None'}" change="onChangeRollNum" placeholder="Номер рулона 1" />
                         </VBox>
                         <VBox>
-                            <Label
-                                text="Формат исходного рулона 1  {parts: [{ path: 'state>/rollData/roll1/Charg'}],
-                                            formatter: '.formatter.formatLabelWithBrackets' }"
-                                required="true" />
-                            <customControls:NumberInput enabled="false" required="true"
-                                numericValue="{Zformat1}"
-                                maxIntegerDigits="3"
-                                maxFractionDigits="1"
-                                change="onChangeCommonField"
-                                placeholder="Формат исходного рулона 1" />
+                            <Label text="Формат исходного рулона 1  {parts: [{ path: 'state>/rollData/roll1/Charg'}],
+                                            formatter: '.formatter.formatLabelWithBrackets' }" required="true" />
+                            <customControls:NumberInput enabled="false" required="true" numericValue="{Zformat1}" maxIntegerDigits="3" maxFractionDigits="1" change="onChangeCommonField" placeholder="Формат исходного рулона 1" />
                         </VBox>
                         <VBox>
                             <Label text="Радиус остатка 1" />
-                            <customControls:NumberInput numericValue="{Zradius1}"
-                                maxIntegerDigits="3"
-                                maxFractionDigits="1"
-                                valueState="{=!!${state>/errorFields/Zradius1} ? 'Error' : 'None'}"
-                                valueStateText="{ parts: [{ path: 'state>/errorFields/Zradius1'},{ path: 'state>/fieldsFormat/Zradius1'}],
-                                            formatter: '.formatter.formatValueState' }"
-                                change="onChangeCommonField"
-                                placeholder="Радиус остатка 1" />
+                            <customControls:NumberInput numericValue="{Zradius1}" maxIntegerDigits="3" maxFractionDigits="1" valueState="{=!!${state>/errorFields/Zradius1} ? 'Error' : 'None'}" valueStateText="{ parts: [{ path: 'state>/errorFields/Zradius1'},{ path: 'state>/fieldsFormat/Zradius1'}],
+                                            formatter: '.formatter.formatValueState' }" change="onChangeCommonField" placeholder="Радиус остатка 1" />
 
                         </VBox>
                         <HBox alignItems="Center">
                             <Title class="sapUiTinyMarginEnd" text="Склейка" level="H2" />
-                            <Switch
-                                enabled="{state>/switches/rollEnabled}"
-                                change="onSwitch($event, 'roll')"
-                                state="{state>/switches/roll}"
-                                customTextOn=" "
-                                customTextOff=" "
-                            />
+                            <Switch enabled="{state>/switches/rollEnabled}" change="onSwitch($event, 'roll')" state="{state>/switches/roll}" customTextOn=" " customTextOff=" " />
                         </HBox>
                         <VBox>
-                            <Label
-                                text="№ Рулона 2 {parts: [{ path: 'state>/rollData/roll2/Material'}],
+                            <Label text="№ Рулона 2 {parts: [{ path: 'state>/rollData/roll2/Material'}],
                                             formatter: '.formatter.formatLabelWithBrackets' }" />
-                            <Input maxLength="30" value="{RollNum2}"
-                                enabled="{state>/switches/roll}"
-                                valueState="{=!!${state>/errorFields/RollNum2} ? 'Error' : 'None'}"
-                                change="onChangeRollNum"
-                                placeholder="Номер рулона 2" />
+                            <Input maxLength="30" value="{RollNum2}" enabled="{state>/switches/roll}" valueState="{=!!${state>/errorFields/RollNum2} ? 'Error' : 'None'}" change="onChangeRollNum" placeholder="Номер рулона 2" />
                         </VBox>
                         <VBox>
-                            <Label
-                                text="Формат исходного рулона 2  {parts: [{ path: 'state>/rollData/roll2/Charg'}],
+                            <Label text="Формат исходного рулона 2  {parts: [{ path: 'state>/rollData/roll2/Charg'}],
                                             formatter: '.formatter.formatLabelWithBrackets' }" />
-                            <customControls:NumberInput enabled="false" numericValue="{Zformat2}"
-                                maxIntegerDigits="3"
-                                maxFractionDigits="1"
-                                valueState="{=!!${state>/errorFields/Zformat2} ? 'Error' : 'None'}"
-                                placeholder="Формат исходного рулона 2" />
+                            <customControls:NumberInput enabled="false" numericValue="{Zformat2}" maxIntegerDigits="3" maxFractionDigits="1" valueState="{=!!${state>/errorFields/Zformat2} ? 'Error' : 'None'}" placeholder="Формат исходного рулона 2" />
                         </VBox>
                         <VBox>
                             <Label text="Радиус остатка 2" />
-                            <customControls:NumberInput numericValue="{Zradius2}"
-                                enabled="{state>/switches/roll}"
-                                maxIntegerDigits="3"
-                                maxFractionDigits="1"
-                                valueState="{=!!${state>/errorFields/Zradius2} ? 'Error' : 'None'}"
-                                valueStateText="{ parts: [{ path: 'state>/errorFields/Zradius2'},{ path: 'state>/fieldsFormat/Zradius2'}],
-                                            formatter: '.formatter.formatValueState' }"
-                                change="onChangeCommonField"
-                                placeholder="Радиус остатка 2" />
+                            <customControls:NumberInput numericValue="{Zradius2}" enabled="{state>/switches/roll}" maxIntegerDigits="3" maxFractionDigits="1" valueState="{=!!${state>/errorFields/Zradius2} ? 'Error' : 'None'}" valueStateText="{ parts: [{ path: 'state>/errorFields/Zradius2'},{ path: 'state>/fieldsFormat/Zradius2'}],
+                                            formatter: '.formatter.formatValueState' }" change="onChangeCommonField" placeholder="Радиус остатка 2" />
                         </VBox>
                     </VBox>
                 </HBox>
@@ -290,101 +167,53 @@
                     <HBox width="100%">
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Формат запечатанного рулона" required="true" />
-                            <customControls:NumberInput required="true" numericValue="{Znewformat}"
-                                maxIntegerDigits="3"
-                                maxFractionDigits="1"
-                                valueState="{=!!${state>/errorFields/Znewformat} ? 'Error' : 'None'}"
-                                valueStateText="{ parts: [{ path: 'state>/errorFields/Znewformat'},{ path: 'state>/fieldsFormat/Znewformat'}],
-                                            formatter: '.formatter.formatValueState' }"
-                                change="onChangeZnewformat"
-                                placeholder="Формат запечатанного рулона" />
+                            <customControls:NumberInput required="true" numericValue="{Znewformat}" maxIntegerDigits="3" maxFractionDigits="1" valueState="{=!!${state>/errorFields/Znewformat} ? 'Error' : 'None'}" valueStateText="{ parts: [{ path: 'state>/errorFields/Znewformat'},{ path: 'state>/fieldsFormat/Znewformat'}],
+                                            formatter: '.formatter.formatValueState' }" change="onChangeZnewformat" placeholder="Формат запечатанного рулона" />
 
                         </VBox>
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Погонные метры" required="true" />
-                            <customControls:NumberInput id="inputZpm" required="true"
-                                numericValue="{Zpm}"
-                                maxIntegerDigits="5"
-                                maxFractionDigits="0"
-                                valueState="{=!!${state>/errorFields/Zpm} ? 'Error' : 'None'}"
-                                valueStateText="{ parts: [{ path: 'state>/errorFields/Zpm'},{ path: 'state>/fieldsFormat/Zpm'}],
-                                            formatter: '.formatter.formatValueState' }"
-                                change="onChangeMetersOrReport"
-                                placeholder="Метраж выходящего погонного рулона" />
+                            <customControls:NumberInput id="inputZpm" required="true" numericValue="{Zpm}" maxIntegerDigits="5" maxFractionDigits="0" valueState="{=!!${state>/errorFields/Zpm} ? 'Error' : 'None'}" valueStateText="{ parts: [{ path: 'state>/errorFields/Zpm'},{ path: 'state>/fieldsFormat/Zpm'}],
+                                            formatter: '.formatter.formatValueState' }" change="onChangeMetersOrReport" placeholder="Метраж выходящего погонного рулона" />
                         </VBox>
                         <VBox width="100%">
                             <Label text="Длина рапорта" required="true" />
-                            <customControls:NumberInput required="true" maxIntegerDigits="3"
-                                maxFractionDigits="0"
-                                numericValue="{Zlengthreport}"
-                                valueState="{=!!${state>/errorFields/Zlengthreport} ? 'Error' : 'None'}"
-                                valueStateText="{ parts: [{ path: 'state>/errorFields/Zlengthreport'},{ path: 'state>/fieldsFormat/Zlengthreport'}],
-                                            formatter: '.formatter.formatValueState' }"
-                                change="onChangeMetersOrReport"
-                                placeholder="Длина рапорта" />
+                            <customControls:NumberInput required="true" maxIntegerDigits="3" maxFractionDigits="0" numericValue="{Zlengthreport}" valueState="{=!!${state>/errorFields/Zlengthreport} ? 'Error' : 'None'}" valueStateText="{ parts: [{ path: 'state>/errorFields/Zlengthreport'},{ path: 'state>/fieldsFormat/Zlengthreport'}],
+                                            formatter: '.formatter.formatValueState' }" change="onChangeMetersOrReport" placeholder="Длина рапорта" />
                         </VBox>
                     </HBox>
                     <HBox width="100%">
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Оттиски" required="true" />
-                            <customControls:NumberInput enabled="false" required="true"
-                                maxFractionDigits="0"
-                                numericValue="{Zstamp}"
-                                change="onChangeCommonField"
-                                placeholder="Оттиски" />
+                            <customControls:NumberInput enabled="false" required="true" maxFractionDigits="0" numericValue="{Zstamp}" change="onChangeCommonField" placeholder="Оттиски" />
                         </VBox>
                         <VBox width="100%" class="sapUiSmallMarginEnd">
                             <Label text="Диаметр запечатанного рулона" required="true" />
-                            <customControls:NumberInput required="true"
-                                maxIntegerDigits="3"
-                                maxFractionDigits="1"
-                                numericValue="{Zflexdiameter}"
-                                valueState="{=!!${state>/errorFields/Zflexdiameter} ? 'Error' : 'None'}"
-                                valueStateText="{ parts: [{ path: 'state>/errorFields/Zflexdiameter'},{ path: 'state>/fieldsFormat/Zflexdiameter'}],
-                                            formatter: '.formatter.formatValueState' }"
-                                change="onChangeZflexdiameter"
-                                placeholder="Диаметр запечатанного рулона" />
+                            <customControls:NumberInput required="true" maxIntegerDigits="3" maxFractionDigits="1" numericValue="{Zflexdiameter}" valueState="{=!!${state>/errorFields/Zflexdiameter} ? 'Error' : 'None'}" valueStateText="{ parts: [{ path: 'state>/errorFields/Zflexdiameter'},{ path: 'state>/fieldsFormat/Zflexdiameter'}],
+                                            formatter: '.formatter.formatValueState' }" change="onChangeZflexdiameter" placeholder="Диаметр запечатанного рулона" />
 
                         </VBox>
                         <VBox width="100%">
                             <Label text="Вес срыва:" />
-                            <customControls:NumberInput numericValue="{Zwaste}"
-                                maxIntegerDigits="3"
-                                maxFractionDigits="3"
-                                valueState="{=!!${state>/errorFields/Zwaste} ? 'Error' : 'None'}"
-                                valueStateText="{ parts: [{ path: 'state>/errorFields/Zwaste'},{ path: 'state>/fieldsFormat/Zwaste'}],
-                                            formatter: '.formatter.formatValueState' }"
-                                change="onChangeCommonField"
-                                liveChange="onChangeZwaste"
-                                placeholder="Вес срыва" />
+                            <customControls:NumberInput numericValue="{Zwaste}" maxIntegerDigits="3" maxFractionDigits="3" valueState="{=!!${state>/errorFields/Zwaste} ? 'Error' : 'None'}" valueStateText="{ parts: [{ path: 'state>/errorFields/Zwaste'},{ path: 'state>/fieldsFormat/Zwaste'}],
+                                            formatter: '.formatter.formatValueState' }" change="onChangeCommonField" liveChange="onChangeZwaste" placeholder="Вес срыва" />
 
-                            <Text
-                                text="При срыве более 50 кг необходимо заполнить поля Брак" />
+                            <Text text="При срыве более 50 кг необходимо заполнить поля Брак" />
                         </VBox>
                     </HBox>
                 </VBox>
 
                 <VBox class="sapUiSmallMarginBottom sapUiFormResGrid sapUiFormBackgrTranslucent">
-                    <Table items="{state>/tables/defect/items}"
-                        mode="MultiSelect">
+                    <Table items="{state>/tables/defect/items}" mode="MultiSelect">
                         <headerToolbar>
                             <OverflowToolbar>
                                 <content>
                                     <Title text="Брак" level="H2" />
-                                    <Switch
-                                        change="onSwitch($event, 'defect')"
-                                        state="{state>/switches/defect}"
-                                        enabled="{ parts: [{ path: 'Zwaste'}],
-                                            formatter: '.formatter.formatSwitchDefectEnabled' }"
-                                        customTextOn=" " customTextOff=" " />
+                                    <Switch change="onSwitch($event, 'defect')" state="{state>/switches/defect}" enabled="{ parts: [{ path: 'Zwaste'}],
+                                            formatter: '.formatter.formatSwitchDefectEnabled' }" customTextOn=" " customTextOff=" " />
                                     <ToolbarSpacer />
-                                    <Button
-                                        icon="sap-icon://delete" text="Удалить дефект"
-                                        enabled="{state>/switches/defect}"
-                                        press="onRemoveRow($event, 'defect')" />
-                                    <Button icon="sap-icon://add" text="Добавить брак"
-                                        enabled="{state>/switches/defect}"
-                                        press="onAddRow($event, 'defect')" />
+                                    <Button icon="sap-icon://delete" text="Удалить дефект" enabled="{state>/switches/defect}" press="onRemoveRow($event, 'defect')" />
+                                    <Button icon="sap-icon://add" text="Добавить брак" enabled="{state>/switches/defect}" press="onAddRow($event, 'defect')" />
                                 </content>
                             </OverflowToolbar>
                         </headerToolbar>
@@ -398,52 +227,28 @@
                         </columns>
                         <items>
                             <ColumnListItem>
-                                <Select change="onChangeCommonField"
-                                    width="100%"
-                                    enabled="{state>/switches/defect}"
-                                    valueState="{=!!${state>Zobjdefect_error} ? 'Error' : 'None'}"
-                                    forceSelection="false"
-                                    showSecondaryValues="true"
-                                    selectedKey="{state>Zobjdefect}"
-                                    items="{
+                                <Select change="onChangeCommonField" width="100%" enabled="{state>/switches/defect}" valueState="{=!!${state>Zobjdefect_error} ? 'Error' : 'None'}" forceSelection="false" showSecondaryValues="true" selectedKey="{state>Zobjdefect}" items="{
                                         path: '/OBJDEFECTSet',
                                         templateShareable: false
                                     }">
                                     <core:Item key="{Zobjdefect}" text="{Zobjdefect}" />
                                 </Select>
 
-                                <Input required="true"
-                                    value="{state>Zcommentdefect}"
-                                    valueState="{=!!${state>Zcommentdefect_error} ? 'Error' : 'None'}"
-                                    placeholder="Комментарий, содержащий информацию о браке рулона"
-                                    change="onChangeCommonField"
-                                    enabled="{state>/switches/defect}" />
+                                <Input required="true" value="{state>Zcommentdefect}" valueState="{=!!${state>Zcommentdefect_error} ? 'Error' : 'None'}" placeholder="Комментарий, содержащий информацию о браке рулона" change="onChangeCommonField" enabled="{state>/switches/defect}" />
                             </ColumnListItem>
                         </items>
                     </Table>
                 </VBox>
                 <VBox class="sapUiTinyMarginBottom sapUiFormResGrid sapUiFormBackgrTranslucent">
-                    <Table items="{state>/tables/downTime/items}"
-                        mode="MultiSelect">
+                    <Table items="{state>/tables/downTime/items}" mode="MultiSelect">
                         <headerToolbar>
                             <OverflowToolbar>
                                 <content>
                                     <Title text="Простой" level="H2" />
-                                    <Switch
-                                        change="onSwitch($event, 'downTime')"
-                                        state="{state>/switches/downTime}"
-                                        customTextOn=" "
-                                        customTextOff=" "
-                                    />
+                                    <Switch change="onSwitch($event, 'downTime')" state="{state>/switches/downTime}" customTextOn=" " customTextOff=" " />
                                     <ToolbarSpacer />
-                                    <Button
-                                        icon="sap-icon://delete" text="Удалить простой"
-                                        enabled="{state>/switches/downTime}"
-                                        press="onRemoveRow($event, 'downTime')" />
-                                    <Button
-                                        icon="sap-icon://add" text="Добавить простой"
-                                        enabled="{state>/switches/downTime}"
-                                        press="onAddRow($event, 'downTime')" />
+                                    <Button icon="sap-icon://delete" text="Удалить простой" enabled="{state>/switches/downTime}" press="onRemoveRow($event, 'downTime')" />
+                                    <Button icon="sap-icon://add" text="Добавить простой" enabled="{state>/switches/downTime}" press="onAddRow($event, 'downTime')" />
                                 </content>
                             </OverflowToolbar>
                         </headerToolbar>
@@ -467,16 +272,7 @@
                         </columns>
                         <items>
                             <ColumnListItem>
-                                <Input required="true"
-                                    valueHelpOnly="true"
-                                    enabled="{state>/switches/downTime}"
-                                    value="{state>Kurztext}"
-                                    valueState="{=!!${state>Kurztext_error} ? 'Error' : 'None'}"
-                                    showValueHelp="true"
-                                    showSuggestion="true"
-                                    maxSuggestionWidth="60rem"
-                                    valueHelpRequest=".onVHDownTimeRequested"
-                                    suggestionRows="{
+                                <Input required="true" valueHelpOnly="true" enabled="{state>/switches/downTime}" value="{state>Kurztext}" valueState="{=!!${state>Kurztext_error} ? 'Error' : 'None'}" showValueHelp="true" showSuggestion="true" maxSuggestionWidth="60rem" valueHelpRequest=".onVHDownTimeRequested" suggestionRows="{
                                         path: 'state>/valueHelps/QMSet',
                                         templateShareable: false
                                     }">
@@ -508,45 +304,17 @@
                                         </ColumnListItem>
                                     </suggestionRows>
                                 </Input>
-                                <TimePicker required="true"
-                                    enabled="{= ${state>/switches/downTime}}"
-                                    valueState="{=!!${state>Auztv_error} ? 'Error' : 'None'}"
-                                    dateValue="{state>Auztv}"
-                                    change="onChangeDownTime"
-                                    displayFormat="HH:mm"
-                                    valueFormat="HH:mm"
-                                    placeholder="--:--"
-                                />
-                                <TimePicker required="true"
-                                    enabled="{= ${state>/switches/downTime}}"
-                                    valueState="{=!!${state>Auztb_error} ? 'Error' : 'None'}"
-                                    dateValue="{state>Auztb}"
-                                    valueFormat="HH:mm"
-                                    displayFormat="HH:mm"
-                                    change="onChangeDownTime"
-                                    placeholder="--:--" />
+                                <TimePicker required="true" enabled="{= ${state>/switches/downTime}}" valueState="{=!!${state>Auztv_error} ? 'Error' : 'None'}" dateValue="{state>Auztv}" change="onChangeDownTime" displayFormat="HH:mm" valueFormat="HH:mm" placeholder="--:--" />
+                                <TimePicker required="true" enabled="{= ${state>/switches/downTime}}" valueState="{=!!${state>Auztb_error} ? 'Error' : 'None'}" dateValue="{state>Auztb}" valueFormat="HH:mm" displayFormat="HH:mm" change="onChangeDownTime" placeholder="--:--" />
 
-                                <TimePicker required="true"
-                                    enabled="{= ${state>/switches/downTime}}"
-                                    change="onChangeCommonField"
-                                    value="{
+                                <TimePicker required="true" enabled="{= ${state>/switches/downTime}}" change="onChangeCommonField" value="{
                                         'path':'state>Zdownhours',
                                         'type': 'sap.ui.model.type.Time',
                                         'formatOptions': {
                                                 'pattern': 'HH:mm'
                                         }
-                                    }"
-                                    valueState="{=!!${state>Zdownhours_error} ? 'Error' : 'None'}"
-                                    valueStateText="{=!!${state>Zdownhours_error} ? 'Введите время начала простоя, не превышающее время окончания' : ''}"
-                                    displayFormat="HH:mm"
-                                    valueFormat="HH:mm"
-                                    placeholder="--:--"
-                                />
-                                <Input required="true"
-                                    value="{state>Qmtxt}"
-                                    valueState="{=!!${state>Qmtxt_error} ? 'Error' : 'None'}"
-                                    change="onChangeCommonField"
-                                    enabled="{state>/switches/downTime}" />
+                                    }" valueState="{=!!${state>Zdownhours_error} ? 'Error' : 'None'}" valueStateText="{=!!${state>Zdownhours_error} ? 'Введите время начала простоя, не превышающее время окончания' : ''}" displayFormat="HH:mm" valueFormat="HH:mm" placeholder="--:--" />
+                                <Input required="true" value="{state>Qmtxt}" valueState="{=!!${state>Qmtxt_error} ? 'Error' : 'None'}" change="onChangeCommonField" enabled="{state>/switches/downTime}" />
                             </ColumnListItem>
                         </items>
                     </Table>
@@ -555,22 +323,10 @@
         </content>
         <footer>
             <Toolbar>
-                <Button
-                    id="btnMessagePopoverId"
-                    icon="sap-icon://error"
-                    text="{= ${message>/}.length }"
-                    visible="{= ${message>/}.length > 0 }"
-                    type="Reject"
-                    press="onMessagePopoverPress" />
+                <Button id="btnMessagePopoverId" icon="sap-icon://error" text="{= ${message>/}.length }" visible="{= ${message>/}.length > 0 }" type="Reject" press="onMessagePopoverPress" />
                 <ToolbarSpacer />
-                <Button
-                    type="Reject"
-                    text="Очистить форму"
-                    press="onClearFormData" />
-                <Button
-                    type="Emphasized"
-                    text="Подтвердить"
-                    press="onConfirmFormData" />
+                <Button class="myClearButton" type="Reject" text="Очистить форму" press="onClearFormData" />
+                <Button class="myConfirmButton" type="Emphasized" text="Подтвердить" press="onConfirmFormData" />
             </Toolbar>
         </footer>
     </Page>
