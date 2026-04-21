@@ -12,7 +12,7 @@
 .myClearButton .sapMBtnInner.sapMBtnReject {
   display: block !important;
 }
-.myConfirmButton .sapMBtnInner.sapMBtnReject {
+.myConfirmButton .sapMBtnInner.sapMBtnEmphasized {
   display: block !important;
 }
 
