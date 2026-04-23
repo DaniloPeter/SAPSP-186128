@@ -282,7 +282,7 @@ sap.ui.define(
 
           this.callODataFunction("/GetTplnr", oPayload)
             .then((oResponse) => {
-              const { TPLNR } = oResponse.TPLNR;
+              const { TPLNR } = oResponse;
               if (TPLNR) {
                 oModel.setProperty(`${sBindingPath}/Tplnr`, TPLNR);
               }
