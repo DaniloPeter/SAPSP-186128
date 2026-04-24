@@ -945,12 +945,12 @@ sap.ui.define(
         },
 
         onConfirmFormData() {
-          // const hasError = this.__validateFields();
+          const hasError = this.__validateFields();
 
-          // if (hasError) {
-          //   this.onMessagePopoverPress();
-          //   return;
-          // }
+          if (hasError) {
+            this.onMessagePopoverPress();
+            return;
+          }
 
           const oFormData = this.getFormData(["Zfullnameqa"]);
           this.__fireSave("/OPER_CONV_ROOLSet", oFormData);
